@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.9;
 
 import "ds-test/test.sol";
@@ -9,7 +9,7 @@ import "../../src/Impl/JOJOOracleAdaptor.sol";
 import "../mocks/MockChainLink.t.sol";
 import "../mocks/MockJOJODealer.sol";
 import "../../src/lib/DataTypes.sol";
-import { console } from "forge-std/console.sol";
+import {console} from "forge-std/console.sol";
 import "forge-std/Test.sol";
 import "@JOJO/contracts/testSupport/TestERC20.sol";
 
@@ -17,11 +17,13 @@ import "../../src/lib/DecimalMath.sol";
 
 interface Cheats {
     function expectRevert() external;
+
     function expectRevert(bytes calldata) external;
 }
 
 contract USDOOperationTest is Test {
-    Cheats internal constant cheats = Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
+    Cheats internal constant cheats =
+        Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
 
     using DecimalMath for uint256;
 
@@ -42,7 +44,11 @@ contract USDOOperationTest is Test {
         usdo = new USDO(6);
         mockToken1ChainLink = new MockChainLink();
         jojoDealer = new MockJOJODealer();
-        jojoOracle1 = new JOJOOracleAdaptor(address(mockToken1ChainLink), 20, 86400);
+        jojoOracle1 = new JOJOOracleAdaptor(
+            address(mockToken1ChainLink),
+            20,
+            86400
+        );
         vm.label(alice, "Alice");
         vm.label(bob, "Bob");
         vm.label(insurance, "Insurance");
@@ -53,11 +59,11 @@ contract USDOOperationTest is Test {
             insurance,
             address(usdo),
             address(jojoDealer),
-        // maxBorrowAmountPerAccount_
+            // maxBorrowAmountPerAccount_
             6000e18,
-        // maxBorrowAmount_
+            // maxBorrowAmount_
             9000e18,
-        // borrowFeeRate_
+            // borrowFeeRate_
             2e16,
             address(USDC)
         );
@@ -183,7 +189,13 @@ contract USDOOperationTest is Test {
     }
 
     function testUpdateReserveParam() public {
-        usdoBank.updateReserveParam(address(mockToken1), 1e18, 100e18, 100e18, 200000e18);
+        usdoBank.updateReserveParam(
+            address(mockToken1),
+            1e18,
+            100e18,
+            100e18,
+            200000e18
+        );
         //        assertEq(usdoBank.getInitialRate(address(mockToken1)), 1e18);
     }
 
@@ -223,7 +235,10 @@ contract USDOOperationTest is Test {
     }
 
     function testCollateraltMaxMintAmount() public {
-        uint256 value = usdoBank.getCollateralMaxMintAmount(address(mockToken1), 2e18);
+        uint256 value = usdoBank.getCollateralMaxMintAmount(
+            address(mockToken1),
+            2e18
+        );
         assertEq(value, 1000e6);
     }
 }

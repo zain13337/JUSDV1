@@ -1,6 +1,6 @@
 /*
     Copyright 2022 JOJO Exchange
-    SPDX-License-Identifier: Apache-2.0*/
+    SPDX-License-Identifier: BUSL-1.1*/
 pragma solidity 0.8.9;
 
 import "forge-std/Test.sol";
@@ -29,7 +29,11 @@ contract SupportDODO is Test {
         lidoChainLink = new MockChainLink();
         ethAdaptor = new JOJOOracleAdaptor(address(ethChainLink), 20, 86400);
         lidoAdaptor = new JOJOOracleAdaptor(address(lidoChainLink), 20, 86400);
-        supportsDODO = new SupportsDODO(address(usdo), address(eth), address(ethAdaptor));
+        supportsDODO = new SupportsDODO(
+            address(usdo),
+            address(eth),
+            address(ethAdaptor)
+        );
     }
 
     function testAddToken() public {

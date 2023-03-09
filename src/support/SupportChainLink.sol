@@ -1,6 +1,6 @@
 /*
     Copyright 2022 JOJO Exchange
-    SPDX-License-Identifier: Apache-2.0*/
+    SPDX-License-Identifier: BUSL-1.1*/
 pragma solidity ^0.8.9;
 
 contract SupportChainLink {
@@ -8,7 +8,11 @@ contract SupportChainLink {
     uint256 public updatedAt;
     uint80 public roundId;
 
-    event AnswerUpdated(int256 indexed current, uint256 indexed roundId, uint256 updatedAt);
+    event AnswerUpdated(
+        int256 indexed current,
+        uint256 indexed roundId,
+        uint256 updatedAt
+    );
 
     function setAssetPrice(uint256 newPrice) external {
         price = newPrice;

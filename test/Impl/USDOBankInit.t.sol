@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.9;
 
 import "ds-test/test.sol";
@@ -17,16 +17,18 @@ import "../mocks/MockChainLink500.sol";
 import "../mocks/MockJOJODealer.sol";
 import "../mocks/MockChainLinkBadDebt.sol";
 import "../../src/lib/DataTypes.sol";
-import { Utils } from "../utils/Utils.sol";
+import {Utils} from "../utils/Utils.sol";
 import "forge-std/Test.sol";
 
 interface Cheats {
     function expectRevert() external;
+
     function expectRevert(bytes calldata) external;
 }
 
 contract USDOBankInitTest is Test {
-    Cheats internal constant cheats = Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
+    Cheats internal constant cheats =
+        Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
     uint256 public constant ONE = 1e18;
 
     Utils internal utils;
@@ -60,8 +62,16 @@ contract USDOBankInitTest is Test {
         mockToken2ChainLink = new MockChainLink2();
 
         jojoDealer = new MockJOJODealer();
-        jojoOracle1 = new JOJOOracleAdaptor(address(mockToken1ChainLink), 20, 86400);
-        jojoOracle2 = new JOJOOracleAdaptor(address(mockToken2ChainLink), 10, 86400);
+        jojoOracle1 = new JOJOOracleAdaptor(
+            address(mockToken1ChainLink),
+            20,
+            86400
+        );
+        jojoOracle2 = new JOJOOracleAdaptor(
+            address(mockToken2ChainLink),
+            10,
+            86400
+        );
         // mock users
         utils = new Utils();
         users = utils.createUsers(5);
@@ -82,13 +92,14 @@ contract USDOBankInitTest is Test {
             insurance,
             address(usdo),
             address(jojoDealer),
-        // maxBorrowAmountPerAccount_
+            // maxBorrowAmountPerAccount_
             100000000000,
-        // maxBorrowAmount_
+            // maxBorrowAmount_
             100000000001,
-        // borrowFeeRate_
+            // borrowFeeRate_
             2e16,
-            address(USDC));
+            address(USDC)
+        );
         deployAddress = usdoBank.owner();
 
         usdo.transfer(address(usdoBank), 200000e18);
@@ -133,7 +144,11 @@ contract USDOBankInitTest is Test {
             address(jojoOracle1)
         );
 
-        dodo = new SupportsDODO(address(USDC), address(mockToken1), address(jojoOracle1));
+        dodo = new SupportsDODO(
+            address(USDC),
+            address(mockToken1),
+            address(jojoOracle1)
+        );
         address[] memory dodoList = new address[](1);
         dodoList[0] = address(dodo);
         uint256[] memory amountList = new uint256[](1);

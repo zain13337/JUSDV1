@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.9;
 
 import "ds-test/test.sol";
@@ -16,25 +16,23 @@ import "@JOJO/contracts/subaccount/Subaccount.sol";
 import "@JOJO/contracts/impl/JOJODealer.sol";
 import "@JOJO/contracts/subaccount/SubaccountFactory.sol";
 import "@JOJO/contracts/testSupport/TestERC20.sol";
-import { console } from "forge-std/console.sol";
+import {console} from "forge-std/console.sol";
 import "forge-std/Test.sol";
 import "../../src/Impl/USDOExchange.sol";
 import "../mocks/MockChainLinkBadDebt.sol";
 import "../../src/lib/DecimalMath.sol";
 import "../mocks/MockChainLink900.sol";
-import {
-    LiquidateCollateralRepayNotEnough,
-    LiquidateCollateralInsuranceNotEnough,
-    LiquidateCollateralLiquidatedNotEnough
-} from "../mocks/MockWrongLiquidateFlashloan.sol";
+import {LiquidateCollateralRepayNotEnough, LiquidateCollateralInsuranceNotEnough, LiquidateCollateralLiquidatedNotEnough} from "../mocks/MockWrongLiquidateFlashloan.sol";
 
 interface Cheats {
     function expectRevert() external;
+
     function expectRevert(bytes calldata) external;
 }
 
 contract USDOBankOperatorLiquidateTest is Test {
-    Cheats internal constant cheats = Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
+    Cheats internal constant cheats =
+        Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
 
     using DecimalMath for uint256;
 
@@ -70,16 +68,21 @@ contract USDOBankOperatorLiquidateTest is Test {
             insurance,
             address(usdo),
             address(jojoDealer),
-        // maxBorrowAmountPerAccount_
+            // maxBorrowAmountPerAccount_
             100000000000,
-        // maxBorrowAmount_
+            // maxBorrowAmount_
             1000000000000,
             2e16,
-            address(USDC));
+            address(USDC)
+        );
 
         usdo.transfer(address(usdoBank), 100000e6);
 
-        dodo = new SupportsDODO(address(USDC), address(ETH), address(jojoOracleETH));
+        dodo = new SupportsDODO(
+            address(USDC),
+            address(ETH),
+            address(jojoOracleETH)
+        );
         address[] memory dodoList = new address[](1);
         dodoList[0] = address(dodo);
         uint256[] memory amountList = new uint256[](1);
@@ -107,6 +110,7 @@ contract USDOBankOperatorLiquidateTest is Test {
             address(jojoOracleETH)
         );
     }
+
     // all liquidate
 
     function testLiquidateAll() public {
@@ -136,8 +140,13 @@ contract USDOBankOperatorLiquidateTest is Test {
         //init flashloanRepay
         usdo.mint(50000e6);
         IERC20(usdo).transfer(address(usdoExchange), 50000e6);
-        FlashLoanLiquidate flashLoanLiquidate =
-            new FlashLoanLiquidate(address(usdoBank), address(usdoExchange), address(USDC), address(usdo), insurance);
+        FlashLoanLiquidate flashLoanLiquidate = new FlashLoanLiquidate(
+            address(usdoBank),
+            address(usdoExchange),
+            address(USDC),
+            address(usdo),
+            insurance
+        );
 
         bytes memory data = dodo.getSwapData(10e18, address(ETH));
         bytes memory param = abi.encode(dodo, dodo, address(bob), data);
@@ -147,8 +156,18 @@ contract USDOBankOperatorLiquidateTest is Test {
         vm.startPrank(bob);
 
         uint256 aliceUsedBorrowed = usdoBank.getBorrowBalance(alice);
-        bytes memory afterParam = abi.encode(address(flashLoanLiquidate), param);
-        DataTypes.LiquidateData memory liq = usdoBank.liquidate(alice, address(ETH), bob, 10e18, afterParam, 0);
+        bytes memory afterParam = abi.encode(
+            address(flashLoanLiquidate),
+            param
+        );
+        DataTypes.LiquidateData memory liq = usdoBank.liquidate(
+            alice,
+            address(ETH),
+            bob,
+            10e18,
+            afterParam,
+            0
+        );
 
         //judge
         uint256 bobDeposit = usdoBank.getDepositBalance(address(ETH), bob);
@@ -158,10 +177,10 @@ contract USDOBankOperatorLiquidateTest is Test {
         uint256 insuranceUSDC = IERC20(USDC).balanceOf(insurance);
         uint256 aliceUSDC = IERC20(USDC).balanceOf(alice);
         uint256 bobUSDC = IERC20(USDC).balanceOf(bob);
-        console.log((aliceUsedBorrowed * 1e18 / 855000000) * 1e18 / 9e17);
-        console.log((aliceUsedBorrowed * 1e17 / 1e18) * 1e18 / 9e17);
-        console.log((10e18 - liq.actualCollateral) * 900e6 / 1e18);
-        console.log((liq.actualCollateral * 900e6 / 1e18) * 5e16 / 1e18);
+        console.log((((aliceUsedBorrowed * 1e18) / 855000000) * 1e18) / 9e17);
+        console.log((((aliceUsedBorrowed * 1e17) / 1e18) * 1e18) / 9e17);
+        console.log(((10e18 - liq.actualCollateral) * 900e6) / 1e18);
+        console.log((((liq.actualCollateral * 900e6) / 1e18) * 5e16) / 1e18);
 
         assertEq(aliceDeposit, 0);
         assertEq(bobDeposit, 0);
@@ -211,8 +230,13 @@ contract USDOBankOperatorLiquidateTest is Test {
         //init flashloanRepay
         usdo.mint(50000e6);
         IERC20(usdo).transfer(address(usdoExchange), 50000e6);
-        FlashLoanLiquidate flashLoanLiquidate =
-            new FlashLoanLiquidate(address(usdoBank), address(usdoExchange), address(USDC), address(usdo), insurance);
+        FlashLoanLiquidate flashLoanLiquidate = new FlashLoanLiquidate(
+            address(usdoBank),
+            address(usdoExchange),
+            address(USDC),
+            address(usdo),
+            insurance
+        );
         // flashLoanLiquidate.setOracle(address(ETH), address(jojoOracle900));
 
         bytes memory data = dodo.getSwapData(5e18, address(ETH));
@@ -223,8 +247,18 @@ contract USDOBankOperatorLiquidateTest is Test {
         vm.startPrank(bob);
 
         uint256 aliceUsedBorrowed = usdoBank.getBorrowBalance(alice);
-        bytes memory afterParam = abi.encode(address(flashLoanLiquidate), param);
-        DataTypes.LiquidateData memory liq = usdoBank.liquidate(alice, address(ETH), bob, 5e18, afterParam, 0);
+        bytes memory afterParam = abi.encode(
+            address(flashLoanLiquidate),
+            param
+        );
+        DataTypes.LiquidateData memory liq = usdoBank.liquidate(
+            alice,
+            address(ETH),
+            bob,
+            5e18,
+            afterParam,
+            0
+        );
 
         assertEq(usdoBank.isAccountSafe(alice), true);
 
@@ -236,9 +270,9 @@ contract USDOBankOperatorLiquidateTest is Test {
         uint256 insuranceUSDC = IERC20(USDC).balanceOf(insurance);
         uint256 aliceUSDC = IERC20(USDC).balanceOf(alice);
         uint256 bobUSDC = IERC20(USDC).balanceOf(bob);
-        console.log((5e18 * 855000000 / 1e18) * 9e17 / 1e18);
+        console.log((((5e18 * 855000000) / 1e18) * 9e17) / 1e18);
         // console.log((aliceUsedBorrowed * 1e17 / 1e18)* 1e18 / 9e17);
-        console.log((liq.actualCollateral * 900e6 / 1e18) * 5e16 / 1e18);
+        console.log((((liq.actualCollateral * 900e6) / 1e18) * 5e16) / 1e18);
 
         assertEq(aliceDeposit, 5e18);
         assertEq(bobDeposit, 0);
@@ -290,8 +324,13 @@ contract USDOBankOperatorLiquidateTest is Test {
         //init flashloanRepay
         usdo.mint(50000e6);
         IERC20(usdo).transfer(address(usdoExchange), 50000e6);
-        FlashLoanLiquidate flashLoanLiquidate =
-            new FlashLoanLiquidate(address(usdoBank), address(usdoExchange), address(USDC), address(usdo), insurance);
+        FlashLoanLiquidate flashLoanLiquidate = new FlashLoanLiquidate(
+            address(usdoBank),
+            address(usdoExchange),
+            address(USDC),
+            address(usdo),
+            insurance
+        );
 
         bytes memory data = dodo.getSwapData(10e18, address(ETH));
         bytes memory param = abi.encode(dodo, dodo, address(bob), data);
@@ -301,8 +340,18 @@ contract USDOBankOperatorLiquidateTest is Test {
         vm.startPrank(bob);
 
         uint256 aliceUsedBorrowed = usdoBank.getBorrowBalance(alice);
-        bytes memory afterParam = abi.encode(address(flashLoanLiquidate), param);
-        DataTypes.LiquidateData memory liq = usdoBank.liquidate(alice, address(ETH), bob, 10e18, afterParam, 0);
+        bytes memory afterParam = abi.encode(
+            address(flashLoanLiquidate),
+            param
+        );
+        DataTypes.LiquidateData memory liq = usdoBank.liquidate(
+            alice,
+            address(ETH),
+            bob,
+            10e18,
+            afterParam,
+            0
+        );
 
         //judge
         uint256 bobDeposit = usdoBank.getDepositBalance(address(ETH), bob);
@@ -363,15 +412,23 @@ contract USDOBankOperatorLiquidateTest is Test {
         //init flashloanRepay
         usdo.mint(50000e6);
         IERC20(usdo).transfer(address(usdoExchange), 50000e6);
-        LiquidateCollateralRepayNotEnough flashLoanLiquidate =
-        new LiquidateCollateralRepayNotEnough(address(usdoBank), address(usdoExchange), address(USDC), address(usdo), insurance);
+        LiquidateCollateralRepayNotEnough flashLoanLiquidate = new LiquidateCollateralRepayNotEnough(
+                address(usdoBank),
+                address(usdoExchange),
+                address(USDC),
+                address(usdo),
+                insurance
+            );
 
         bytes memory data = dodo.getSwapData(10e18, address(ETH));
         bytes memory param = abi.encode(dodo, dodo, address(bob), data);
 
         // liquidate
         vm.startPrank(bob);
-        bytes memory afterParam = abi.encode(address(flashLoanLiquidate), param);
+        bytes memory afterParam = abi.encode(
+            address(flashLoanLiquidate),
+            param
+        );
         cheats.expectRevert("REPAY_AMOUNT_NOT_ENOUGH");
         usdoBank.liquidate(alice, address(ETH), bob, 10e18, afterParam, 0);
     }
@@ -400,15 +457,23 @@ contract USDOBankOperatorLiquidateTest is Test {
         //init flashloanRepay
         usdo.mint(50000e6);
         IERC20(usdo).transfer(address(usdoExchange), 50000e6);
-        LiquidateCollateralInsuranceNotEnough flashLoanLiquidate =
-        new LiquidateCollateralInsuranceNotEnough(address(usdoBank), address(usdoExchange), address(USDC), address(usdo), insurance);
+        LiquidateCollateralInsuranceNotEnough flashLoanLiquidate = new LiquidateCollateralInsuranceNotEnough(
+                address(usdoBank),
+                address(usdoExchange),
+                address(USDC),
+                address(usdo),
+                insurance
+            );
 
         bytes memory data = dodo.getSwapData(10e18, address(ETH));
         bytes memory param = abi.encode(dodo, dodo, address(bob), data);
 
         // liquidate
         vm.startPrank(bob);
-        bytes memory afterParam = abi.encode(address(flashLoanLiquidate), param);
+        bytes memory afterParam = abi.encode(
+            address(flashLoanLiquidate),
+            param
+        );
         cheats.expectRevert("INSURANCE_AMOUNT_NOT_ENOUGH");
         usdoBank.liquidate(alice, address(ETH), bob, 10e18, afterParam, 0);
     }
@@ -437,15 +502,23 @@ contract USDOBankOperatorLiquidateTest is Test {
         //init flashloanRepay
         usdo.mint(50000e6);
         IERC20(usdo).transfer(address(usdoExchange), 50000e6);
-        LiquidateCollateralLiquidatedNotEnough flashLoanLiquidate =
-        new LiquidateCollateralLiquidatedNotEnough(address(usdoBank), address(usdoExchange), address(USDC), address(usdo), insurance);
+        LiquidateCollateralLiquidatedNotEnough flashLoanLiquidate = new LiquidateCollateralLiquidatedNotEnough(
+                address(usdoBank),
+                address(usdoExchange),
+                address(USDC),
+                address(usdo),
+                insurance
+            );
 
         bytes memory data = dodo.getSwapData(10e18, address(ETH));
         bytes memory param = abi.encode(dodo, dodo, address(bob), data);
 
         // liquidate
         vm.startPrank(bob);
-        bytes memory afterParam = abi.encode(address(flashLoanLiquidate), param);
+        bytes memory afterParam = abi.encode(
+            address(flashLoanLiquidate),
+            param
+        );
         cheats.expectRevert("LIQUIDATED_AMOUNT_NOT_ENOUGH");
         usdoBank.liquidate(alice, address(ETH), bob, 10e18, afterParam, 0);
     }
@@ -474,8 +547,13 @@ contract USDOBankOperatorLiquidateTest is Test {
         //init flashloanRepay
         usdo.mint(50000e6);
         IERC20(usdo).transfer(address(usdoExchange), 50000e6);
-        FlashLoanLiquidate flashLoanLiquidate =
-            new FlashLoanLiquidate(address(usdoBank), address(usdoExchange), address(USDC), address(usdo), insurance);
+        FlashLoanLiquidate flashLoanLiquidate = new FlashLoanLiquidate(
+            address(usdoBank),
+            address(usdoExchange),
+            address(USDC),
+            address(usdo),
+            insurance
+        );
 
         bytes memory data = dodo.getSwapData(20e18, address(ETH));
         bytes memory param = abi.encode(dodo, dodo, address(bob), data);
@@ -484,7 +562,10 @@ contract USDOBankOperatorLiquidateTest is Test {
 
         vm.startPrank(bob);
 
-        bytes memory afterParam = abi.encode(address(flashLoanLiquidate), param);
+        bytes memory afterParam = abi.encode(
+            address(flashLoanLiquidate),
+            param
+        );
         cheats.expectRevert("ERC20: transfer amount exceeds balance");
         usdoBank.liquidate(alice, address(ETH), bob, 20e18, afterParam, 0);
         vm.stopPrank();

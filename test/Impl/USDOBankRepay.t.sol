@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.9;
 
 import "./USDOBankInit.t.sol";
@@ -33,19 +33,32 @@ contract USDOBankRepayTest is USDOBankInitTest {
         usdoBank.deposit(alice, address(mockToken2), 10e8, alice);
         vm.warp(2000);
         // max borrow amount
-        uint256 rateT2 = usdoBank.t0Rate()
-            + (usdoBank.borrowFeeRate() * ((block.timestamp - usdoBank.lastUpdateTimestamp()))) / 365 days;
+        uint256 rateT2 = usdoBank.t0Rate() +
+            (usdoBank.borrowFeeRate() *
+                ((block.timestamp - usdoBank.lastUpdateTimestamp()))) /
+            365 days;
         usdoBank.borrow(3000e6, alice, false);
         usdo.approve(address(usdoBank), 6000e18);
         vm.warp(3000);
-        uint256 rateT3 = usdoBank.t0Rate()
-            + (usdoBank.borrowFeeRate() * ((block.timestamp - usdoBank.lastUpdateTimestamp()))) / 365 days;
+        uint256 rateT3 = usdoBank.t0Rate() +
+            (usdoBank.borrowFeeRate() *
+                ((block.timestamp - usdoBank.lastUpdateTimestamp()))) /
+            365 days;
         usdo.approve(address(usdoBank), 3000e18);
         usdoBank.repay(1500e6, alice);
         usdoBank.borrow(1000e6, alice, false);
         uint256 aliceBorrowed = usdoBank.getBorrowBalance(alice);
-        emit log_uint(3000e6 * 1e18 / rateT2 + 1 - 1500e6 * 1e18 / rateT3 + 1000e6 * 1e18 / rateT3 + 1);
-        console.log(2499997149 * rateT3 / 1e18);
+        emit log_uint(
+            (3000e6 * 1e18) /
+                rateT2 +
+                1 -
+                (1500e6 * 1e18) /
+                rateT3 +
+                (1000e6 * 1e18) /
+                rateT3 +
+                1
+        );
+        console.log((2499997149 * rateT3) / 1e18);
         vm.stopPrank();
         assertEq(aliceBorrowed, 2500001903);
     }
@@ -61,13 +74,13 @@ contract USDOBankRepayTest is USDOBankInitTest {
         vm.warp(1000);
         usdoBank.borrow(5000e6, alice, false);
         uint256 rateT1 = usdoBank.getTRate();
-        uint256 usedBorrowed = 5000e6 * 1e18 / rateT1;
+        uint256 usedBorrowed = (5000e6 * 1e18) / rateT1;
         usdo.approve(address(usdoBank), 6000e18);
         vm.warp(2000);
         usdoBank.repay(6000e6, alice);
         uint256 aliceBorrowed = usdoBank.getBorrowBalance(alice);
         uint256 rateT2 = usdoBank.getTRate();
-        emit log_uint(6000e6 - (usedBorrowed * rateT2 / 1e18 + 1));
+        emit log_uint(6000e6 - ((usedBorrowed * rateT2) / 1e18 + 1));
         assertEq(usdo.balanceOf(alice), 999996829);
         assertEq(0, aliceBorrowed);
         vm.stopPrank();
@@ -91,11 +104,13 @@ contract USDOBankRepayTest is USDOBankInitTest {
         mockToken1.approve(address(usdoBank), 10e18);
         usdoBank.deposit(alice, address(mockToken1), 10e18, alice);
         vm.warp(2000);
-        uint256 rateT2 = usdoBank.t0Rate()
-            + (usdoBank.borrowFeeRate() * ((block.timestamp - usdoBank.lastUpdateTimestamp()))) / 365 days;
+        uint256 rateT2 = usdoBank.t0Rate() +
+            (usdoBank.borrowFeeRate() *
+                ((block.timestamp - usdoBank.lastUpdateTimestamp()))) /
+            365 days;
         usdoBank.borrow(3000e6, alice, false);
         uint256 aliceUsedBorrowed = usdoBank.getBorrowBalance(alice);
-        emit log_uint(3000e6 * 1e18 / rateT2);
+        emit log_uint((3000e6 * 1e18) / rateT2);
         usdo.approve(address(usdoBank), 3000e18);
         usdoBank.repay(3000e6, alice);
         uint256 aliceBorrowed = usdoBank.getBorrowBalance(alice);
@@ -110,20 +125,24 @@ contract USDOBankRepayTest is USDOBankInitTest {
         mockToken1.approve(address(usdoBank), 10e18);
         usdoBank.deposit(alice, address(mockToken1), 10e18, alice);
         vm.warp(2000);
-        uint256 rateT2 = usdoBank.t0Rate()
-            + (usdoBank.borrowFeeRate() * ((block.timestamp - usdoBank.lastUpdateTimestamp()))) / 365 days;
+        uint256 rateT2 = usdoBank.t0Rate() +
+            (usdoBank.borrowFeeRate() *
+                ((block.timestamp - usdoBank.lastUpdateTimestamp()))) /
+            365 days;
         usdoBank.borrow(3000e6, alice, false);
         uint256 aliceUsedBorrowed = usdoBank.getBorrowBalance(alice);
         assertEq(aliceUsedBorrowed, 3000e6);
         vm.warp(2001);
-        uint256 rateT3 = usdoBank.t0Rate()
-            + (usdoBank.borrowFeeRate() * ((block.timestamp - usdoBank.lastUpdateTimestamp()))) / 365 days;
+        uint256 rateT3 = usdoBank.t0Rate() +
+            (usdoBank.borrowFeeRate() *
+                ((block.timestamp - usdoBank.lastUpdateTimestamp()))) /
+            365 days;
         usdo.approve(address(usdoBank), 3000e6);
         usdoBank.repay(3000e6, alice);
         uint256 aliceBorrowed = usdoBank.getBorrowBalance(alice);
-        emit log_uint(3000e6 * 1e18 / rateT2 + 1 - 3000e6 * 1e18 / rateT3);
+        emit log_uint((3000e6 * 1e18) / rateT2 + 1 - (3000e6 * 1e18) / rateT3);
 
-        assertEq(aliceBorrowed, 3 * rateT3 / 1e18);
+        assertEq(aliceBorrowed, (3 * rateT3) / 1e18);
         vm.stopPrank();
     }
     // Fuzzy test

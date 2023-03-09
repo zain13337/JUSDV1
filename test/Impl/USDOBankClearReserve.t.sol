@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.9;
 
 import "./USDOBankInit.t.sol";
@@ -21,18 +21,39 @@ contract USDOBankClearReserveTest is USDOBankInitTest {
         usdoBank.delistReserve(address(mockToken1));
         //bob liquidate alice
         vm.startPrank(bob);
-        FlashLoanLiquidate flashLoanLiquidate =
-            new FlashLoanLiquidate(address(usdoBank), address(usdoExchange), address(USDC), address(usdo), insurance);
+        FlashLoanLiquidate flashLoanLiquidate = new FlashLoanLiquidate(
+            address(usdoBank),
+            address(usdoExchange),
+            address(USDC),
+            address(usdo),
+            insurance
+        );
         bytes memory data = dodo.getSwapData(10e18, address(mockToken1));
         bytes memory param = abi.encode(dodo, dodo, address(bob), data);
-        bytes memory afterParam = abi.encode(address(flashLoanLiquidate), param);
+        bytes memory afterParam = abi.encode(
+            address(flashLoanLiquidate),
+            param
+        );
 
-        DataTypes.LiquidateData memory liq = usdoBank.liquidate(alice, address(mockToken1), bob, 10e18, afterParam, 0);
+        DataTypes.LiquidateData memory liq = usdoBank.liquidate(
+            alice,
+            address(mockToken1),
+            bob,
+            10e18,
+            afterParam,
+            0
+        );
 
         // logs
 
-        uint256 bobDeposit = usdoBank.getDepositBalance(address(mockToken1), bob);
-        uint256 aliceDeposit = usdoBank.getDepositBalance(address(mockToken1), alice);
+        uint256 bobDeposit = usdoBank.getDepositBalance(
+            address(mockToken1),
+            bob
+        );
+        uint256 aliceDeposit = usdoBank.getDepositBalance(
+            address(mockToken1),
+            alice
+        );
         uint256 bobBorrow = usdoBank.getBorrowBalance(bob);
         uint256 aliceBorrow = usdoBank.getBorrowBalance(alice);
         uint256 insuranceUSDC = IERC20(USDC).balanceOf(insurance);
@@ -67,7 +88,10 @@ contract USDOBankClearReserveTest is USDOBankInitTest {
 
         cheats.expectRevert("AFTER_WITHDRAW_ACCOUNT_IS_NOT_SAFE");
         usdoBank.withdraw(address(mockToken2), 1e8, alice, false);
-        uint256 maxWithdrawBTC = usdoBank.getMaxWithdrawAmount(address(mockToken2), alice);
+        uint256 maxWithdrawBTC = usdoBank.getMaxWithdrawAmount(
+            address(mockToken2),
+            alice
+        );
         assertEq(maxWithdrawBTC, 78571428);
         vm.stopPrank();
     }

@@ -1,6 +1,6 @@
 /*
     Copyright 2022 JOJO Exchange
-    SPDX-License-Identifier: Apache-2.0*/
+    SPDX-License-Identifier: BUSL-1.1*/
 pragma solidity ^0.8.9;
 
 import "forge-std/Test.sol";
@@ -12,11 +12,13 @@ import "../mocks/MockJOJODealer.sol";
 
 interface Cheats {
     function expectRevert() external;
+
     function expectRevert(bytes calldata) external;
 }
 
 contract USDOExchangeTest is Test {
-    Cheats internal constant cheats = Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
+    Cheats internal constant cheats =
+        Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
     USDO public usdo;
     MockERC20 public usdc;
     address internal alice = address(1);

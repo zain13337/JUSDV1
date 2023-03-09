@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.9;
 
 import "./USDOBankInit.t.sol";
@@ -109,6 +109,7 @@ contract USDOBankBorrowTest is USDOBankInitTest {
         usdoBank.borrow(5000e6, alice, true);
         vm.stopPrank();
     }
+
     // https://github.com/foundry-rs/foundry/issues/3497 for revert test
 
     function testBorrowDepositToJOJORevert() public {
@@ -123,7 +124,13 @@ contract USDOBankBorrowTest is USDOBankInitTest {
     }
 
     function testDepositTooMany() public {
-        usdoBank.updateReserveParam(address(mockToken1), 8e17, 2300e18, 230e18, 100000e18);
+        usdoBank.updateReserveParam(
+            address(mockToken1),
+            8e17,
+            2300e18,
+            230e18,
+            100000e18
+        );
         usdoBank.updateMaxBorrowAmount(200000e18, 300000e18);
         mockToken1.transfer(alice, 200e18);
         vm.startPrank(alice);
@@ -135,8 +142,20 @@ contract USDOBankBorrowTest is USDOBankInitTest {
     }
 
     function testGetDepositMaxData() public {
-        usdoBank.updateReserveParam(address(mockToken1), 8e17, 2300e18, 230e18, 100000e18);
-        usdoBank.updateReserveParam(address(mockToken2), 8e17, 2300e18, 230e18, 100000e18);
+        usdoBank.updateReserveParam(
+            address(mockToken1),
+            8e17,
+            2300e18,
+            230e18,
+            100000e18
+        );
+        usdoBank.updateReserveParam(
+            address(mockToken2),
+            8e17,
+            2300e18,
+            230e18,
+            100000e18
+        );
         usdoBank.updateMaxBorrowAmount(200000e18, 300000e18);
         mockToken1.transfer(alice, 10e18);
         mockToken2.transfer(alice, 1e18);

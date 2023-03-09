@@ -1,13 +1,19 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.9;
 
 import "./USDOBankInit.t.sol";
+
 //import "../../src/subaccount/SubaccountFactory.sol";
 //import "../../src/subaccount/Subaccount.sol";
 
 contract USDOBankMulticallTest is USDOBankInitTest {
     function testHelperDeposit() public {
-        bytes memory a = usdoBank.getDepositData(alice, address(mockToken2), 10e18, alice);
+        bytes memory a = usdoBank.getDepositData(
+            alice,
+            address(mockToken2),
+            10e18,
+            alice
+        );
 
         emit log_bytes(a);
     }
@@ -23,13 +29,23 @@ contract USDOBankMulticallTest is USDOBankInitTest {
     }
 
     function testHelperWithdraw() public {
-        bytes memory a = usdoBank.getWithdrawData(address(mockToken2), 10e18, alice, false);
+        bytes memory a = usdoBank.getWithdrawData(
+            address(mockToken2),
+            10e18,
+            alice,
+            false
+        );
         emit log_bytes(a);
     }
 
     function testHelperMultical() public {
         bytes[] memory data = new bytes[](2);
-        data[0] = usdoBank.getDepositData(alice, address(mockToken1), 10e18, alice);
+        data[0] = usdoBank.getDepositData(
+            alice,
+            address(mockToken1),
+            10e18,
+            alice
+        );
         data[1] = usdoBank.getBorrowData(3000e18, alice, false);
         bytes memory a = usdoBank.getMulticallData(data);
         emit log_bytes(a);
@@ -57,7 +73,12 @@ contract USDOBankMulticallTest is USDOBankInitTest {
         vm.startPrank(alice);
         mockToken1.approve(address(usdoBank), 10e18);
         bytes[] memory data = new bytes[](2);
-        data[0] = usdoBank.getDepositData(alice, address(mockToken1), 10e18, alice);
+        data[0] = usdoBank.getDepositData(
+            alice,
+            address(mockToken1),
+            10e18,
+            alice
+        );
         data[1] = usdoBank.getBorrowData(3000e6, alice, false);
         usdoBank.multiCall(data);
         assertEq(usdoBank.getDepositBalance(address(mockToken1), alice), 10e18);
@@ -66,5 +87,13 @@ contract USDOBankMulticallTest is USDOBankInitTest {
         data[1] = "0";
         cheats.expectRevert("ERC20: insufficient allowance");
         usdoBank.multiCall(data);
+    }
+
+    function testSetOperator() public {
+        bytes memory data = usdoBank.getSetOperator(
+            address(0x55483C180181b68c3F4213E8f4C774FB0D393148),
+            true
+        );
+        emit log_bytes(data);
     }
 }

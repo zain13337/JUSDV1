@@ -1,6 +1,6 @@
 /*
     Copyright 2022 JOJO Exchange
-    SPDX-License-Identifier: Apache-2.0*/
+    SPDX-License-Identifier: BUSL-1.1*/
 pragma solidity ^0.8.9;
 
 abstract contract FlashLoanReentrancyGuard {
@@ -14,7 +14,10 @@ abstract contract FlashLoanReentrancyGuard {
     }
 
     modifier nonFlashLoanReentrant() {
-        require(_status != _CAN_NOT_FLASHLOAN, "ReentrancyGuard: flashLoan reentrant call");
+        require(
+            _status != _CAN_NOT_FLASHLOAN,
+            "ReentrancyGuard: flashLoan reentrant call"
+        );
 
         _status = _CAN_NOT_FLASHLOAN;
 

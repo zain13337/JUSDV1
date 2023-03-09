@@ -1,12 +1,12 @@
 /*
     Copyright 2022 JOJO Exchange
-    SPDX-License-Identifier: Apache-2.0*/
+    SPDX-License-Identifier: BUSL-1.1*/
 pragma solidity 0.8.9;
 
 import "../../src/Interface/IUSDOBank.sol";
 import "../../src/Interface/IUSDOExchange.sol";
 import "../../src/Interface/IFlashLoanReceive.sol";
-import { DecimalMath } from "../lib/DecimalMath.sol";
+import {DecimalMath} from "../lib/DecimalMath.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -20,17 +20,28 @@ contract FlashLoanRepay is IFlashLoanReceive {
     address public immutable USDC;
     address public immutable USDO;
 
-    constructor(address _usdoBank, address _usdoExchange, address _USDC, address _USDO) {
+    constructor(
+        address _usdoBank,
+        address _usdoExchange,
+        address _USDC,
+        address _USDO
+    ) {
         usdoBank = _usdoBank;
         usdoExchange = _usdoExchange;
         USDC = _USDC;
         USDO = _USDO;
     }
 
-    function JOJOFlashLoan(address asset, uint256 amount, address to, bytes calldata param) external {
-        (address approveTarget, address swapTarget, bytes memory data) = abi.decode(param, (address, address, bytes));
+    function JOJOFlashLoan(
+        address asset,
+        uint256 amount,
+        address to,
+        bytes calldata param
+    ) external {
+        (address approveTarget, address swapTarget, bytes memory data) = abi
+            .decode(param, (address, address, bytes));
         IERC20(asset).approve(approveTarget, amount);
-        (bool success,) = swapTarget.call(data);
+        (bool success, ) = swapTarget.call(data);
         if (success == false) {
             assembly {
                 let ptr := mload(0x40)
