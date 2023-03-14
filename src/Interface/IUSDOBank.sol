@@ -4,7 +4,7 @@
 
 pragma solidity 0.8.9;
 
-import {DataTypes} from "../lib/DataTypes.sol";
+import { DataTypes } from "../lib/DataTypes.sol";
 
 /// @notice USDOBank is a mortgage lending system that supports ERC20 as collateral and issues USDO
 /// USDO is a self-issued stable coin used to support multi-collateralization protocols
@@ -15,12 +15,7 @@ interface IUSDOBank {
     /// @param collateral: deposit collateral type.
     /// @param amount: collateral amount
     /// @param to: account that user want to deposit to
-    function deposit(
-        address from,
-        address collateral,
-        uint256 amount,
-        address to
-    ) external;
+    function deposit(address from, address collateral, uint256 amount, address to) external;
 
     /// @notice borrow function: get USDO based on the amount of user's collaterals.
     /// @param amount: borrow USDO amount
@@ -32,12 +27,7 @@ interface IUSDOBank {
     /// @param collateral: withdraw collateral type
     /// @param amount: withdraw amount
     /// @param to: is the address receiving asset
-    function withdraw(
-        address collateral,
-        uint256 amount,
-        address to,
-        bool isInternal
-    ) external;
+    function withdraw(address collateral, uint256 amount, address to, bool isInternal) external;
 
     /// @notice repay function: repay the USDO in order to avoid account liquidation by liquidators
     /// @param amount: repay USDO amount
@@ -69,21 +59,13 @@ interface IUSDOBank {
     /// @param amount withdraw amount
     /// @param to: if repay USDO, repay to whom
     /// @param param user input
-    function flashLoan(
-        address receiver,
-        address collateral,
-        uint256 amount,
-        address to,
-        bytes memory param
-    ) external;
+    function flashLoan(address receiver, address collateral, uint256 amount, address to, bytes memory param) external;
 
     /// @notice get the all collateral list
     function getReservesList() external view returns (address[] memory);
 
     /// @notice return the max borrow USDO amount from the deposit amount
-    function getDepositMaxMintAmount(
-        address user
-    ) external view returns (uint256);
+    function getDepositMaxMintAmount(address user) external view returns (uint256);
 
     /// @notice return the collateral's max borrow USDO amount
     function getCollateralMaxMintAmount(
@@ -92,30 +74,17 @@ interface IUSDOBank {
     ) external view returns (uint256 maxAmount);
 
     /// @notice return the collateral's max withdraw amount
-    function getMaxWithdrawAmount(
-        address collateral,
-        address user
-    ) external view returns (uint256 maxAmount);
+    function getMaxWithdrawAmount(address collateral, address user) external view returns (uint256 maxAmount);
 
     function isAccountSafe(address user) external view returns (bool);
 
-    function getCollateralPrice(
-        address collateral
-    ) external view returns (uint256);
+    function getCollateralPrice(address collateral) external view returns (uint256);
 
-    function getIfHasCollateral(
-        address from,
-        address collateral
-    ) external view returns (bool);
+    function getIfHasCollateral(address from, address collateral) external view returns (bool);
 
-    function getDepositBalance(
-        address collateral,
-        address from
-    ) external view returns (uint256);
+    function getDepositBalance(address collateral, address from) external view returns (uint256);
 
     function getBorrowBalance(address from) external view returns (uint256);
 
-    function getUserCollateralList(
-        address from
-    ) external view returns (address[] memory);
+    function getUserCollateralList(address from) external view returns (address[] memory);
 }

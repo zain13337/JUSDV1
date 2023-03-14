@@ -12,10 +12,7 @@ contract USDOBankTest is USDOBankInitTest {
         vm.startPrank(alice);
         mockToken1.approve(address(usdoBank), 5e18);
         usdoBank.deposit(alice, address(mockToken1), 5e18, alice);
-        uint256 balance = usdoBank.getDepositBalance(
-            address(mockToken1),
-            alice
-        );
+        uint256 balance = usdoBank.getDepositBalance(address(mockToken1), alice);
         assertEq(balance, 5e18);
         assertEq(usdoBank.getBorrowBalance(msg.sender), 0);
         address[] memory userList = usdoBank.getUserCollateralList(alice);
@@ -45,10 +42,7 @@ contract USDOBankTest is USDOBankInitTest {
         vm.startPrank(alice);
         mockToken1.approve(address(usdoBank), 5);
         usdoBank.deposit(alice, address(mockToken1), 5, bob);
-        uint256 balance = usdoBank.getDepositBalance(
-            address(mockToken1),
-            alice
-        );
+        uint256 balance = usdoBank.getDepositBalance(address(mockToken1), alice);
 
         assertEq(balance, 0);
         assertEq(usdoBank.getDepositBalance(address(mockToken1), bob), 5);
@@ -80,10 +74,7 @@ contract USDOBankTest is USDOBankInitTest {
         mockToken1.approve(address(usdoBank), 2030e18);
         usdoBank.deposit(alice, address(mockToken1), 2030e18, alice);
         vm.stopPrank();
-        assertEq(
-            usdoBank.getDepositBalance(address(mockToken1), alice),
-            2030e18
-        );
+        assertEq(usdoBank.getDepositBalance(address(mockToken1), alice), 2030e18);
 
         vm.startPrank(bob);
         mockToken1.approve(address(usdoBank), 2030e18);

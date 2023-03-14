@@ -6,9 +6,9 @@ pragma solidity 0.8.9;
 import "../../src/Interface/IUSDOBank.sol";
 import "../../src/Interface/IUSDOExchange.sol";
 import "../../src/Interface/IFlashLoanReceive.sol";
-import {DecimalMath} from "../../src/lib/DecimalMath.sol";
+import { DecimalMath } from "../../src/lib/DecimalMath.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IPriceChainLink} from "../../src/Interface/IPriceChainLink.sol";
+import { IPriceChainLink } from "../../src/Interface/IPriceChainLink.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract LiquidateCollateralRepayNotEnough is IFlashLoanReceive {
@@ -29,13 +29,7 @@ contract LiquidateCollateralRepayNotEnough is IFlashLoanReceive {
         uint256 liquidatedRemainUSDC;
     }
 
-    constructor(
-        address _usdoBank,
-        address _usdoExchange,
-        address _USDC,
-        address _USDO,
-        address _insurance
-    ) {
+    constructor(address _usdoBank, address _usdoExchange, address _USDC, address _USDO, address _insurance) {
         usdoBank = _usdoBank;
         usdoExchange = _usdoExchange;
         USDC = _USDC;
@@ -43,19 +37,13 @@ contract LiquidateCollateralRepayNotEnough is IFlashLoanReceive {
         insurance = _insurance;
     }
 
-    function JOJOFlashLoan(
-        address asset,
-        uint256 amount,
-        address to,
-        bytes calldata param
-    ) external {
+    function JOJOFlashLoan(address asset, uint256 amount, address to, bytes calldata param) external {
         //dodo swap
-        (LiquidateData memory liquidateData, bytes memory originParam) = abi
-            .decode(param, (LiquidateData, bytes));
-        (address approveTarget, address swapTarget, , bytes memory data) = abi
-            .decode(originParam, (address, address, address, bytes));
+        (LiquidateData memory liquidateData, bytes memory originParam) = abi.decode(param, (LiquidateData, bytes));
+        (address approveTarget, address swapTarget,, bytes memory data) =
+            abi.decode(originParam, (address, address, address, bytes));
         IERC20(asset).approve(approveTarget, amount);
-        (bool success, ) = swapTarget.call(data);
+        (bool success,) = swapTarget.call(data);
         if (success == false) {
             assembly {
                 let ptr := mload(0x40)
@@ -66,10 +54,7 @@ contract LiquidateCollateralRepayNotEnough is IFlashLoanReceive {
         }
 
         IERC20(USDC).approve(usdoExchange, liquidateData.actualLiquidated - 1);
-        IUSDOExchange(usdoExchange).buyUSDO(
-            liquidateData.actualLiquidated - 1,
-            address(this)
-        );
+        IUSDOExchange(usdoExchange).buyUSDO(liquidateData.actualLiquidated - 1, address(this));
         IERC20(USDO).approve(usdoBank, liquidateData.actualLiquidated - 1);
         IUSDOBank(usdoBank).repay(liquidateData.actualLiquidated - 1, to);
     }
@@ -93,13 +78,7 @@ contract LiquidateCollateralInsuranceNotEnough is IFlashLoanReceive {
         uint256 liquidatedRemainUSDC;
     }
 
-    constructor(
-        address _usdoBank,
-        address _usdoExchange,
-        address _USDC,
-        address _USDO,
-        address _insurance
-    ) {
+    constructor(address _usdoBank, address _usdoExchange, address _USDC, address _USDO, address _insurance) {
         usdoBank = _usdoBank;
         usdoExchange = _usdoExchange;
         USDC = _USDC;
@@ -107,19 +86,13 @@ contract LiquidateCollateralInsuranceNotEnough is IFlashLoanReceive {
         insurance = _insurance;
     }
 
-    function JOJOFlashLoan(
-        address asset,
-        uint256 amount,
-        address to,
-        bytes calldata param
-    ) external {
+    function JOJOFlashLoan(address asset, uint256 amount, address to, bytes calldata param) external {
         //dodo swap
-        (LiquidateData memory liquidateData, bytes memory originParam) = abi
-            .decode(param, (LiquidateData, bytes));
-        (address approveTarget, address swapTarget, , bytes memory data) = abi
-            .decode(originParam, (address, address, address, bytes));
+        (LiquidateData memory liquidateData, bytes memory originParam) = abi.decode(param, (LiquidateData, bytes));
+        (address approveTarget, address swapTarget,, bytes memory data) =
+            abi.decode(originParam, (address, address, address, bytes));
         IERC20(asset).approve(approveTarget, amount);
-        (bool success, ) = swapTarget.call(data);
+        (bool success,) = swapTarget.call(data);
         if (success == false) {
             assembly {
                 let ptr := mload(0x40)
@@ -130,10 +103,7 @@ contract LiquidateCollateralInsuranceNotEnough is IFlashLoanReceive {
         }
 
         IERC20(USDC).approve(usdoExchange, liquidateData.actualLiquidated);
-        IUSDOExchange(usdoExchange).buyUSDO(
-            liquidateData.actualLiquidated,
-            address(this)
-        );
+        IUSDOExchange(usdoExchange).buyUSDO(liquidateData.actualLiquidated, address(this));
         IERC20(USDO).approve(usdoBank, liquidateData.actualLiquidated);
         IUSDOBank(usdoBank).repay(liquidateData.actualLiquidated, to);
 
@@ -165,13 +135,7 @@ contract LiquidateCollateralLiquidatedNotEnough is IFlashLoanReceive {
         uint256 liquidatedRemainUSDC;
     }
 
-    constructor(
-        address _usdoBank,
-        address _usdoExchange,
-        address _USDC,
-        address _USDO,
-        address _insurance
-    ) {
+    constructor(address _usdoBank, address _usdoExchange, address _USDC, address _USDO, address _insurance) {
         usdoBank = _usdoBank;
         usdoExchange = _usdoExchange;
         USDC = _USDC;
@@ -179,19 +143,13 @@ contract LiquidateCollateralLiquidatedNotEnough is IFlashLoanReceive {
         insurance = _insurance;
     }
 
-    function JOJOFlashLoan(
-        address asset,
-        uint256 amount,
-        address to,
-        bytes calldata param
-    ) external {
+    function JOJOFlashLoan(address asset, uint256 amount, address to, bytes calldata param) external {
         //dodo swap
-        (LiquidateData memory liquidateData, bytes memory originParam) = abi
-            .decode(param, (LiquidateData, bytes));
-        (address approveTarget, address swapTarget, , bytes memory data) = abi
-            .decode(originParam, (address, address, address, bytes));
+        (LiquidateData memory liquidateData, bytes memory originParam) = abi.decode(param, (LiquidateData, bytes));
+        (address approveTarget, address swapTarget,, bytes memory data) =
+            abi.decode(originParam, (address, address, address, bytes));
         IERC20(asset).approve(approveTarget, amount);
-        (bool success, ) = swapTarget.call(data);
+        (bool success,) = swapTarget.call(data);
         if (success == false) {
             assembly {
                 let ptr := mload(0x40)
@@ -202,10 +160,7 @@ contract LiquidateCollateralLiquidatedNotEnough is IFlashLoanReceive {
         }
 
         IERC20(USDC).approve(usdoExchange, liquidateData.actualLiquidated);
-        IUSDOExchange(usdoExchange).buyUSDO(
-            liquidateData.actualLiquidated,
-            address(this)
-        );
+        IUSDOExchange(usdoExchange).buyUSDO(liquidateData.actualLiquidated, address(this));
         IERC20(USDO).approve(usdoBank, liquidateData.actualLiquidated);
         IUSDOBank(usdoBank).repay(liquidateData.actualLiquidated, to);
 

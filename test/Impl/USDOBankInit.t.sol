@@ -17,7 +17,8 @@ import "../mocks/MockChainLink500.sol";
 import "../mocks/MockJOJODealer.sol";
 import "../mocks/MockChainLinkBadDebt.sol";
 import "../../src/lib/DataTypes.sol";
-import {Utils} from "../utils/Utils.sol";
+import { Utils } from "../utils/Utils.sol";
+import "../../src/utils/GeneralRepay.sol";
 import "forge-std/Test.sol";
 
 interface Cheats {
@@ -27,8 +28,7 @@ interface Cheats {
 }
 
 contract USDOBankInitTest is Test {
-    Cheats internal constant cheats =
-        Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
+    Cheats internal constant cheats = Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
     uint256 public constant ONE = 1e18;
 
     Utils internal utils;
@@ -47,6 +47,7 @@ contract USDOBankInitTest is Test {
     MockJOJODealer public jojoDealer;
     SupportsDODO public dodo;
     TestERC20 public USDC;
+    GeneralRepay public generalRepay;
     address payable[] internal users;
     address internal alice;
     address internal bob;
@@ -157,6 +158,12 @@ contract USDOBankInitTest is Test {
 
         usdoExchange = new USDOExchange(address(USDC), address(usdo));
         usdo.transfer(address(usdoExchange), 100000e6);
+
+        generalRepay = new GeneralRepay(
+            address(usdoBank),
+            address(usdoExchange),
+            address(USDC),
+            address(usdo));
     }
 
     function testOwner() public {

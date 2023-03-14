@@ -4,16 +4,12 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import {DataTypes} from "../lib/DataTypes.sol";
+import { DataTypes } from "../lib/DataTypes.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "../utils/FlashLoanReentrancyGuard.sol";
 import "../lib/JOJOConstant.sol";
 
-abstract contract USDOBankStorage is
-    Ownable,
-    ReentrancyGuard,
-    FlashLoanReentrancyGuard
-{
+abstract contract USDOBankStorage is Ownable, ReentrancyGuard, FlashLoanReentrancyGuard {
     // reserve token address ==> reserve info
     mapping(address => DataTypes.ReserveInfo) public reserveInfo;
     // reserve token address ==> user info
@@ -48,9 +44,6 @@ abstract contract USDOBankStorage is
 
     function getTRate() public view returns (uint256) {
         uint256 timeDifference = block.timestamp - uint256(lastUpdateTimestamp);
-        return
-            t0Rate +
-            (borrowFeeRate * timeDifference) /
-            JOJOConstant.SECONDS_PER_YEAR;
+        return t0Rate + (borrowFeeRate * timeDifference) / JOJOConstant.SECONDS_PER_YEAR;
     }
 }

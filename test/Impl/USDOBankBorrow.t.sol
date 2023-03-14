@@ -124,13 +124,7 @@ contract USDOBankBorrowTest is USDOBankInitTest {
     }
 
     function testDepositTooMany() public {
-        usdoBank.updateReserveParam(
-            address(mockToken1),
-            8e17,
-            2300e18,
-            230e18,
-            100000e18
-        );
+        usdoBank.updateReserveParam(address(mockToken1), 8e17, 2300e18, 230e18, 100000e18);
         usdoBank.updateMaxBorrowAmount(200000e18, 300000e18);
         mockToken1.transfer(alice, 200e18);
         vm.startPrank(alice);
@@ -142,20 +136,8 @@ contract USDOBankBorrowTest is USDOBankInitTest {
     }
 
     function testGetDepositMaxData() public {
-        usdoBank.updateReserveParam(
-            address(mockToken1),
-            8e17,
-            2300e18,
-            230e18,
-            100000e18
-        );
-        usdoBank.updateReserveParam(
-            address(mockToken2),
-            8e17,
-            2300e18,
-            230e18,
-            100000e18
-        );
+        usdoBank.updateReserveParam(address(mockToken1), 8e17, 2300e18, 230e18, 100000e18);
+        usdoBank.updateReserveParam(address(mockToken2), 8e17, 2300e18, 230e18, 100000e18);
         usdoBank.updateMaxBorrowAmount(200000e18, 300000e18);
         mockToken1.transfer(alice, 10e18);
         mockToken2.transfer(alice, 1e18);
