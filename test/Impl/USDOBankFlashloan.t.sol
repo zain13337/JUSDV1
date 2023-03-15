@@ -132,8 +132,8 @@ contract USDOBankFlashloanTest is USDOBankInitTest {
             address(usdc),
             address(usdo)
         );
-        usdo.mint(5000e18);
-        IERC20(usdo).transfer(address(usdoExchange), 5000e18);
+        usdo.mint(5000e6);
+        IERC20(usdo).transfer(address(usdoExchange), 5000e6);
         FlashLoanRepay flashloanRepay = new FlashLoanRepay(
             address(usdoBank),
             address(usdoExchange),
@@ -176,8 +176,8 @@ contract USDOBankFlashloanTest is USDOBankInitTest {
             address(usdc),
             address(usdo)
         );
-        usdo.mint(5000e18);
-        IERC20(usdo).transfer(address(usdoExchange), 5000e18);
+        usdo.mint(5000e6);
+        IERC20(usdo).transfer(address(usdoExchange), 5000e6);
         FlashLoanRepay flashloanRepay = new FlashLoanRepay(
             address(usdoBank),
             address(usdoExchange),
@@ -215,8 +215,8 @@ contract USDOBankFlashloanTest is USDOBankInitTest {
             address(usdc),
             address(usdo)
         );
-        usdo.mint(5000e18);
-        IERC20(usdo).transfer(address(usdoExchange), 5000e18);
+        usdo.mint(5000e6);
+        IERC20(usdo).transfer(address(usdoExchange), 5000e6);
         FlashLoanRepay flashloanRepay = new FlashLoanRepay(
             address(usdoBank),
             address(usdoExchange),
@@ -253,8 +253,8 @@ contract USDOBankFlashloanTest is USDOBankInitTest {
             address(usdc),
             address(usdo)
         );
-        usdo.mint(5000e18);
-        IERC20(usdo).transfer(address(usdoExchange), 5000e18);
+        usdo.mint(5000e6);
+        IERC20(usdo).transfer(address(usdoExchange), 5000e6);
         FlashLoanRepay flashloanRepay = new FlashLoanRepay(
             address(usdoBank),
             address(usdoExchange),

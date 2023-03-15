@@ -52,7 +52,7 @@ contract USDOOperationTest is Test {
         vm.label(alice, "Alice");
         vm.label(bob, "Bob");
         vm.label(insurance, "Insurance");
-        usdo.mint(100000e18);
+        usdo.mint(100000e6);
         USDC = new TestERC20("USDC", "USDC", 6);
         usdoBank = new USDOBank( // maxReservesAmount_
             2,
@@ -90,13 +90,13 @@ contract USDOOperationTest is Test {
     }
 
     function testUSDOMint() public {
-        usdo.mint(100e18);
-        assertEq(usdo.balanceOf(address(this)), 100100e18);
+        usdo.mint(100e6);
+        assertEq(usdo.balanceOf(address(this)), 100100e6);
     }
 
     function testUSDOBurn() public {
-        usdo.burn(50000e18);
-        assertEq(usdo.balanceOf(address(this)), 50000e18);
+        usdo.burn(50000e6);
+        assertEq(usdo.balanceOf(address(this)), 50000e6);
     }
 
     function testUSDODecimal() public {

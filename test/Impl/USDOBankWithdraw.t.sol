@@ -3,7 +3,7 @@ pragma solidity 0.8.9;
 
 import "./USDOBankInit.t.sol";
 
-contract USDOBankRWithdrawTest is USDOBankInitTest {
+contract USDOBankWithdrawTest is USDOBankInitTest {
     function testWithdrawAmountIsZero() public {
         mockToken1.transfer(alice, 10e18);
         vm.startPrank(alice);
