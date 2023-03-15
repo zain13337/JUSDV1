@@ -284,7 +284,7 @@ contract USDOBank is IUSDOBank, USDOOperation, USDOView, USDOMulticall {
         address liquidated,
         address collateral,
         uint256 amount
-    ) internal returns (DataTypes.LiquidateData memory liquidateData) {
+    ) internal view returns (DataTypes.LiquidateData memory liquidateData) {
         DataTypes.UserInfo storage liquidatedInfo = userInfo[liquidated];
         require(amount != 0, USDOErrors.LIQUIDATE_AMOUNT_IS_ZERO);
         require(amount <= liquidatedInfo.depositBalance[collateral], USDOErrors.LIQUIDATE_AMOUNT_IS_TOO_BIG);
