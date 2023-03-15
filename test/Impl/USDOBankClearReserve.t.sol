@@ -82,7 +82,7 @@ contract USDOBankClearReserveTest is USDOBankInitTest {
         mockToken1.transfer(alice, 10e18);
 
         vm.startPrank(address(usdoBank));
-        usdo.transfer(alice, 1000e18);
+        usdo.transfer(alice, 1000e6);
         vm.stopPrank();
 
         vm.startPrank(alice);

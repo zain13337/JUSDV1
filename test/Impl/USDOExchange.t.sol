@@ -30,36 +30,36 @@ contract USDOExchangeTest is Test {
 
     function setUp() public {
         usdo = new USDO(6);
-        usdc = new MockERC20(2000e18);
+        usdc = new MockERC20(2000e6);
         usdoExchange = new USDOExchange(address(usdc), address(usdo));
         vm.label(alice, "Alice");
         vm.label(bob, "Bob");
         vm.label(jim, "Jim");
         vm.label(owner, "Owner");
 
-        usdc.transfer(alice, 2000e18);
-        usdo.mint(10000e18);
-        usdo.transfer(address(usdoExchange), 10000e18);
+        usdc.transfer(alice, 2000e6);
+        usdo.mint(10000e6);
+        usdo.transfer(address(usdoExchange), 10000e6);
     }
 
     function testExchangeSuccess() public {
         vm.startPrank(alice);
-        usdc.approve(address(usdoExchange), 1000e18);
-        usdoExchange.buyUSDO(1000e18, alice);
-        assertEq(usdo.balanceOf(alice), 1000e18);
-        assertEq(usdc.balanceOf(alice), 1000e18);
+        usdc.approve(address(usdoExchange), 1000e6);
+        usdoExchange.buyUSDO(1000e6, alice);
+        assertEq(usdo.balanceOf(alice), 1000e6);
+        assertEq(usdc.balanceOf(alice), 1000e6);
     }
 
     function testExchangeSuccessClose() public {
         usdoExchange.closeExchange();
         vm.startPrank(alice);
-        usdc.approve(address(usdoExchange), 1000e18);
+        usdc.approve(address(usdoExchange), 1000e6);
         cheats.expectRevert("NOT_ALLOWED_TO_EXCHANGE");
-        usdoExchange.buyUSDO(1000e18, alice);
+        usdoExchange.buyUSDO(1000e6, alice);
         vm.stopPrank();
         usdoExchange.openExchange();
         vm.startPrank(alice);
-        usdc.approve(address(usdoExchange), 1000e18);
-        usdoExchange.buyUSDO(1000e18, alice);
+        usdc.approve(address(usdoExchange), 1000e6);
+        usdoExchange.buyUSDO(1000e6, alice);
     }
 }

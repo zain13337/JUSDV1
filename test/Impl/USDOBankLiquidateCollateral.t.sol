@@ -25,7 +25,7 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
     function testLiquidateCollateralAmountIsZero() public {
         mockToken1.transfer(alice, 10e18);
         vm.startPrank(address(usdoBank));
-        usdo.transfer(bob, 5000e18);
+        usdo.transfer(bob, 5000e6);
         vm.stopPrank();
         vm.startPrank(alice);
         mockToken1.approve(address(usdoBank), 10e18);
@@ -42,7 +42,7 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
         usdoBank.updateOracle(address(mockToken1), address(jojoOracle3));
         vm.stopPrank();
         vm.startPrank(bob);
-        usdo.approve(address(usdoBank), 5225e18);
+        usdo.approve(address(usdoBank), 5225e6);
         vm.warp(3000);
         cheats.expectRevert("LIQUIDATE_AMOUNT_IS_ZERO");
         bytes memory afterParam = abi.encode(address(usdo), 5000e6);
@@ -52,7 +52,7 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
     function testLiquidateCollateralPriceProtect() public {
         mockToken1.transfer(alice, 10e18);
         vm.startPrank(address(usdoBank));
-        usdo.transfer(bob, 5000e18);
+        usdo.transfer(bob, 5000e6);
         vm.stopPrank();
         vm.startPrank(alice);
         mockToken1.approve(address(usdoBank), 10e18);
@@ -71,7 +71,7 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
         vm.stopPrank();
 
         vm.startPrank(bob);
-        usdo.approve(address(usdoBank), 5225e18);
+        usdo.approve(address(usdoBank), 5225e6);
         vm.warp(3000);
         bytes memory data = dodo.getSwapData(1e18, address(mockToken1));
         bytes memory param = abi.encode(dodo, dodo, address(bob), data);
@@ -90,7 +90,7 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
     function testSelfLiquidateCollateral() public {
         mockToken1.transfer(alice, 10e18);
         vm.startPrank(address(usdoBank));
-        usdo.transfer(bob, 5000e18);
+        usdo.transfer(bob, 5000e6);
         vm.stopPrank();
         vm.startPrank(alice);
         mockToken1.approve(address(usdoBank), 10e18);
@@ -128,7 +128,7 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
     function testLiquidateCollateralAmountIsTooBig() public {
         mockToken1.transfer(alice, 10e18);
         vm.startPrank(address(usdoBank));
-        usdo.transfer(bob, 5000e18);
+        usdo.transfer(bob, 5000e6);
         vm.stopPrank();
         vm.startPrank(alice);
         mockToken1.approve(address(usdoBank), 10e18);
@@ -147,7 +147,7 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
         vm.stopPrank();
 
         vm.startPrank(bob);
-        usdo.approve(address(usdoBank), 5225e18);
+        usdo.approve(address(usdoBank), 5225e6);
         vm.warp(3000);
         bytes memory data = dodo.getSwapData(1e18, address(mockToken1));
         bytes memory param = abi.encode(dodo, dodo, address(bob), data);

@@ -11,7 +11,7 @@ contract USDOBankRepayTest is USDOBankInitTest {
         mockToken1.approve(address(usdoBank), 10e18);
         usdoBank.deposit(alice, address(mockToken1), 10e18, alice);
         usdoBank.borrow(5000e6, alice, false);
-        usdo.approve(address(usdoBank), 5000e18);
+        usdo.approve(address(usdoBank), 5000e6);
         usdoBank.repay(5000e6, alice);
 
         uint256 adjustAmount = usdoBank.getBorrowBalance(alice);
@@ -36,11 +36,11 @@ contract USDOBankRepayTest is USDOBankInitTest {
         uint256 rateT2 = usdoBank.t0Rate()
             + (usdoBank.borrowFeeRate() * ((block.timestamp - usdoBank.lastUpdateTimestamp()))) / 365 days;
         usdoBank.borrow(3000e6, alice, false);
-        usdo.approve(address(usdoBank), 6000e18);
+        usdo.approve(address(usdoBank), 6000e6);
         vm.warp(3000);
         uint256 rateT3 = usdoBank.t0Rate()
             + (usdoBank.borrowFeeRate() * ((block.timestamp - usdoBank.lastUpdateTimestamp()))) / 365 days;
-        usdo.approve(address(usdoBank), 3000e18);
+        usdo.approve(address(usdoBank), 3000e6);
         usdoBank.repay(1500e6, alice);
         usdoBank.borrow(1000e6, alice, false);
         uint256 aliceBorrowed = usdoBank.getBorrowBalance(alice);
@@ -62,7 +62,7 @@ contract USDOBankRepayTest is USDOBankInitTest {
         usdoBank.borrow(5000e6, alice, false);
         uint256 rateT1 = usdoBank.getTRate();
         uint256 usedBorrowed = (5000e6 * 1e18) / rateT1;
-        usdo.approve(address(usdoBank), 6000e18);
+        usdo.approve(address(usdoBank), 6000e6);
         vm.warp(2000);
         usdoBank.repay(6000e6, alice);
         uint256 aliceBorrowed = usdoBank.getBorrowBalance(alice);
@@ -96,7 +96,7 @@ contract USDOBankRepayTest is USDOBankInitTest {
         usdoBank.borrow(3000e6, alice, false);
         uint256 aliceUsedBorrowed = usdoBank.getBorrowBalance(alice);
         emit log_uint((3000e6 * 1e18) / rateT2);
-        usdo.approve(address(usdoBank), 3000e18);
+        usdo.approve(address(usdoBank), 3000e6);
         usdoBank.repay(3000e6, alice);
         uint256 aliceBorrowed = usdoBank.getBorrowBalance(alice);
         assertEq(aliceUsedBorrowed, 3000e6);
@@ -178,7 +178,7 @@ contract USDOBankRepayTest is USDOBankInitTest {
     //     mockToken1.approve(address(usdoBank), 10e18);
     //     usdoBank.deposit(address(mockToken1), 10e18, alice);
     //     usdoBank.borrow(5000e18, alice, false, alice);
-    //     usdo.approve(address(usdoBank), 5000e18);
+    //     usdo.approve(address(usdoBank), 5000e6);
     //     usdoBank.repay(5000e18, to);
     //     vm.stopPrank();
     // }

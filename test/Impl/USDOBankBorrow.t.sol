@@ -79,7 +79,7 @@ contract USDOBankBorrowTest is USDOBankInitTest {
         mockToken1.approve(address(usdoBank), 10e18);
         usdoBank.deposit(alice, address(mockToken1), 10e18, alice);
         cheats.expectRevert("EXCEED_THE_MAX_BORROW_AMOUNT_PER_ACCOUNT");
-        usdoBank.borrow(7000e18, alice, false);
+        usdoBank.borrow(100001e6, alice, false);
         vm.stopPrank();
     }
 
@@ -124,8 +124,8 @@ contract USDOBankBorrowTest is USDOBankInitTest {
     }
 
     function testDepositTooMany() public {
-        usdoBank.updateReserveParam(address(mockToken1), 8e17, 2300e18, 230e18, 100000e18);
-        usdoBank.updateMaxBorrowAmount(200000e18, 300000e18);
+        usdoBank.updateReserveParam(address(mockToken1), 8e17, 2300e18, 230e18, 100000e6);
+        usdoBank.updateMaxBorrowAmount(200000e6, 300000e18);
         mockToken1.transfer(alice, 200e18);
         vm.startPrank(alice);
         mockToken1.approve(address(usdoBank), 200e18);
@@ -151,6 +151,31 @@ contract USDOBankBorrowTest is USDOBankInitTest {
 
         uint256 maxMint = usdoBank.getDepositMaxMintAmount(alice);
         console.log("max mint", maxMint);
+    }
+
+    function testDepositTooManyETH() public {
+
+        usdoBank.updateReserveParam(address(mockToken1), 8e17, 2300e18, 230e18, 100000e6);
+        usdoBank.updateMaxBorrowAmount(200000e18, 300000e18);
+        mockToken1.transfer(alice, 200e18);
+
+        vm.startPrank(alice);
+        mockToken1.approve(address(usdoBank), 200e18);
+        usdoBank.deposit(alice, address(mockToken1), 200e18, alice);
+        usdoBank.borrow(100000e6, alice, false);
+
+        uint256 maxWithdraw = usdoBank.getMaxWithdrawAmount(address(mockToken1), alice);
+        console.log("max withdraw", maxWithdraw);
+
+        bool ifSafe = usdoBank.isAccountSafe(alice);
+        uint256 borrowUSDO = usdoBank.getBorrowBalance(alice);
+        uint256 depositAmount = usdoBank.getDepositMaxMintAmount(alice);
+
+        usdoBank.borrow(1e6, alice, false);
+        console.log("borrow amount", borrowUSDO);
+        console.log("depositAmount amount", depositAmount);
+        console.log("alice safe?", ifSafe);
+
     }
 
     // Fuzzy test

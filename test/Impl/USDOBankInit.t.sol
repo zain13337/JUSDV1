@@ -84,8 +84,8 @@ contract USDOBankInitTest is Test {
         vm.label(insurance, "Insurance");
         jim = users[3];
         vm.label(jim, "Jim");
-        usdo.mint(200000e18);
-        usdo.mint(10000e18);
+        usdo.mint(200000e6);
+        usdo.mint(100000e6);
         USDC = new TestERC20("USDC", "USDC", 6);
         // initial
         usdoBank = new USDOBank( // maxReservesAmount_
@@ -103,7 +103,7 @@ contract USDOBankInitTest is Test {
         );
         deployAddress = usdoBank.owner();
 
-        usdo.transfer(address(usdoBank), 200000e18);
+        usdo.transfer(address(usdoBank), 200000e6);
         //  mockToken2 BTC mockToken1 ETH
         usdoBank.initReserve(
             // token
@@ -171,6 +171,6 @@ contract USDOBankInitTest is Test {
     }
 
     function testInitMint() public {
-        assertEq(usdo.balanceOf(address(usdoBank)), 200000e18);
+        assertEq(usdo.balanceOf(address(usdoBank)), 200000e6);
     }
 }
