@@ -133,6 +133,8 @@ contract USDOBankBorrowTest is USDOBankInitTest {
         usdoBank.deposit(alice, address(mockToken1), 200e18, alice);
         cheats.expectRevert("AFTER_BORROW_ACCOUNT_IS_NOT_SAFE");
         usdoBank.borrow(200000e6, alice, false);
+        usdoBank.borrow(100000e6, alice, false);
+        usdoBank.withdraw(address(mockToken1), 75000000000000000000, alice, false);
         vm.stopPrank();
     }
 
