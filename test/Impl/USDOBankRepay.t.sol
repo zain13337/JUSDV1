@@ -144,7 +144,6 @@ contract USDOBankRepayTest is USDOBankInitTest {
     }
 
     function testRepayCollateralWallet() public {
-
         mockToken1.transfer(alice, 15e18);
         vm.startPrank(alice);
         mockToken1.approve(address(usdoBank), 10e18);
@@ -154,7 +153,7 @@ contract USDOBankRepayTest is USDOBankInitTest {
         mockToken1.approve(address(generalRepay), 1e18);
 
         bytes memory data = dodo.getSwapData(1e18, address(mockToken1));
-        bytes memory param = abi.encode(dodo, dodo,data);
+        bytes memory param = abi.encode(dodo, dodo, data);
         generalRepay.repayUSDO(address(mockToken1), 1e18, alice, param);
         assertEq(usdoBank.getBorrowBalance(alice), 2000e6);
         assertEq(mockToken1.balanceOf(alice), 4e18);

@@ -107,7 +107,7 @@ contract USDOBankWithdrawTest is USDOBankInitTest {
 
     function testWithDrawFailNotMax() public {
         mockToken1.transfer(alice, 10e18);
-        mockToken2.transfer(alice, 10e18);
+        mockToken2.transfer(alice, 10e8);
         vm.startPrank(alice);
         mockToken1.approve(address(usdoBank), 10e18);
         mockToken2.approve(address(usdoBank), 10e8);

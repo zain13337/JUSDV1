@@ -7,7 +7,7 @@ import "../mocks/MockToken.sol";
 contract USDOBankTest is USDOBankInitTest {
     function testDepositSuccess() public {
         mockToken1.transfer(alice, 10e18);
-        mockToken2.transfer(alice, 10e18);
+        mockToken2.transfer(alice, 10e8);
         // change msg.sender
         vm.startPrank(alice);
         mockToken1.approve(address(usdoBank), 5e18);

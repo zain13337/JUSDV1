@@ -44,7 +44,7 @@ abstract contract USDOOperation is USDOBankStorage {
         uint256 _initialMortgageRate,
         uint256 _maxTotalDepositAmount,
         uint256 _maxDepositAmountPerAccount,
-        uint256 _maxBorrowValue,
+        uint256 _maxColBorrowPerAccount,
         uint256 _liquidationMortgageRate,
         uint256 _liquidationPriceOff,
         uint256 _insuranceFeeRate,
@@ -58,7 +58,7 @@ abstract contract USDOOperation is USDOBankStorage {
         reserveInfo[_collateral].initialMortgageRate = _initialMortgageRate;
         reserveInfo[_collateral].maxTotalDepositAmount = _maxTotalDepositAmount;
         reserveInfo[_collateral].maxDepositAmountPerAccount = _maxDepositAmountPerAccount;
-        reserveInfo[_collateral].maxBorrowValue = _maxBorrowValue;
+        reserveInfo[_collateral].maxColBorrowPerAccount = _maxColBorrowPerAccount;
         reserveInfo[_collateral].liquidationMortgageRate = _liquidationMortgageRate;
         reserveInfo[_collateral].liquidationPriceOff = _liquidationPriceOff;
         reserveInfo[_collateral].insuranceFeeRate = _insuranceFeeRate;
@@ -146,14 +146,18 @@ abstract contract USDOOperation is USDOBankStorage {
         uint256 _initialMortgageRate,
         uint256 _maxTotalDepositAmount,
         uint256 _maxDepositAmountPerAccount,
-        uint256 _maxBorrowValue
+        uint256 _maxColBorrowPerAccount
     ) external onlyOwner {
         reserveInfo[collateral].initialMortgageRate = _initialMortgageRate;
         reserveInfo[collateral].maxTotalDepositAmount = _maxTotalDepositAmount;
         reserveInfo[collateral].maxDepositAmountPerAccount = _maxDepositAmountPerAccount;
-        reserveInfo[collateral].maxBorrowValue = _maxBorrowValue;
+        reserveInfo[collateral].maxColBorrowPerAccount = _maxColBorrowPerAccount;
         emit UpdateReserveParam(
-            collateral, _initialMortgageRate, _maxTotalDepositAmount, _maxDepositAmountPerAccount, _maxBorrowValue
+            collateral,
+            _initialMortgageRate,
+            _maxTotalDepositAmount,
+            _maxDepositAmountPerAccount,
+            _maxColBorrowPerAccount
         );
     }
 

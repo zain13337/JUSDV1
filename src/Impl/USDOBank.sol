@@ -82,7 +82,7 @@ contract USDOBank is IUSDOBank, USDOOperation, USDOView, USDOMulticall {
         //     t0BorrowedAmount = borrowedAmount /  getT0Rate
         DataTypes.UserInfo storage user = userInfo[msg.sender];
         _borrow(user, isDepositToJOJO, to, amount, msg.sender);
-        require(_isAccountSafe(user, getTRate()), USDOErrors.AFTER_BORROW_ACCOUNT_IS_NOT_SAFE);
+        require(_isAccountSafeAfterBorrow(user, getTRate()), USDOErrors.AFTER_BORROW_ACCOUNT_IS_NOT_SAFE);
     }
 
     function repay(uint256 amount, address to) external override nonReentrant returns (uint256) {
@@ -335,14 +335,6 @@ contract USDOBank is IUSDOBank, USDOOperation, USDOView, USDOMulticall {
             }
         }
     }
-
-    /// @notice liquidate is trying to pay off all USDO debt instead of selling all collateral
-    function _settleCollateralAndUSDO(
-        DataTypes.UserInfo storage liquidatedInfo,
-        address collateral,
-        uint256 amount,
-        uint256 tRate
-    ) internal view returns (DataTypes.LiquidateData memory liquidateData) { }
 
     function _afterLiquidateOperation(
         bytes memory afterOperationParam,

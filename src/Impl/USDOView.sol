@@ -17,12 +17,12 @@ abstract contract USDOView is USDOBankStorage, IUSDOBank {
 
     function getDepositMaxMintAmount(address user) external view returns (uint256) {
         DataTypes.UserInfo storage userInfo = userInfo[user];
-        return _maxMintAmount(userInfo);
+        return _maxMintAmountBorrow(userInfo);
     }
 
     function getCollateralMaxMintAmount(address collateral, uint256 amount) external view returns (uint256 maxAmount) {
         DataTypes.ReserveInfo memory reserve = reserveInfo[collateral];
-        return _getMintAmount(amount, reserve.oracle, reserve.initialMortgageRate, reserve.maxBorrowValue);
+        return _getMintAmountBorrow(reserve, amount);
     }
 
     function getMaxWithdrawAmount(address collateral, address user) external view returns (uint256 maxAmount) {
@@ -31,7 +31,7 @@ abstract contract USDOView is USDOBankStorage, IUSDOBank {
         if (USDOBorrow == 0) {
             return userInfo.depositBalance[collateral];
         }
-        uint256 maxMintAmount = _maxWithdrawAmount(userInfo);
+        uint256 maxMintAmount = _maxMintAmount(userInfo);
         if (maxMintAmount <= USDOBorrow) {
             maxAmount = 0;
         } else {
@@ -71,17 +71,20 @@ abstract contract USDOView is USDOBankStorage, IUSDOBank {
     }
 
     /// @notice get the USDO mint amount
-    function _getMintAmount(
-        uint256 balance,
-        address oracle,
-        uint256 rate,
-        uint256 maxBorrowValue
+    function _getMintAmount(uint256 balance, address oracle, uint256 rate) internal view returns (uint256) {
+        return IPriceChainLink(oracle).getAssetPrice().decimalMul(balance).decimalMul(rate);
+    }
+
+    function _getMintAmountBorrow(
+        DataTypes.ReserveInfo memory reserve,
+        uint256 amount
     ) internal view returns (uint256) {
-        uint256 depositValue = IPriceChainLink(oracle).getAssetPrice().decimalMul(balance).decimalMul(rate);
-        if (depositValue >= maxBorrowValue) {
-            depositValue = maxBorrowValue;
+        uint256 depositAmount =
+            IPriceChainLink(reserve.oracle).getAssetPrice().decimalMul(amount).decimalMul(reserve.initialMortgageRate);
+        if (depositAmount >= reserve.maxColBorrowPerAccount) {
+            depositAmount = reserve.maxColBorrowPerAccount;
         }
-        return depositValue;
+        return depositAmount;
     }
 
     /// @notice according to the initialMortgageRate to judge whether the user's account is safe after borrow, withdraw, flashloan
@@ -91,19 +94,8 @@ abstract contract USDOView is USDOBankStorage, IUSDOBank {
         return user.t0BorrowBalance.decimalMul(tRate) <= _maxMintAmount(user);
     }
 
-    function _maxWithdrawAmount(DataTypes.UserInfo storage user) internal view returns (uint256) {
-        address[] memory collaterals = user.collateralList;
-        uint256 maxMintAmount;
-        for (uint256 i; i < collaterals.length; i = i + 1) {
-            address collateral = collaterals[i];
-            DataTypes.ReserveInfo memory reserve = reserveInfo[collateral];
-            if (!reserve.isBorrowAllowed) {
-                continue;
-            }
-            maxMintAmount += IPriceChainLink(reserve.oracle).getAssetPrice().decimalMul(user.depositBalance[collateral])
-                .decimalMul(reserve.initialMortgageRate);
-        }
-        return maxMintAmount;
+    function _isAccountSafeAfterBorrow(DataTypes.UserInfo storage user, uint256 tRate) internal view returns (bool) {
+        return user.t0BorrowBalance.decimalMul(tRate) <= _maxMintAmountBorrow(user);
     }
 
     function _maxMintAmount(DataTypes.UserInfo storage user) internal view returns (uint256) {
@@ -115,9 +107,23 @@ abstract contract USDOView is USDOBankStorage, IUSDOBank {
             if (!reserve.isBorrowAllowed) {
                 continue;
             }
-            maxMintAmount += _getMintAmount(
-                user.depositBalance[collateral], reserve.oracle, reserve.initialMortgageRate, reserve.maxBorrowValue
-            );
+            maxMintAmount +=
+                _getMintAmount(user.depositBalance[collateral], reserve.oracle, reserve.initialMortgageRate);
+        }
+        return maxMintAmount;
+    }
+
+    function _maxMintAmountBorrow(DataTypes.UserInfo storage user) internal view returns (uint256) {
+        address[] memory collaterals = user.collateralList;
+        uint256 maxMintAmount;
+        for (uint256 i; i < collaterals.length; i = i + 1) {
+            address collateral = collaterals[i];
+            DataTypes.ReserveInfo memory reserve = reserveInfo[collateral];
+            if (!reserve.isBorrowAllowed) {
+                continue;
+            }
+            uint256 colMintAmount = _getMintAmountBorrow(reserve, user.depositBalance[collateral]);
+            maxMintAmount += colMintAmount;
         }
         return maxMintAmount;
     }
@@ -139,10 +145,7 @@ abstract contract USDOView is USDOBankStorage, IUSDOBank {
                 continue;
             }
             liquidationMaxMintAmount += _getMintAmount(
-                liquidatedTraderInfo.depositBalance[collateral],
-                reserve.oracle,
-                reserve.liquidationMortgageRate,
-                reserve.maxBorrowValue
+                liquidatedTraderInfo.depositBalance[collateral], reserve.oracle, reserve.liquidationMortgageRate
             );
         }
         return liquidationMaxMintAmount < USDOBorrow;

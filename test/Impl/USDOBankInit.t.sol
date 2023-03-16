@@ -7,7 +7,7 @@ import "../../src/Impl/USDOBank.sol";
 import "../../src/Impl/USDOExchange.sol";
 import "@JOJO/contracts/testSupport/TestERC20.sol";
 import "../mocks/MockERC20.sol";
-import "../mocks/KT.sol";
+import "@JOJO/contracts/testSupport/TestERC20.sol";
 import "../../src/token/USDO.sol";
 import "../../src/Impl/JOJOOracleAdaptor.sol";
 import "../mocks/MockChainLink.t.sol";
@@ -35,7 +35,8 @@ contract USDOBankInitTest is Test {
     address deployAddress;
 
     USDOBank public usdoBank;
-    KT public mockToken2;
+    TestERC20 public mockToken2;
+
     MockERC20 public mockToken1;
     USDOExchange public usdoExchange;
 
@@ -55,7 +56,14 @@ contract USDOBankInitTest is Test {
     address internal jim;
 
     function setUp() public {
-        mockToken2 = new KT();
+        mockToken2 = new TestERC20("BTC", "BTC", 8);
+
+        address[] memory user = new address[](1);
+        user[0] = address(address(this));
+        uint256[] memory amountForMockToken2 = new uint256[](1);
+        amountForMockToken2[0] = 4000e8;
+        mockToken2.mint(user, amountForMockToken2);
+
         mockToken1 = new MockERC20(5000e18);
 
         usdo = new USDO(6);

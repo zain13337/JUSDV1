@@ -3,6 +3,7 @@ pragma solidity 0.8.9;
 
 import "./USDOBankInit.t.sol";
 import "../mocks/MockJOJODealerRevert.sol";
+import "../mocks/MockChainLink15000.sol";
 
 contract USDOBankBorrowTest is USDOBankInitTest {
     MockJOJODealerRevert public jojoDealerRevert = new MockJOJODealerRevert();
@@ -140,13 +141,13 @@ contract USDOBankBorrowTest is USDOBankInitTest {
         usdoBank.updateReserveParam(address(mockToken2), 8e17, 2300e18, 230e18, 100000e18);
         usdoBank.updateMaxBorrowAmount(200000e18, 300000e18);
         mockToken1.transfer(alice, 10e18);
-        mockToken2.transfer(alice, 1e18);
+        mockToken2.transfer(alice, 1e8);
 
         vm.startPrank(alice);
         mockToken1.approve(address(usdoBank), 10e18);
-        mockToken2.approve(address(usdoBank), 1e18);
+        mockToken2.approve(address(usdoBank), 1e8);
         usdoBank.deposit(alice, address(mockToken1), 10e18, alice);
-        usdoBank.deposit(alice, address(mockToken2), 1e18, alice);
+        usdoBank.deposit(alice, address(mockToken2), 1e8, alice);
         usdoBank.borrow(8000e6, alice, false);
 
         uint256 maxMint = usdoBank.getDepositMaxMintAmount(alice);
@@ -154,28 +155,56 @@ contract USDOBankBorrowTest is USDOBankInitTest {
     }
 
     function testDepositTooManyETH() public {
-
         usdoBank.updateReserveParam(address(mockToken1), 8e17, 2300e18, 230e18, 100000e6);
-        usdoBank.updateMaxBorrowAmount(200000e18, 300000e18);
+        usdoBank.updateReserveParam(address(mockToken2), 8e17, 2300e8, 230e8, 100000e6);
+        usdoBank.updateRiskParam(address(mockToken1), 825e15, 5e16, 1e17);
+        usdoBank.updateMaxBorrowAmount(200000e6, 300000e6);
         mockToken1.transfer(alice, 200e18);
+        mockToken2.transfer(alice, 5e8);
 
         vm.startPrank(alice);
         mockToken1.approve(address(usdoBank), 200e18);
+        mockToken2.approve(address(usdoBank), 10e8);
         usdoBank.deposit(alice, address(mockToken1), 200e18, alice);
+        usdoBank.deposit(alice, address(mockToken2), 5e8, alice);
         usdoBank.borrow(100000e6, alice, false);
+        usdoBank.borrow(80000e6, alice, false);
 
-        uint256 maxWithdraw = usdoBank.getMaxWithdrawAmount(address(mockToken1), alice);
-        console.log("max withdraw", maxWithdraw);
+        uint256 maxWithdrawMockToken1 = usdoBank.getMaxWithdrawAmount(address(mockToken1), alice);
+        console.log("max withdraw mockToken1 before fall", maxWithdrawMockToken1);
+        uint256 maxWithdrawMockToken2 = usdoBank.getMaxWithdrawAmount(address(mockToken2), alice);
+        console.log("max withdraw mockToken2 before fall", maxWithdrawMockToken2);
 
+        cheats.expectRevert("AFTER_BORROW_ACCOUNT_IS_NOT_SAFE");
+        usdoBank.borrow(1e6, alice, false);
+        assertEq(maxWithdrawMockToken1, 75000000000000000000);
+        assertEq(maxWithdrawMockToken2, 375000000);
+
+        vm.stopPrank();
+        MockChainLink15000 btc15000 = new MockChainLink15000();
+        JOJOOracleAdaptor jojoOracle15000 = new JOJOOracleAdaptor(
+            address(btc15000),
+            10,
+            86400
+        );
+        usdoBank.updateOracle(address(mockToken2), address(jojoOracle15000));
+
+        maxWithdrawMockToken1 = usdoBank.getMaxWithdrawAmount(address(mockToken1), alice);
+        console.log("max withdraw mockToken1", maxWithdrawMockToken1);
+        maxWithdrawMockToken2 = usdoBank.getMaxWithdrawAmount(address(mockToken2), alice);
+        console.log("max withdraw mockToken2", maxWithdrawMockToken2);
+
+        vm.startPrank(alice);
+        
+        cheats.expectRevert("AFTER_WITHDRAW_ACCOUNT_IS_NOT_SAFE");
+        usdoBank.withdraw(address(mockToken1), 75000000000000000000, alice, false);
         bool ifSafe = usdoBank.isAccountSafe(alice);
         uint256 borrowUSDO = usdoBank.getBorrowBalance(alice);
         uint256 depositAmount = usdoBank.getDepositMaxMintAmount(alice);
 
-        usdoBank.borrow(1e6, alice, false);
         console.log("borrow amount", borrowUSDO);
         console.log("depositAmount amount", depositAmount);
         console.log("alice safe?", ifSafe);
-
     }
 
     // Fuzzy test
