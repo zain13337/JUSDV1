@@ -143,6 +143,26 @@ contract USDOBankRepayTest is USDOBankInitTest {
         assertEq(usdoBank.getBorrowBalance(alice), 2000e6);
     }
 
+
+    function testRepayByGeneralRepayTooBig() public {
+        mockToken1.transfer(alice, 10e18);
+        address[] memory userLiset = new address[](1);
+        userLiset[0] = address(alice);
+        uint256[] memory amountList = new uint256[](1);
+        amountList[0] = 1000e6;
+        USDC.mint(userLiset, amountList);
+        vm.startPrank(alice);
+        mockToken1.approve(address(usdoBank), 10e18);
+        usdoBank.deposit(alice, address(mockToken1), 10e18, alice);
+        usdoBank.borrow(500e6, alice, false);
+
+        IERC20(USDC).approve(address(generalRepay), 1000e6);
+        bytes memory test;
+        generalRepay.repayUSDO(address(USDC), 1000e6, alice, test);
+        assertEq(usdoBank.getBorrowBalance(alice), 0);
+        assertEq(USDC.balanceOf(alice), 500e6);
+    }
+
     function testRepayCollateralWallet() public {
         mockToken1.transfer(alice, 15e18);
         vm.startPrank(alice);
@@ -157,6 +177,52 @@ contract USDOBankRepayTest is USDOBankInitTest {
         generalRepay.repayUSDO(address(mockToken1), 1e18, alice, param);
         assertEq(usdoBank.getBorrowBalance(alice), 2000e6);
         assertEq(mockToken1.balanceOf(alice), 4e18);
+    }
+
+    function testRepayCollateralWalletTooBig() public {
+        mockToken1.transfer(alice, 15e18);
+        vm.startPrank(alice);
+        mockToken1.approve(address(usdoBank), 10e18);
+        usdoBank.deposit(alice, address(mockToken1), 10e18, alice);
+        usdoBank.borrow(1000e6, alice, false);
+
+        mockToken1.approve(address(generalRepay), 2e18);
+
+        bytes memory data = dodo.getSwapData(2e18, address(mockToken1));
+        bytes memory param = abi.encode(dodo, dodo, data);
+        generalRepay.repayUSDO(address(mockToken1), 2e18, alice, param);
+        assertEq(usdoBank.getBorrowBalance(alice), 0);
+        assertEq(mockToken1.balanceOf(alice), 3e18);
+        assertEq(USDC.balanceOf(alice), 1000e6);
+    }
+
+     function testGeneralRepayRevert() public {
+        MockERC20 usdc = new MockERC20(4000e18);
+        SupportsDODO dodo = new SupportsDODO(
+            address(usdc),
+            address(mockToken1),
+            address(jojoOracle1)
+        );
+        IERC20(usdc).transfer(address(dodo), 2e6);
+        USDOExchange usdoExchange = new USDOExchange(
+            address(usdc),
+            address(usdo)
+        );
+        usdo.mint(5000e6);
+        IERC20(usdo).transfer(address(usdoExchange), 5000e6);
+        mockToken1.transfer(alice, 5e18);
+
+        vm.startPrank(alice);
+        mockToken1.approve(address(usdoBank), 5e18);
+        usdoBank.deposit(alice, address(mockToken1), 3e18, alice);
+        usdoBank.borrow(300e6, alice, false);
+
+        bytes memory data = dodo.getSwapData(1e18, address(mockToken1));
+        bytes memory param = abi.encode(dodo, dodo, data);
+        mockToken1.approve(address(generalRepay), 1e18);
+        cheats.expectRevert("ERC20: transfer amount exceeds balance");
+        generalRepay.repayUSDO(address(mockToken1), 1e18, alice, param);
+        vm.stopPrank();
     }
     // Fuzzy test
     // function testRepayFuzzyAmount(uint256 amount) public {

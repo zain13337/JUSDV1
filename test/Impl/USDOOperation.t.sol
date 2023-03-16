@@ -187,6 +187,12 @@ contract USDOOperationTest is Test {
         //        assertEq(usdoBank.getInsuranceFeeRate(address(mockToken1)), 2e17);
     }
 
+     function testUpdateRiskParamWrong() public {
+        cheats.expectRevert("RESERVE_PARAM_ERROR");
+        usdoBank.updateRiskParam(address(mockToken1), 9e17, 2e17, 2e17);
+        //        assertEq(usdoBank.getInsuranceFeeRate(address(mockToken1)), 2e17);
+    }
+
     function testUpdateReserveParam() public {
         usdoBank.updateReserveParam(address(mockToken1), 1e18, 100e18, 100e18, 200000e18);
         //        assertEq(usdoBank.getInitialRate(address(mockToken1)), 1e18);

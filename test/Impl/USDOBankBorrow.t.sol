@@ -195,7 +195,7 @@ contract USDOBankBorrowTest is USDOBankInitTest {
         console.log("max withdraw mockToken2", maxWithdrawMockToken2);
 
         vm.startPrank(alice);
-        
+
         cheats.expectRevert("AFTER_WITHDRAW_ACCOUNT_IS_NOT_SAFE");
         usdoBank.withdraw(address(mockToken1), 75000000000000000000, alice, false);
         bool ifSafe = usdoBank.isAccountSafe(alice);
