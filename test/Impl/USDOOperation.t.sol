@@ -9,7 +9,7 @@ import "../../src/Impl/JOJOOracleAdaptor.sol";
 import "../mocks/MockChainLink.t.sol";
 import "../mocks/MockJOJODealer.sol";
 import "../../src/lib/DataTypes.sol";
-import {console} from "forge-std/console.sol";
+import { console } from "forge-std/console.sol";
 import "forge-std/Test.sol";
 import "@JOJO/contracts/testSupport/TestERC20.sol";
 
@@ -22,8 +22,7 @@ interface Cheats {
 }
 
 contract USDOOperationTest is Test {
-    Cheats internal constant cheats =
-        Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
+    Cheats internal constant cheats = Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
 
     using DecimalMath for uint256;
 
@@ -188,14 +187,14 @@ contract USDOOperationTest is Test {
         //        assertEq(usdoBank.getInsuranceFeeRate(address(mockToken1)), 2e17);
     }
 
+     function testUpdateRiskParamWrong() public {
+        cheats.expectRevert("RESERVE_PARAM_ERROR");
+        usdoBank.updateRiskParam(address(mockToken1), 9e17, 2e17, 2e17);
+        //        assertEq(usdoBank.getInsuranceFeeRate(address(mockToken1)), 2e17);
+    }
+
     function testUpdateReserveParam() public {
-        usdoBank.updateReserveParam(
-            address(mockToken1),
-            1e18,
-            100e18,
-            100e18,
-            200000e18
-        );
+        usdoBank.updateReserveParam(address(mockToken1), 1e18, 100e18, 100e18, 200000e18);
         //        assertEq(usdoBank.getInitialRate(address(mockToken1)), 1e18);
     }
 
@@ -235,10 +234,7 @@ contract USDOOperationTest is Test {
     }
 
     function testCollateraltMaxMintAmount() public {
-        uint256 value = usdoBank.getCollateralMaxMintAmount(
-            address(mockToken1),
-            2e18
-        );
+        uint256 value = usdoBank.getCollateralMaxMintAmount(address(mockToken1), 2e18);
         assertEq(value, 1000e6);
     }
 }

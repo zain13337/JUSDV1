@@ -13,7 +13,7 @@ library DataTypes {
         //        max deposit collateral amount per account
         uint256 maxDepositAmountPerAccount;
         //        the collateral max deposit value, protect from oracle
-        uint256 maxBorrowValue;
+        uint256 maxColBorrowPerAccount;
         //        oracle address
         address oracle;
         //        total deposit amount

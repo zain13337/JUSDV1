@@ -18,14 +18,7 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
         vm.startPrank(bob);
         cheats.expectRevert("ACCOUNT_IS_SAFE");
         bytes memory afterParam = abi.encode(address(usdo), 10e18);
-        usdoBank.liquidate(
-            alice,
-            address(mockToken1),
-            bob,
-            10e18,
-            afterParam,
-            0
-        );
+        usdoBank.liquidate(alice, address(mockToken1), bob, 10e18, afterParam, 0);
         vm.stopPrank();
     }
 
@@ -80,12 +73,8 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
         vm.startPrank(bob);
         usdo.approve(address(usdoBank), 5225e6);
         vm.warp(3000);
-        bytes memory param = abi.encode(
-            dodo,
-            dodo,
-            address(bob),
-            bytes4(keccak256("swap(uint256,address)"))
-        );
+        bytes memory data = dodo.getSwapData(1e18, address(mockToken1));
+        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
         FlashLoanLiquidate flashloanRepay = new FlashLoanLiquidate(
             address(usdoBank),
             address(usdoExchange),
@@ -95,14 +84,7 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
         );
         bytes memory afterParam = abi.encode(address(flashloanRepay), param);
         cheats.expectRevert("LIQUIDATION_PRICE_PROTECTION");
-        usdoBank.liquidate(
-            alice,
-            address(mockToken1),
-            bob,
-            10e18,
-            afterParam,
-            10e18
-        );
+        usdoBank.liquidate(alice, address(mockToken1), bob, 10e18, afterParam, 10e18);
     }
 
     function testSelfLiquidateCollateral() public {
@@ -128,12 +110,9 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
 
         vm.startPrank(alice);
         vm.warp(3000);
-        bytes memory param = abi.encode(
-            dodo,
-            dodo,
-            address(bob),
-            bytes4(keccak256("swap(uint256,address)"))
-        );
+
+        bytes memory data = dodo.getSwapData(1e18, address(mockToken1));
+        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
         FlashLoanLiquidate flashloanRepay = new FlashLoanLiquidate(
             address(usdoBank),
             address(usdoExchange),
@@ -143,14 +122,7 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
         );
         bytes memory afterParam = abi.encode(address(flashloanRepay), param);
         cheats.expectRevert("SELF_LIQUIDATION_NOT_ALLOWED");
-        usdoBank.liquidate(
-            alice,
-            address(mockToken1),
-            alice,
-            10e18,
-            afterParam,
-            10e18
-        );
+        usdoBank.liquidate(alice, address(mockToken1), alice, 10e18, afterParam, 10e18);
     }
 
     function testLiquidateCollateralAmountIsTooBig() public {
@@ -177,12 +149,8 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
         vm.startPrank(bob);
         usdo.approve(address(usdoBank), 5225e6);
         vm.warp(3000);
-        bytes memory param = abi.encode(
-            dodo,
-            dodo,
-            address(bob),
-            bytes4(keccak256("swap(uint256,address)"))
-        );
+        bytes memory data = dodo.getSwapData(1e18, address(mockToken1));
+        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
         FlashLoanLiquidate flashloanRepay = new FlashLoanLiquidate(
             address(usdoBank),
             address(usdoExchange),
@@ -192,14 +160,7 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
         );
         bytes memory afterParam = abi.encode(address(flashloanRepay), param);
         cheats.expectRevert("LIQUIDATE_AMOUNT_IS_TOO_BIG");
-        usdoBank.liquidate(
-            alice,
-            address(mockToken1),
-            bob,
-            11e18,
-            afterParam,
-            0
-        );
+        usdoBank.liquidate(alice, address(mockToken1), bob, 11e18, afterParam, 0);
     }
 
     // // Fuzzy test

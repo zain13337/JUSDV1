@@ -61,13 +61,13 @@ contract FlashLoanLiquidate is IFlashLoanReceive {
         IUSDOBank(usdoBank).repay(liquidateData.actualLiquidated, to);
 
         // 2. insurance
-        IERC20(USDC).transfer(insurance, liquidateData.insuranceFee);
+        IERC20(USDC).safeTransfer(insurance, liquidateData.insuranceFee);
         // 3. liquidate usdc
         if (liquidateData.liquidatedRemainUSDC != 0) {
-            IERC20(USDC).transfer(to, liquidateData.liquidatedRemainUSDC);
+            IERC20(USDC).safeTransfer(to, liquidateData.liquidatedRemainUSDC);
         }
         // 4. transfer to liquidator
-        IERC20(USDC).transfer(
+        IERC20(USDC).safeTransfer(
             liquidator,
             USDCAmount - liquidateData.insuranceFee - liquidateData.actualLiquidated
                 - liquidateData.liquidatedRemainUSDC
