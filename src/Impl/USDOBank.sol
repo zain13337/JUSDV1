@@ -260,6 +260,9 @@ contract USDOBank is IUSDOBank, USDOOperation, USDOView, USDOMulticall {
         if (isInternal) {
             user.depositBalance[collateral] -= amount;
             DataTypes.UserInfo storage toAccount = userInfo[to];
+            if (toAccount.depositBalance[collateral] == 0) {
+                toAccount.collateralList.push(collateral);
+            }
             toAccount.depositBalance[collateral] += amount;
             require(
                 toAccount.depositBalance[collateral] <= reserve.maxDepositAmountPerAccount,

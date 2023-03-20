@@ -143,7 +143,6 @@ contract USDOBankRepayTest is USDOBankInitTest {
         assertEq(usdoBank.getBorrowBalance(alice), 2000e6);
     }
 
-
     function testRepayByGeneralRepayTooBig() public {
         mockToken1.transfer(alice, 10e18);
         address[] memory userLiset = new address[](1);
@@ -196,7 +195,7 @@ contract USDOBankRepayTest is USDOBankInitTest {
         assertEq(USDC.balanceOf(alice), 1000e6);
     }
 
-     function testGeneralRepayRevert() public {
+    function testGeneralRepayRevert() public {
         MockERC20 usdc = new MockERC20(4000e18);
         SupportsDODO dodo = new SupportsDODO(
             address(usdc),
