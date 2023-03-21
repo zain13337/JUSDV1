@@ -14,7 +14,7 @@ contract MockFlashloan3 is IFlashLoanReceive {
     function JOJOFlashLoan(address asset, uint256 amount, address to, bytes calldata param) external {
         address bob = 0x2f66c75A001Ba71ccb135934F48d844b46454543;
         address mockToken2 = 0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f;
-        address usdoBank = 0x15cF58144EF33af1e14b5208015d11F9143E27b9;
+        address usdoBank = 0x212224D2F2d262cd093eE13240ca4873fcCBbA3C;
         IERC20(asset).safeTransfer(bob, amount);
 
         MockFlashloan mockFlashloan = new MockFlashloan();

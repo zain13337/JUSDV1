@@ -22,6 +22,7 @@ import "../../src/Impl/USDOExchange.sol";
 import "../mocks/MockChainLinkBadDebt.sol";
 import "../../src/lib/DecimalMath.sol";
 import "../mocks/MockChainLink900.sol";
+import "../mocks/MockUSDCPrice.sol";
 import {
     LiquidateCollateralRepayNotEnough,
     LiquidateCollateralInsuranceNotEnough,
@@ -45,6 +46,7 @@ contract USDOBankOperatorLiquidateTest is Test {
     USDO public usdo;
     JOJOOracleAdaptor public jojoOracleETH;
     MockChainLink public ethChainLink;
+    MockUSDCPrice public usdcPrice;
     JOJODealer public jojoDealer;
     USDOExchange public usdoExchange;
     SupportsDODO public dodo;
@@ -58,8 +60,9 @@ contract USDOBankOperatorLiquidateTest is Test {
         usdo = new USDO(6);
         USDC = new TestERC20("USDC", "USDC", 6);
         ethChainLink = new MockChainLink();
+        usdcPrice = new MockUSDCPrice();
         jojoDealer = new JOJODealer(address(USDC));
-        jojoOracleETH = new JOJOOracleAdaptor(address(ethChainLink), 20, 86400);
+        jojoOracleETH = new JOJOOracleAdaptor(address(ethChainLink), 20, 86400, address(usdcPrice));
         vm.label(alice, "Alice");
         vm.label(bob, "Bob");
         vm.label(insurance, "Insurance");
@@ -135,7 +138,8 @@ contract USDOBankOperatorLiquidateTest is Test {
         JOJOOracleAdaptor jojoOracle900 = new JOJOOracleAdaptor(
             address(eth900),
             20,
-            86400
+            86400,
+            address(usdcPrice)
         );
         usdoBank.updateOracle(address(ETH), address(jojoOracle900));
         dodo.addTokenPrice(address(ETH), address(jojoOracle900));
@@ -215,7 +219,8 @@ contract USDOBankOperatorLiquidateTest is Test {
         JOJOOracleAdaptor jojoOracle900 = new JOJOOracleAdaptor(
             address(eth900),
             20,
-            86400
+            86400,
+            address(usdcPrice)
         );
         usdoBank.updateOracle(address(ETH), address(jojoOracle900));
         dodo.addTokenPrice(address(ETH), address(jojoOracle900));
@@ -299,7 +304,8 @@ contract USDOBankOperatorLiquidateTest is Test {
         JOJOOracleAdaptor jojoOracle500 = new JOJOOracleAdaptor(
             address(eth500),
             20,
-            86400
+            86400,
+            address(usdcPrice)
         );
         usdoBank.updateOracle(address(ETH), address(jojoOracle500));
         dodo.addTokenPrice(address(ETH), address(jojoOracle500));
@@ -377,7 +383,8 @@ contract USDOBankOperatorLiquidateTest is Test {
         JOJOOracleAdaptor jojoOracle900 = new JOJOOracleAdaptor(
             address(eth900),
             20,
-            86400
+            86400,
+            address(usdcPrice)
         );
         usdoBank.updateOracle(address(ETH), address(jojoOracle900));
         dodo.addTokenPrice(address(ETH), address(jojoOracle900));
@@ -419,7 +426,8 @@ contract USDOBankOperatorLiquidateTest is Test {
         JOJOOracleAdaptor jojoOracle900 = new JOJOOracleAdaptor(
             address(eth900),
             20,
-            86400
+            86400,
+            address(usdcPrice)
         );
         usdoBank.updateOracle(address(ETH), address(jojoOracle900));
         dodo.addTokenPrice(address(ETH), address(jojoOracle900));
@@ -461,7 +469,8 @@ contract USDOBankOperatorLiquidateTest is Test {
         JOJOOracleAdaptor jojoOracle900 = new JOJOOracleAdaptor(
             address(eth900),
             20,
-            86400
+            86400,
+            address(usdcPrice)
         );
         usdoBank.updateOracle(address(ETH), address(jojoOracle900));
         dodo.addTokenPrice(address(ETH), address(jojoOracle900));
@@ -503,7 +512,8 @@ contract USDOBankOperatorLiquidateTest is Test {
         JOJOOracleAdaptor jojoOracle900 = new JOJOOracleAdaptor(
             address(eth900),
             20,
-            86400
+            86400,
+            address(usdcPrice)
         );
         usdoBank.updateOracle(address(ETH), address(jojoOracle900));
         dodo.addTokenPrice(address(ETH), address(jojoOracle900));

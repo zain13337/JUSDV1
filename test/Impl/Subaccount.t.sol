@@ -21,6 +21,7 @@ import "../../src/Impl/FlashLoanRepay.sol";
 import "../../src/support/SupportsDODO.sol";
 import "../mocks/MockChainLinkBadDebt.sol";
 import "../../src/lib/DecimalMath.sol";
+import "../mocks/MockUSDCPrice.sol";
 
 interface Cheats {
     function expectRevert() external;
@@ -39,6 +40,7 @@ contract SubaccountTest is Test {
     USDO public usdo;
     JOJOOracleAdaptor public jojoOracle1;
     MockChainLink public mockToken1ChainLink;
+    MockUSDCPrice public usdcPrice;
     JOJODealer public jojoDealer;
     SubaccountFactory public subaccountFactory;
     USDOExchange usdoExchange;
@@ -53,11 +55,13 @@ contract SubaccountTest is Test {
         usdo = new USDO(6);
         USDC = new TestERC20("USDC", "USDC", 6);
         mockToken1ChainLink = new MockChainLink();
+        usdcPrice = new MockUSDCPrice();
         jojoDealer = new JOJODealer(address(USDC));
         jojoOracle1 = new JOJOOracleAdaptor(
             address(mockToken1ChainLink),
             20,
-            86400
+            86400,
+            address(usdcPrice)
         );
         vm.label(alice, "Alice");
         vm.label(bob, "Bob");

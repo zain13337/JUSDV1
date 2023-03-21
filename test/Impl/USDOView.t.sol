@@ -12,7 +12,8 @@ contract USDOViewTest is USDOBankInitTest {
         jojoOracle2 = new JOJOOracleAdaptor(
             address(mockToken1ChainLink),
             10,
-            86400
+            86400,
+            address(usdcPrice)
         );
         usdoBank.initReserve(
             // token

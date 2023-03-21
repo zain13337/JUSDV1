@@ -14,17 +14,22 @@ contract JOJOOracleAdaptor is IPriceChainLink, Ownable {
     address public immutable source;
     uint256 public immutable decimalsCorrection;
     uint256 public immutable heartbeatInterval;
+    address public immutable USDCSource;
 
-    constructor(address _source, uint256 _decimalCorrection, uint256 _heartbeatInterval) {
+    constructor(address _source, uint256 _decimalCorrection, uint256 _heartbeatInterval, address _USDCSource) {
         source = _source;
         decimalsCorrection = 10 ** _decimalCorrection;
         heartbeatInterval = _heartbeatInterval;
+        USDCSource = _USDCSource;
     }
 
     function getAssetPrice() external view override returns (uint256) {
         /*uint80 roundID*/
         (, int256 price,, uint256 updatedAt,) = IChainLinkAggregator(source).latestRoundData();
+        (, int256 USDCPrice,,,) = IChainLinkAggregator(USDCSource).latestRoundData();
+
         require(block.timestamp - updatedAt <= heartbeatInterval, "ORACLE_HEARTBEAT_FAILED");
-        return (SafeCast.toUint256(price) * JOJOConstant.ONE) / decimalsCorrection;
+        uint256 tokenPrice = (SafeCast.toUint256(price) * 1e8) / SafeCast.toUint256(USDCPrice);
+        return tokenPrice * JOJOConstant.ONE / decimalsCorrection;
     }
 }

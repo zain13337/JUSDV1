@@ -15,6 +15,7 @@ import "../mocks/MockChainLink2.sol";
 import "../../src/support/SupportsDODO.sol";
 import "../mocks/MockChainLink500.sol";
 import "../mocks/MockJOJODealer.sol";
+import "../mocks/MockUSDCPrice.sol";
 import "../mocks/MockChainLinkBadDebt.sol";
 import "../../src/lib/DataTypes.sol";
 import { Utils } from "../utils/Utils.sol";
@@ -45,6 +46,7 @@ contract USDOBankInitTest is Test {
     JOJOOracleAdaptor public jojoOracle2;
     MockChainLink public mockToken1ChainLink;
     MockChainLink2 public mockToken2ChainLink;
+    MockUSDCPrice public usdcPrice;
     MockJOJODealer public jojoDealer;
     SupportsDODO public dodo;
     TestERC20 public USDC;
@@ -69,17 +71,19 @@ contract USDOBankInitTest is Test {
         usdo = new USDO(6);
         mockToken1ChainLink = new MockChainLink();
         mockToken2ChainLink = new MockChainLink2();
-
+        usdcPrice = new MockUSDCPrice();
         jojoDealer = new MockJOJODealer();
         jojoOracle1 = new JOJOOracleAdaptor(
             address(mockToken1ChainLink),
             20,
-            86400
+            86400,
+            address(usdcPrice)
         );
         jojoOracle2 = new JOJOOracleAdaptor(
             address(mockToken2ChainLink),
             10,
-            86400
+            86400,
+            address(usdcPrice)
         );
         // mock users
         utils = new Utils();

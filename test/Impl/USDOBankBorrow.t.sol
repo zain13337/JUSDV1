@@ -187,7 +187,8 @@ contract USDOBankBorrowTest is USDOBankInitTest {
         JOJOOracleAdaptor jojoOracle15000 = new JOJOOracleAdaptor(
             address(btc15000),
             10,
-            86400
+            86400,
+            address(usdcPrice)
         );
         usdoBank.updateOracle(address(mockToken2), address(jojoOracle15000));
 

@@ -37,7 +37,8 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
         JOJOOracleAdaptor jojoOracle3 = new JOJOOracleAdaptor(
             address(mockChainLinkBadDebt),
             20,
-            86400
+            86400,
+            address(usdcPrice)
         );
         usdoBank.updateOracle(address(mockToken1), address(jojoOracle3));
         vm.stopPrank();
@@ -64,7 +65,8 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
         JOJOOracleAdaptor jojoOracle900 = new JOJOOracleAdaptor(
             address(eth900),
             20,
-            86400
+            86400,
+            address(usdcPrice)
         );
         usdoBank.updateOracle(address(mockToken1), address(jojoOracle900));
         dodo.addTokenPrice(address(mockToken1), address(jojoOracle900));
@@ -102,7 +104,8 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
         JOJOOracleAdaptor jojoOracle900 = new JOJOOracleAdaptor(
             address(eth900),
             20,
-            86400
+            86400,
+            address(usdcPrice)
         );
         usdoBank.updateOracle(address(mockToken1), address(jojoOracle900));
         dodo.addTokenPrice(address(mockToken1), address(jojoOracle900));
@@ -140,7 +143,8 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
         JOJOOracleAdaptor jojoOracle900 = new JOJOOracleAdaptor(
             address(eth900),
             20,
-            86400
+            86400,
+            address(usdcPrice)
         );
         usdoBank.updateOracle(address(mockToken1), address(jojoOracle900));
         dodo.addTokenPrice(address(mockToken1), address(jojoOracle900));

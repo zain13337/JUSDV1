@@ -12,7 +12,7 @@ contract FlashRepayScript is Script {
         vm.startBroadcast(deployerPrivateKey);
         new FlashLoanRepay(
         // _usdoBank
-            0x77E5EE568C84986772eeb461Ae6744B76e37b802,
+            0x70c5DfBc33Bae3cAdb134642765315481Fdb3e3F,
         // _usdoExchange
                 0x8Dd79B16AA7ab776CE8aA15D67c7C04cAFe0f4de,
         // _USDC

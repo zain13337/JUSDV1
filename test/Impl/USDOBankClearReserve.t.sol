@@ -74,7 +74,7 @@ contract USDOBankClearReserveTest is USDOBankInitTest {
         usdoBank.withdraw(address(mockToken2), 1e8, alice, false);
         uint256 maxWithdrawBTC = usdoBank.getMaxWithdrawAmount(address(mockToken2), alice);
         uint256 maxMint = usdoBank.getDepositMaxMintAmount(alice);
-        assertEq(maxMint, 16000e6);
+        assertEq(maxMint, 14000e6);
         assertEq(maxWithdrawBTC, 78571428);
         vm.stopPrank();
     }

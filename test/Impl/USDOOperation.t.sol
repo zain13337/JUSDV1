@@ -12,7 +12,7 @@ import "../../src/lib/DataTypes.sol";
 import { console } from "forge-std/console.sol";
 import "forge-std/Test.sol";
 import "@JOJO/contracts/testSupport/TestERC20.sol";
-
+import "../mocks/MockUSDCPrice.sol";
 import "../../src/lib/DecimalMath.sol";
 
 interface Cheats {
@@ -31,6 +31,7 @@ contract USDOOperationTest is Test {
     USDO public usdo;
     JOJOOracleAdaptor public jojoOracle1;
     MockChainLink public mockToken1ChainLink;
+    MockUSDCPrice public usdcPrice;
     MockJOJODealer public jojoDealer;
     TestERC20 public USDC;
 
@@ -42,11 +43,13 @@ contract USDOOperationTest is Test {
         mockToken1 = new MockERC20(2000e18);
         usdo = new USDO(6);
         mockToken1ChainLink = new MockChainLink();
+        usdcPrice = new MockUSDCPrice();
         jojoDealer = new MockJOJODealer();
         jojoOracle1 = new JOJOOracleAdaptor(
             address(mockToken1ChainLink),
             20,
-            86400
+            86400,
+            address(usdcPrice)
         );
         vm.label(alice, "Alice");
         vm.label(bob, "Bob");

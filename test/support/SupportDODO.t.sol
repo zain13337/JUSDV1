@@ -7,6 +7,7 @@ import "forge-std/Test.sol";
 import "../../src/support/SupportsDODO.sol";
 import "../../src/token/USDO.sol";
 import "../mocks/MockERC20.sol";
+import "../mocks/MockUSDCPrice.sol";
 import "../../src/Impl/JOJOOracleAdaptor.sol";
 import "../mocks/MockChainLink.t.sol";
 
@@ -19,6 +20,7 @@ contract SupportDODO is Test {
     JOJOOracleAdaptor public lidoAdaptor;
     MockChainLink public ethChainLink;
     MockChainLink public lidoChainLink;
+    MockUSDCPrice public usdcPrice;
 
     function setUp() public {
         usdo = new USDO(6);
@@ -27,8 +29,9 @@ contract SupportDODO is Test {
 
         ethChainLink = new MockChainLink();
         lidoChainLink = new MockChainLink();
-        ethAdaptor = new JOJOOracleAdaptor(address(ethChainLink), 20, 86400);
-        lidoAdaptor = new JOJOOracleAdaptor(address(lidoChainLink), 20, 86400);
+        usdcPrice = new MockUSDCPrice();
+        ethAdaptor = new JOJOOracleAdaptor(address(ethChainLink), 20, 86400, address(usdcPrice));
+        lidoAdaptor = new JOJOOracleAdaptor(address(lidoChainLink), 20, 86400, address(usdcPrice));
         supportsDODO = new SupportsDODO(
             address(usdo),
             address(eth),

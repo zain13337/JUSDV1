@@ -10,8 +10,9 @@ contract JOJOOracleAdaptorScript is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
         new JOJOOracleAdaptor(
-            0x6550bc2301936011c1334555e62A87705A81C12C ,
-        10, 86400
+            0x6550bc2301936011c1334555e62A87705A81C12C,
+        10, 86400,
+       0x6550bc2301936011c1334555e62A87705A81C12C
         );
         console2.log("deploy JOJOOracleAdaptor");
         vm.stopBroadcast();
