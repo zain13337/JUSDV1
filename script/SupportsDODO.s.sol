@@ -14,7 +14,7 @@ contract SupportsDODOScript is Script {
                 0x3cE004b7C03451188529E38581b28A3C5fa8BB77,
                 0x415DF0A4Ac25C2D480Fd471914893f287276b63A
         );
-        console2.log("deploy USDO");
+        console2.log("deploy JUSD");
         vm.stopBroadcast();
     }
 }

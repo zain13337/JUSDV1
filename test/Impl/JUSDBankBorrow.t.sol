@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.9;
 
-import "./USDOBankInit.t.sol";
+import "./JUSDBankInit.t.sol";
 import "../mocks/MockJOJODealerRevert.sol";
 import "../mocks/MockChainLink15000.sol";
 
-contract USDOBankBorrowTest is USDOBankInitTest {
+contract JUSDBankBorrowTest is JUSDBankInitTest {
     MockJOJODealerRevert public jojoDealerRevert = new MockJOJODealerRevert();
 
     // no tRate just one token
-    function testBorrowUSDOSuccess() public {
+    function testBorrowJUSDSuccess() public {
         mockToken1.transfer(alice, 100e18);
         vm.startPrank(alice);
         mockToken1.approve(address(usdoBank), 10e18);
@@ -24,7 +24,7 @@ contract USDOBankBorrowTest is USDOBankInitTest {
     }
 
     // no tRate two token
-    function testBorrow2CollateralUSDOSuccess() public {
+    function testBorrow2CollateralJUSDSuccess() public {
         mockToken1.transfer(alice, 100e18);
         mockToken2.transfer(alice, 100e8);
 
@@ -45,7 +45,7 @@ contract USDOBankBorrowTest is USDOBankInitTest {
     }
 
     // have tRate, one token
-    function testBorrowUSDOtRateSuccess() public {
+    function testBorrowJUSDtRateSuccess() public {
         mockToken1.transfer(alice, 100e18);
         vm.startPrank(alice);
         mockToken1.approve(address(usdoBank), 10e18);
@@ -63,7 +63,7 @@ contract USDOBankBorrowTest is USDOBankInitTest {
     }
 
     //  > max mint amount
-    function testBorrowUSDOFailMaxMintAmount() public {
+    function testBorrowJUSDFailMaxMintAmount() public {
         mockToken1.transfer(alice, 100e18);
         vm.startPrank(alice);
         mockToken1.approve(address(usdoBank), 10e18);
@@ -74,7 +74,7 @@ contract USDOBankBorrowTest is USDOBankInitTest {
         vm.stopPrank();
     }
 
-    function testBorrowUSDOFailPerAccount() public {
+    function testBorrowJUSDFailPerAccount() public {
         mockToken1.transfer(alice, 100e18);
         vm.startPrank(alice);
         mockToken1.approve(address(usdoBank), 10e18);
@@ -84,7 +84,7 @@ contract USDOBankBorrowTest is USDOBankInitTest {
         vm.stopPrank();
     }
 
-    function testBorrowUSDOFailTotalAmount() public {
+    function testBorrowJUSDFailTotalAmount() public {
         mockToken1.transfer(alice, 200e18);
         mockToken1.transfer(bob, 200e18);
         vm.startPrank(alice);
@@ -125,7 +125,13 @@ contract USDOBankBorrowTest is USDOBankInitTest {
     }
 
     function testDepositTooMany() public {
-        usdoBank.updateReserveParam(address(mockToken1), 8e17, 2300e18, 230e18, 100000e6);
+        usdoBank.updateReserveParam(
+            address(mockToken1),
+            8e17,
+            2300e18,
+            230e18,
+            100000e6
+        );
         usdoBank.updateMaxBorrowAmount(200000e6, 300000e18);
         mockToken1.transfer(alice, 200e18);
         vm.startPrank(alice);
@@ -134,13 +140,30 @@ contract USDOBankBorrowTest is USDOBankInitTest {
         cheats.expectRevert("AFTER_BORROW_ACCOUNT_IS_NOT_SAFE");
         usdoBank.borrow(200000e6, alice, false);
         usdoBank.borrow(100000e6, alice, false);
-        usdoBank.withdraw(address(mockToken1), 75000000000000000000, alice, false);
+        usdoBank.withdraw(
+            address(mockToken1),
+            75000000000000000000,
+            alice,
+            false
+        );
         vm.stopPrank();
     }
 
     function testGetDepositMaxData() public {
-        usdoBank.updateReserveParam(address(mockToken1), 8e17, 2300e18, 230e18, 100000e18);
-        usdoBank.updateReserveParam(address(mockToken2), 8e17, 2300e18, 230e18, 100000e18);
+        usdoBank.updateReserveParam(
+            address(mockToken1),
+            8e17,
+            2300e18,
+            230e18,
+            100000e18
+        );
+        usdoBank.updateReserveParam(
+            address(mockToken2),
+            8e17,
+            2300e18,
+            230e18,
+            100000e18
+        );
         usdoBank.updateMaxBorrowAmount(200000e18, 300000e18);
         mockToken1.transfer(alice, 10e18);
         mockToken2.transfer(alice, 1e8);
@@ -157,8 +180,20 @@ contract USDOBankBorrowTest is USDOBankInitTest {
     }
 
     function testDepositTooManyETH() public {
-        usdoBank.updateReserveParam(address(mockToken1), 8e17, 2300e18, 230e18, 100000e6);
-        usdoBank.updateReserveParam(address(mockToken2), 8e17, 2300e8, 230e8, 100000e6);
+        usdoBank.updateReserveParam(
+            address(mockToken1),
+            8e17,
+            2300e18,
+            230e18,
+            100000e6
+        );
+        usdoBank.updateReserveParam(
+            address(mockToken2),
+            8e17,
+            2300e8,
+            230e8,
+            100000e6
+        );
         usdoBank.updateRiskParam(address(mockToken1), 825e15, 5e16, 1e17);
         usdoBank.updateMaxBorrowAmount(200000e6, 300000e6);
         mockToken1.transfer(alice, 200e18);
@@ -172,10 +207,22 @@ contract USDOBankBorrowTest is USDOBankInitTest {
         usdoBank.borrow(100000e6, alice, false);
         usdoBank.borrow(80000e6, alice, false);
 
-        uint256 maxWithdrawMockToken1 = usdoBank.getMaxWithdrawAmount(address(mockToken1), alice);
-        console.log("max withdraw mockToken1 before fall", maxWithdrawMockToken1);
-        uint256 maxWithdrawMockToken2 = usdoBank.getMaxWithdrawAmount(address(mockToken2), alice);
-        console.log("max withdraw mockToken2 before fall", maxWithdrawMockToken2);
+        uint256 maxWithdrawMockToken1 = usdoBank.getMaxWithdrawAmount(
+            address(mockToken1),
+            alice
+        );
+        console.log(
+            "max withdraw mockToken1 before fall",
+            maxWithdrawMockToken1
+        );
+        uint256 maxWithdrawMockToken2 = usdoBank.getMaxWithdrawAmount(
+            address(mockToken2),
+            alice
+        );
+        console.log(
+            "max withdraw mockToken2 before fall",
+            maxWithdrawMockToken2
+        );
 
         cheats.expectRevert("AFTER_BORROW_ACCOUNT_IS_NOT_SAFE");
         usdoBank.borrow(1e6, alice, false);
@@ -192,20 +239,31 @@ contract USDOBankBorrowTest is USDOBankInitTest {
         );
         usdoBank.updateOracle(address(mockToken2), address(jojoOracle15000));
 
-        maxWithdrawMockToken1 = usdoBank.getMaxWithdrawAmount(address(mockToken1), alice);
+        maxWithdrawMockToken1 = usdoBank.getMaxWithdrawAmount(
+            address(mockToken1),
+            alice
+        );
         console.log("max withdraw mockToken1", maxWithdrawMockToken1);
-        maxWithdrawMockToken2 = usdoBank.getMaxWithdrawAmount(address(mockToken2), alice);
+        maxWithdrawMockToken2 = usdoBank.getMaxWithdrawAmount(
+            address(mockToken2),
+            alice
+        );
         console.log("max withdraw mockToken2", maxWithdrawMockToken2);
 
         vm.startPrank(alice);
 
         cheats.expectRevert("AFTER_WITHDRAW_ACCOUNT_IS_NOT_SAFE");
-        usdoBank.withdraw(address(mockToken1), 75000000000000000000, alice, false);
+        usdoBank.withdraw(
+            address(mockToken1),
+            75000000000000000000,
+            alice,
+            false
+        );
         bool ifSafe = usdoBank.isAccountSafe(alice);
-        uint256 borrowUSDO = usdoBank.getBorrowBalance(alice);
+        uint256 borrowJUSD = usdoBank.getBorrowBalance(alice);
         uint256 depositAmount = usdoBank.getDepositMaxMintAmount(alice);
 
-        console.log("borrow amount", borrowUSDO);
+        console.log("borrow amount", borrowJUSD);
         console.log("depositAmount amount", depositAmount);
         console.log("alice safe?", ifSafe);
     }

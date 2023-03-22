@@ -6,8 +6,8 @@ pragma solidity ^0.8.9;
 import "forge-std/Test.sol";
 
 import "../mocks/MockERC20.sol";
-import "../../src/token/USDO.sol";
-import "../../src/Impl/USDOExchange.sol";
+import "../../src/token/JUSD.sol";
+import "../../src/Impl/JUSDExchange.sol";
 import "../mocks/MockJOJODealer.sol";
 
 interface Cheats {
@@ -16,22 +16,23 @@ interface Cheats {
     function expectRevert(bytes calldata) external;
 }
 
-contract USDOExchangeTest is Test {
-    Cheats internal constant cheats = Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
-    USDO public usdo;
+contract JUSDExchangeTest is Test {
+    Cheats internal constant cheats =
+        Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
+    JUSD public usdo;
     MockERC20 public usdc;
     address internal alice = address(1);
     address internal bob = address(2);
     address internal jim = address(4);
     address internal owner = address(3);
-    USDOExchange usdoExchange;
+    JUSDExchange usdoExchange;
 
     MockJOJODealer public jojoDealer;
 
     function setUp() public {
-        usdo = new USDO(6);
+        usdo = new JUSD(6);
         usdc = new MockERC20(2000e6);
-        usdoExchange = new USDOExchange(address(usdc), address(usdo));
+        usdoExchange = new JUSDExchange(address(usdc), address(usdo));
         vm.label(alice, "Alice");
         vm.label(bob, "Bob");
         vm.label(jim, "Jim");
@@ -45,7 +46,7 @@ contract USDOExchangeTest is Test {
     function testExchangeSuccess() public {
         vm.startPrank(alice);
         usdc.approve(address(usdoExchange), 1000e6);
-        usdoExchange.buyUSDO(1000e6, alice);
+        usdoExchange.buyJUSD(1000e6, alice);
         assertEq(usdo.balanceOf(alice), 1000e6);
         assertEq(usdc.balanceOf(alice), 1000e6);
     }
@@ -55,11 +56,11 @@ contract USDOExchangeTest is Test {
         vm.startPrank(alice);
         usdc.approve(address(usdoExchange), 1000e6);
         cheats.expectRevert("NOT_ALLOWED_TO_EXCHANGE");
-        usdoExchange.buyUSDO(1000e6, alice);
+        usdoExchange.buyJUSD(1000e6, alice);
         vm.stopPrank();
         usdoExchange.openExchange();
         vm.startPrank(alice);
         usdc.approve(address(usdoExchange), 1000e6);
-        usdoExchange.buyUSDO(1000e6, alice);
+        usdoExchange.buyJUSD(1000e6, alice);
     }
 }

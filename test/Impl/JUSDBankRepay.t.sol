@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.9;
 
-import "./USDOBankInit.t.sol";
+import "./JUSDBankInit.t.sol";
 
-contract USDOBankRepayTest is USDOBankInitTest {
-    function testRepayUSDOSuccess() public {
+contract JUSDBankRepayTest is JUSDBankInitTest {
+    function testRepayJUSDSuccess() public {
         mockToken1.transfer(alice, 100e18);
 
         vm.startPrank(alice);
@@ -22,7 +22,7 @@ contract USDOBankRepayTest is USDOBankInitTest {
         vm.stopPrank();
     }
 
-    function testRepayUSDOtRateSuccess() public {
+    function testRepayJUSDtRateSuccess() public {
         mockToken1.transfer(alice, 100e18);
         mockToken2.transfer(alice, 100e8);
         vm.startPrank(alice);
@@ -33,24 +33,37 @@ contract USDOBankRepayTest is USDOBankInitTest {
         usdoBank.deposit(alice, address(mockToken2), 10e8, alice);
         vm.warp(2000);
         // max borrow amount
-        uint256 rateT2 = usdoBank.t0Rate()
-            + (usdoBank.borrowFeeRate() * ((block.timestamp - usdoBank.lastUpdateTimestamp()))) / 365 days;
+        uint256 rateT2 = usdoBank.t0Rate() +
+            (usdoBank.borrowFeeRate() *
+                ((block.timestamp - usdoBank.lastUpdateTimestamp()))) /
+            365 days;
         usdoBank.borrow(3000e6, alice, false);
         usdo.approve(address(usdoBank), 6000e6);
         vm.warp(3000);
-        uint256 rateT3 = usdoBank.t0Rate()
-            + (usdoBank.borrowFeeRate() * ((block.timestamp - usdoBank.lastUpdateTimestamp()))) / 365 days;
+        uint256 rateT3 = usdoBank.t0Rate() +
+            (usdoBank.borrowFeeRate() *
+                ((block.timestamp - usdoBank.lastUpdateTimestamp()))) /
+            365 days;
         usdo.approve(address(usdoBank), 3000e6);
         usdoBank.repay(1500e6, alice);
         usdoBank.borrow(1000e6, alice, false);
         uint256 aliceBorrowed = usdoBank.getBorrowBalance(alice);
-        emit log_uint((3000e6 * 1e18) / rateT2 + 1 - (1500e6 * 1e18) / rateT3 + (1000e6 * 1e18) / rateT3 + 1);
+        emit log_uint(
+            (3000e6 * 1e18) /
+                rateT2 +
+                1 -
+                (1500e6 * 1e18) /
+                rateT3 +
+                (1000e6 * 1e18) /
+                rateT3 +
+                1
+        );
         console.log((2499997149 * rateT3) / 1e18);
         vm.stopPrank();
         assertEq(aliceBorrowed, 2500001903);
     }
 
-    function testRepayTotalUSDOtRateSuccess() public {
+    function testRepayTotalJUSDtRateSuccess() public {
         mockToken1.transfer(alice, 100e18);
         vm.startPrank(address(usdoBank));
         usdo.transfer(alice, 1000e6);
@@ -85,14 +98,16 @@ contract USDOBankRepayTest is USDOBankInitTest {
     }
 
     // eg: emit log_uint((3000e18 * 1e18/ rateT2) * rateT2 / 1e18)
-    function testRepayUSDOInSameTimestampSuccess() public {
+    function testRepayJUSDInSameTimestampSuccess() public {
         mockToken1.transfer(alice, 100e18);
         vm.startPrank(alice);
         mockToken1.approve(address(usdoBank), 10e18);
         usdoBank.deposit(alice, address(mockToken1), 10e18, alice);
         vm.warp(2000);
-        uint256 rateT2 = usdoBank.t0Rate()
-            + (usdoBank.borrowFeeRate() * ((block.timestamp - usdoBank.lastUpdateTimestamp()))) / 365 days;
+        uint256 rateT2 = usdoBank.t0Rate() +
+            (usdoBank.borrowFeeRate() *
+                ((block.timestamp - usdoBank.lastUpdateTimestamp()))) /
+            365 days;
         usdoBank.borrow(3000e6, alice, false);
         uint256 aliceUsedBorrowed = usdoBank.getBorrowBalance(alice);
         emit log_uint((3000e6 * 1e18) / rateT2);
@@ -139,7 +154,7 @@ contract USDOBankRepayTest is USDOBankInitTest {
 
         IERC20(USDC).approve(address(generalRepay), 1000e6);
         bytes memory test;
-        generalRepay.repayUSDO(address(USDC), 1000e6, alice, test);
+        generalRepay.repayJUSD(address(USDC), 1000e6, alice, test);
         assertEq(usdoBank.getBorrowBalance(alice), 2000e6);
     }
 
@@ -157,7 +172,7 @@ contract USDOBankRepayTest is USDOBankInitTest {
 
         IERC20(USDC).approve(address(generalRepay), 1000e6);
         bytes memory test;
-        generalRepay.repayUSDO(address(USDC), 1000e6, alice, test);
+        generalRepay.repayJUSD(address(USDC), 1000e6, alice, test);
         assertEq(usdoBank.getBorrowBalance(alice), 0);
         assertEq(USDC.balanceOf(alice), 500e6);
     }
@@ -173,7 +188,7 @@ contract USDOBankRepayTest is USDOBankInitTest {
 
         bytes memory data = dodo.getSwapData(1e18, address(mockToken1));
         bytes memory param = abi.encode(dodo, dodo, data);
-        generalRepay.repayUSDO(address(mockToken1), 1e18, alice, param);
+        generalRepay.repayJUSD(address(mockToken1), 1e18, alice, param);
         assertEq(usdoBank.getBorrowBalance(alice), 2000e6);
         assertEq(mockToken1.balanceOf(alice), 4e18);
     }
@@ -189,7 +204,7 @@ contract USDOBankRepayTest is USDOBankInitTest {
 
         bytes memory data = dodo.getSwapData(2e18, address(mockToken1));
         bytes memory param = abi.encode(dodo, dodo, data);
-        generalRepay.repayUSDO(address(mockToken1), 2e18, alice, param);
+        generalRepay.repayJUSD(address(mockToken1), 2e18, alice, param);
         assertEq(usdoBank.getBorrowBalance(alice), 0);
         assertEq(mockToken1.balanceOf(alice), 3e18);
         assertEq(USDC.balanceOf(alice), 1000e6);
@@ -203,7 +218,7 @@ contract USDOBankRepayTest is USDOBankInitTest {
             address(jojoOracle1)
         );
         IERC20(usdc).transfer(address(dodo), 2e6);
-        USDOExchange usdoExchange = new USDOExchange(
+        JUSDExchange usdoExchange = new JUSDExchange(
             address(usdc),
             address(usdo)
         );
@@ -220,7 +235,7 @@ contract USDOBankRepayTest is USDOBankInitTest {
         bytes memory param = abi.encode(dodo, dodo, data);
         mockToken1.approve(address(generalRepay), 1e18);
         cheats.expectRevert("ERC20: transfer amount exceeds balance");
-        generalRepay.repayUSDO(address(mockToken1), 1e18, alice, param);
+        generalRepay.repayJUSD(address(mockToken1), 1e18, alice, param);
         vm.stopPrank();
     }
     // Fuzzy test

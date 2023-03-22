@@ -3,12 +3,12 @@ pragma solidity 0.8.9;
 
 import "ds-test/test.sol";
 
-import "../../src/Impl/USDOBank.sol";
-import "../../src/Impl/USDOExchange.sol";
+import "../../src/Impl/JUSDBank.sol";
+import "../../src/Impl/JUSDExchange.sol";
 import "@JOJO/contracts/testSupport/TestERC20.sol";
 import "../mocks/MockERC20.sol";
 import "@JOJO/contracts/testSupport/TestERC20.sol";
-import "../../src/token/USDO.sol";
+import "../../src/token/JUSD.sol";
 import "../../src/Impl/JOJOOracleAdaptor.sol";
 import "../mocks/MockChainLink.t.sol";
 import "../mocks/MockChainLink2.sol";
@@ -18,7 +18,7 @@ import "../mocks/MockJOJODealer.sol";
 import "../mocks/MockUSDCPrice.sol";
 import "../mocks/MockChainLinkBadDebt.sol";
 import "../../src/lib/DataTypes.sol";
-import { Utils } from "../utils/Utils.sol";
+import {Utils} from "../utils/Utils.sol";
 import "../../src/utils/GeneralRepay.sol";
 import "forge-std/Test.sol";
 
@@ -28,20 +28,21 @@ interface Cheats {
     function expectRevert(bytes calldata) external;
 }
 
-contract USDOBankInitTest is Test {
-    Cheats internal constant cheats = Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
+contract JUSDBankInitTest is Test {
+    Cheats internal constant cheats =
+        Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
     uint256 public constant ONE = 1e18;
 
     Utils internal utils;
     address deployAddress;
 
-    USDOBank public usdoBank;
+    JUSDBank public usdoBank;
     TestERC20 public mockToken2;
 
     MockERC20 public mockToken1;
-    USDOExchange public usdoExchange;
+    JUSDExchange public usdoExchange;
 
-    USDO public usdo;
+    JUSD public usdo;
     JOJOOracleAdaptor public jojoOracle1;
     JOJOOracleAdaptor public jojoOracle2;
     MockChainLink public mockToken1ChainLink;
@@ -68,7 +69,7 @@ contract USDOBankInitTest is Test {
 
         mockToken1 = new MockERC20(5000e18);
 
-        usdo = new USDO(6);
+        usdo = new JUSD(6);
         mockToken1ChainLink = new MockChainLink();
         mockToken2ChainLink = new MockChainLink2();
         usdcPrice = new MockUSDCPrice();
@@ -100,7 +101,7 @@ contract USDOBankInitTest is Test {
         usdo.mint(100000e6);
         USDC = new TestERC20("USDC", "USDC", 6);
         // initial
-        usdoBank = new USDOBank( // maxReservesAmount_
+        usdoBank = new JUSDBank( // maxReservesAmount_
             10,
             insurance,
             address(usdo),
@@ -168,14 +169,15 @@ contract USDOBankInitTest is Test {
         amountList[0] = 100000e6;
         USDC.mint(dodoList, amountList);
 
-        usdoExchange = new USDOExchange(address(USDC), address(usdo));
+        usdoExchange = new JUSDExchange(address(USDC), address(usdo));
         usdo.transfer(address(usdoExchange), 100000e6);
 
         generalRepay = new GeneralRepay(
             address(usdoBank),
             address(usdoExchange),
             address(USDC),
-            address(usdo));
+            address(usdo)
+        );
     }
 
     function testOwner() public {

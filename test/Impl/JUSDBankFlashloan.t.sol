@@ -3,15 +3,15 @@
     SPDX-License-Identifier: BUSL-1.1*/
 pragma solidity 0.8.9;
 
-import "./USDOBankInit.t.sol";
+import "./JUSDBankInit.t.sol";
 import "../../src/Impl/FlashLoanRepay.sol";
-import "../../src/Impl/USDOExchange.sol";
+import "../../src/Impl/JUSDExchange.sol";
 import "../mocks/MockFlashloan.sol";
 import "../../src/support/SupportsDODO.sol";
 import "../mocks/MockFlashloan2.sol";
 import "../mocks/MockFlashloan3.sol";
 
-contract USDOBankFlashloanTest is USDOBankInitTest {
+contract JUSDBankFlashloanTest is JUSDBankInitTest {
     function testFlashloanWithdrawAmountIsTooBig() public {
         MockFlashloan mockFlashloan = new MockFlashloan();
         mockToken1.transfer(alice, 5e18);
@@ -20,7 +20,13 @@ contract USDOBankFlashloanTest is USDOBankInitTest {
         usdoBank.deposit(alice, address(mockToken1), 5e18, alice);
         bytes memory test = "just a test";
         cheats.expectRevert("WITHDRAW_AMOUNT_IS_TOO_BIG");
-        usdoBank.flashLoan(address(mockFlashloan), address(mockToken1), 6e18, alice, test);
+        usdoBank.flashLoan(
+            address(mockFlashloan),
+            address(mockToken1),
+            6e18,
+            alice,
+            test
+        );
         vm.stopPrank();
     }
 
@@ -32,7 +38,13 @@ contract USDOBankFlashloanTest is USDOBankInitTest {
         usdoBank.deposit(alice, address(mockToken1), 5e18, alice);
         bytes memory test = "just a test";
         cheats.expectRevert("WITHDRAW_AMOUNT_IS_ZERO");
-        usdoBank.flashLoan(address(mockFlashloan), address(mockToken1), 0, alice, test);
+        usdoBank.flashLoan(
+            address(mockFlashloan),
+            address(mockToken1),
+            0,
+            alice,
+            test
+        );
         vm.stopPrank();
     }
 
@@ -49,7 +61,13 @@ contract USDOBankFlashloanTest is USDOBankInitTest {
         mockToken1.approve(address(usdoBank), 5e18);
         usdoBank.deposit(alice, address(mockToken1), 5e18, alice);
         bytes memory test = "just a test";
-        usdoBank.flashLoan(address(mockFlashloan), address(mockToken1), 4e18, alice, test);
+        usdoBank.flashLoan(
+            address(mockFlashloan),
+            address(mockToken1),
+            4e18,
+            alice,
+            test
+        );
         vm.stopPrank();
         assertEq(usdoBank.getDepositBalance(address(mockToken1), alice), 1e18);
         assertEq(usdoBank.getDepositBalance(address(mockToken2), alice), 5e8);
@@ -66,7 +84,13 @@ contract USDOBankFlashloanTest is USDOBankInitTest {
         usdoBank.borrow(2000e6, alice, false);
         bytes memory test = "just a test";
         cheats.expectRevert("AFTER_FLASHLOAN_ACCOUNT_IS_NOT_SAFE");
-        usdoBank.flashLoan(address(mockFlashloan2), address(mockToken1), 5e18, alice, test);
+        usdoBank.flashLoan(
+            address(mockFlashloan2),
+            address(mockToken1),
+            5e18,
+            alice,
+            test
+        );
         vm.stopPrank();
     }
 
@@ -85,7 +109,13 @@ contract USDOBankFlashloanTest is USDOBankInitTest {
         bytes memory test = "just a test";
 
         cheats.expectRevert("ReentrancyGuard: flashLoan reentrant call");
-        usdoBank.flashLoan(address(mockFlashloan3), address(mockToken1), 1e18, alice, test);
+        usdoBank.flashLoan(
+            address(mockFlashloan3),
+            address(mockToken1),
+            1e18,
+            alice,
+            test
+        );
         vm.stopPrank();
     }
 
@@ -98,7 +128,7 @@ contract USDOBankFlashloanTest is USDOBankInitTest {
         );
         IERC20(usdc).transfer(address(dodo), 4000e18);
 
-        USDOExchange usdoExchange = new USDOExchange(
+        JUSDExchange usdoExchange = new JUSDExchange(
             address(usdc),
             address(usdo)
         );
@@ -118,7 +148,13 @@ contract USDOBankFlashloanTest is USDOBankInitTest {
         usdoBank.borrow(300e6, alice, false);
         bytes memory data = dodo.getSwapData(1e18, address(mockToken1));
         bytes memory param = abi.encode(dodo, dodo, data);
-        usdoBank.flashLoan(address(flashloanRepay), address(mockToken1), 1e18, alice, param);
+        usdoBank.flashLoan(
+            address(flashloanRepay),
+            address(mockToken1),
+            1e18,
+            alice,
+            param
+        );
 
         assertEq(IERC20(usdc).balanceOf(alice), 700e6);
         assertEq(usdoBank.getBorrowBalance(alice), 0);
@@ -136,7 +172,7 @@ contract USDOBankFlashloanTest is USDOBankInitTest {
         );
         IERC20(usdc).transfer(address(dodo), 4000e18);
 
-        USDOExchange usdoExchange = new USDOExchange(
+        JUSDExchange usdoExchange = new JUSDExchange(
             address(usdc),
             address(usdo)
         );
@@ -157,7 +193,13 @@ contract USDOBankFlashloanTest is USDOBankInitTest {
         bytes memory data = dodo.getSwapData(1e16, address(mockToken1));
         bytes memory param = abi.encode(dodo, dodo, data);
         cheats.expectRevert("NOT_ALLOWED_TO_EXCHANGE");
-        usdoBank.flashLoan(address(flashloanRepay), address(mockToken1), 1e16, alice, param);
+        usdoBank.flashLoan(
+            address(flashloanRepay),
+            address(mockToken1),
+            1e16,
+            alice,
+            param
+        );
         vm.stopPrank();
     }
 
@@ -169,7 +211,7 @@ contract USDOBankFlashloanTest is USDOBankInitTest {
             address(jojoOracle1)
         );
         IERC20(usdc).transfer(address(dodo), 4000e18);
-        USDOExchange usdoExchange = new USDOExchange(
+        JUSDExchange usdoExchange = new JUSDExchange(
             address(usdc),
             address(usdo)
         );
@@ -188,7 +230,13 @@ contract USDOBankFlashloanTest is USDOBankInitTest {
         usdoBank.borrow(300e6, alice, false);
         bytes memory data = dodo.getSwapData(1e15, address(mockToken1));
         bytes memory param = abi.encode(dodo, dodo, data);
-        usdoBank.flashLoan(address(flashloanRepay), address(mockToken1), 1e15, alice, param);
+        usdoBank.flashLoan(
+            address(flashloanRepay),
+            address(mockToken1),
+            1e15,
+            alice,
+            param
+        );
         assertEq(usdoBank.getBorrowBalance(alice), 299e6);
         vm.stopPrank();
     }
@@ -201,7 +249,7 @@ contract USDOBankFlashloanTest is USDOBankInitTest {
             address(jojoOracle1)
         );
         IERC20(usdc).transfer(address(dodo), 2e6);
-        USDOExchange usdoExchange = new USDOExchange(
+        JUSDExchange usdoExchange = new JUSDExchange(
             address(usdc),
             address(usdo)
         );
@@ -221,7 +269,13 @@ contract USDOBankFlashloanTest is USDOBankInitTest {
         bytes memory data = dodo.getSwapData(3e18, address(mockToken1));
         bytes memory param = abi.encode(dodo, dodo, data);
         cheats.expectRevert("ERC20: transfer amount exceeds balance");
-        usdoBank.flashLoan(address(flashloanRepay), address(mockToken1), 3e18, alice, param);
+        usdoBank.flashLoan(
+            address(flashloanRepay),
+            address(mockToken1),
+            3e18,
+            alice,
+            param
+        );
         vm.stopPrank();
     }
 }

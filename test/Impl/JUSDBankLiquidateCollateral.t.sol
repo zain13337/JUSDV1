@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.9;
 
-import "./USDOBankInit.t.sol";
+import "./JUSDBankInit.t.sol";
 import "../../src/Impl/FlashLoanLiquidate.sol";
 import "../mocks/MockChainLink900.sol";
 
-contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
+contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
     /// @notice user just deposit not borrow, account is safe
     function testLiquidateCollateralAccountIsSafe() public {
         mockToken1.transfer(alice, 10e18);
@@ -18,7 +18,14 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
         vm.startPrank(bob);
         cheats.expectRevert("ACCOUNT_IS_SAFE");
         bytes memory afterParam = abi.encode(address(usdo), 10e18);
-        usdoBank.liquidate(alice, address(mockToken1), bob, 10e18, afterParam, 0);
+        usdoBank.liquidate(
+            alice,
+            address(mockToken1),
+            bob,
+            10e18,
+            afterParam,
+            0
+        );
         vm.stopPrank();
     }
 
@@ -86,7 +93,14 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
         );
         bytes memory afterParam = abi.encode(address(flashloanRepay), param);
         cheats.expectRevert("LIQUIDATION_PRICE_PROTECTION");
-        usdoBank.liquidate(alice, address(mockToken1), bob, 10e18, afterParam, 10e18);
+        usdoBank.liquidate(
+            alice,
+            address(mockToken1),
+            bob,
+            10e18,
+            afterParam,
+            10e18
+        );
     }
 
     function testSelfLiquidateCollateral() public {
@@ -125,7 +139,14 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
         );
         bytes memory afterParam = abi.encode(address(flashloanRepay), param);
         cheats.expectRevert("SELF_LIQUIDATION_NOT_ALLOWED");
-        usdoBank.liquidate(alice, address(mockToken1), alice, 10e18, afterParam, 10e18);
+        usdoBank.liquidate(
+            alice,
+            address(mockToken1),
+            alice,
+            10e18,
+            afterParam,
+            10e18
+        );
     }
 
     function testLiquidateCollateralAmountIsTooBig() public {
@@ -164,7 +185,14 @@ contract USDOBankLiquidateCollateralTest is USDOBankInitTest {
         );
         bytes memory afterParam = abi.encode(address(flashloanRepay), param);
         cheats.expectRevert("LIQUIDATE_AMOUNT_IS_TOO_BIG");
-        usdoBank.liquidate(alice, address(mockToken1), bob, 11e18, afterParam, 0);
+        usdoBank.liquidate(
+            alice,
+            address(mockToken1),
+            bob,
+            11e18,
+            afterParam,
+            0
+        );
     }
 
     // // Fuzzy test

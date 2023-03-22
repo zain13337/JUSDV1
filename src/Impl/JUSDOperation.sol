@@ -4,22 +4,33 @@
 
 pragma solidity 0.8.9;
 
-import "./USDOBankStorage.sol";
-import "../utils/USDOError.sol";
+import "./JUSDBankStorage.sol";
+import "../utils/JUSDError.sol";
 import "../lib/JOJOConstant.sol";
-import { DecimalMath } from "../lib/DecimalMath.sol";
+import {DecimalMath} from "../lib/DecimalMath.sol";
 
 /// @notice Owner-only functions
-abstract contract USDOOperation is USDOBankStorage {
+abstract contract JUSDOperation is JUSDBankStorage {
     using DecimalMath for uint256;
 
     // ========== event ==========
     event UpdateInsurance(address oldInsurance, address newInsurance);
     event UpdateJOJODealer(address oldJOJODealer, address newJOJODealer);
-    event SetOperator(address indexed client, address indexed operator, bool isOperator);
+    event SetOperator(
+        address indexed client,
+        address indexed operator,
+        bool isOperator
+    );
     event UpdateOracle(address collateral, address newOracle);
-    event UpdateBorrowFeeRate(uint256 newBorrowFeeRate, uint256 newT0Rate, uint32 lastUpdateTimestamp);
-    event UpdateMaxReservesAmount(uint256 maxReservesAmount, uint256 newMaxReservesAmount);
+    event UpdateBorrowFeeRate(
+        uint256 newBorrowFeeRate,
+        uint256 newT0Rate,
+        uint32 lastUpdateTimestamp
+    );
+    event UpdateMaxReservesAmount(
+        uint256 maxReservesAmount,
+        uint256 newMaxReservesAmount
+    );
     event RemoveReserve(address indexed collateral);
     event ReRegisterReserve(address indexed collateral);
     event UpdateReserveRiskParam(
@@ -28,7 +39,10 @@ abstract contract USDOOperation is USDOBankStorage {
         uint256 liquidationPriceOff,
         uint256 insuranceFeeRate
     );
-    event UpdatePrimaryAsset(address indexed usedPrimary, address indexed newPrimary);
+    event UpdatePrimaryAsset(
+        address indexed usedPrimary,
+        address indexed newPrimary
+    );
     event UpdateReserveParam(
         address indexed collateral,
         uint256 initialMortgageRate,
@@ -36,7 +50,10 @@ abstract contract USDOOperation is USDOBankStorage {
         uint256 maxDepositAmountPerAccount,
         uint256 maxBorrowValue
     );
-    event UpdateMaxBorrowAmount(uint256 maxPerAccountBorrowAmount, uint256 maxTotalBorrowAmount);
+    event UpdateMaxBorrowAmount(
+        uint256 maxPerAccountBorrowAmount,
+        uint256 maxTotalBorrowAmount
+    );
 
     /// @notice initial the param of each reserve
     function initReserve(
@@ -51,15 +68,21 @@ abstract contract USDOOperation is USDOBankStorage {
         address _oracle
     ) external onlyOwner {
         require(
-            JOJOConstant.ONE - _liquidationMortgageRate
-                > _liquidationPriceOff + (JOJOConstant.ONE - _liquidationPriceOff).decimalMul(_insuranceFeeRate),
-            USDOErrors.RESERVE_PARAM_ERROR
+            JOJOConstant.ONE - _liquidationMortgageRate >
+                _liquidationPriceOff +
+                    (JOJOConstant.ONE - _liquidationPriceOff).decimalMul(
+                        _insuranceFeeRate
+                    ),
+            JUSDErrors.RESERVE_PARAM_ERROR
         );
         reserveInfo[_collateral].initialMortgageRate = _initialMortgageRate;
         reserveInfo[_collateral].maxTotalDepositAmount = _maxTotalDepositAmount;
-        reserveInfo[_collateral].maxDepositAmountPerAccount = _maxDepositAmountPerAccount;
-        reserveInfo[_collateral].maxColBorrowPerAccount = _maxColBorrowPerAccount;
-        reserveInfo[_collateral].liquidationMortgageRate = _liquidationMortgageRate;
+        reserveInfo[_collateral]
+            .maxDepositAmountPerAccount = _maxDepositAmountPerAccount;
+        reserveInfo[_collateral]
+            .maxColBorrowPerAccount = _maxColBorrowPerAccount;
+        reserveInfo[_collateral]
+            .liquidationMortgageRate = _liquidationMortgageRate;
         reserveInfo[_collateral].liquidationPriceOff = _liquidationPriceOff;
         reserveInfo[_collateral].insuranceFeeRate = _insuranceFeeRate;
         reserveInfo[_collateral].isDepositAllowed = true;
@@ -69,7 +92,10 @@ abstract contract USDOOperation is USDOBankStorage {
     }
 
     function _addReserve(address collateral) private {
-        require(reservesNum <= maxReservesNum, USDOErrors.NO_MORE_RESERVE_ALLOWED);
+        require(
+            reservesNum <= maxReservesNum,
+            JUSDErrors.NO_MORE_RESERVE_ALLOWED
+        );
         reservesList.push(collateral);
         reservesNum += 1;
     }
@@ -81,7 +107,10 @@ abstract contract USDOOperation is USDOBankStorage {
     ) external onlyOwner {
         maxTotalBorrowAmount = _maxTotalBorrowAmount;
         maxPerAccountBorrowAmount = _maxBorrowAmountPerAccount;
-        emit UpdateMaxBorrowAmount(maxPerAccountBorrowAmount, maxTotalBorrowAmount);
+        emit UpdateMaxBorrowAmount(
+            maxPerAccountBorrowAmount,
+            maxTotalBorrowAmount
+        );
     }
 
     /// @notice update the insurance account
@@ -97,13 +126,18 @@ abstract contract USDOOperation is USDOBankStorage {
     }
 
     /// @notice update collateral oracle
-    function updateOracle(address collateral, address newOracle) external onlyOwner {
+    function updateOracle(
+        address collateral,
+        address newOracle
+    ) external onlyOwner {
         DataTypes.ReserveInfo storage reserve = reserveInfo[collateral];
         reserve.oracle = newOracle;
         emit UpdateOracle(collateral, newOracle);
     }
 
-    function updateMaxReservesAmount(uint256 newMaxReservesAmount) external onlyOwner {
+    function updateMaxReservesAmount(
+        uint256 newMaxReservesAmount
+    ) external onlyOwner {
         emit UpdateMaxReservesAmount(maxReservesNum, newMaxReservesAmount);
         maxReservesNum = newMaxReservesAmount;
     }
@@ -130,14 +164,23 @@ abstract contract USDOOperation is USDOBankStorage {
         uint256 _insuranceFeeRate
     ) external onlyOwner {
         require(
-            JOJOConstant.ONE - _liquidationMortgageRate
-                > _liquidationPriceOff + ((JOJOConstant.ONE - _liquidationPriceOff) * _insuranceFeeRate) / JOJOConstant.ONE,
-            USDOErrors.RESERVE_PARAM_ERROR
+            JOJOConstant.ONE - _liquidationMortgageRate >
+                _liquidationPriceOff +
+                    ((JOJOConstant.ONE - _liquidationPriceOff) *
+                        _insuranceFeeRate) /
+                    JOJOConstant.ONE,
+            JUSDErrors.RESERVE_PARAM_ERROR
         );
-        reserveInfo[collateral].liquidationMortgageRate = _liquidationMortgageRate;
+        reserveInfo[collateral]
+            .liquidationMortgageRate = _liquidationMortgageRate;
         reserveInfo[collateral].liquidationPriceOff = _liquidationPriceOff;
         reserveInfo[collateral].insuranceFeeRate = _insuranceFeeRate;
-        emit UpdateReserveRiskParam(collateral, _liquidationMortgageRate, _liquidationPriceOff, _insuranceFeeRate);
+        emit UpdateReserveRiskParam(
+            collateral,
+            _liquidationMortgageRate,
+            _liquidationPriceOff,
+            _insuranceFeeRate
+        );
     }
 
     /// @notice update the reserve basic params
@@ -150,8 +193,10 @@ abstract contract USDOOperation is USDOBankStorage {
     ) external onlyOwner {
         reserveInfo[collateral].initialMortgageRate = _initialMortgageRate;
         reserveInfo[collateral].maxTotalDepositAmount = _maxTotalDepositAmount;
-        reserveInfo[collateral].maxDepositAmountPerAccount = _maxDepositAmountPerAccount;
-        reserveInfo[collateral].maxColBorrowPerAccount = _maxColBorrowPerAccount;
+        reserveInfo[collateral]
+            .maxDepositAmountPerAccount = _maxDepositAmountPerAccount;
+        reserveInfo[collateral]
+            .maxColBorrowPerAccount = _maxColBorrowPerAccount;
         emit UpdateReserveParam(
             collateral,
             _initialMortgageRate,

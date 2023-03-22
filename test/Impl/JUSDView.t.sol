@@ -3,10 +3,10 @@ pragma solidity 0.8.9;
 
 import "@JOJO/contracts/testSupport/TestERC20.sol";
 
-import "./USDOBankInit.t.sol";
+import "./JUSDBankInit.t.sol";
 
-contract USDOViewTest is USDOBankInitTest {
-    function testUSDOView() public {
+contract JUSDViewTest is JUSDBankInitTest {
+    function testJUSDView() public {
         TestERC20 BTC = new TestERC20("BTC", "BTC", 8);
 
         jojoOracle2 = new JOJOOracleAdaptor(
@@ -34,7 +34,8 @@ contract USDOViewTest is USDOBankInitTest {
             1e17,
             address(jojoOracle2)
         );
-        uint256 btcPrice = IPriceChainLink(address(jojoOracle2)).getAssetPrice();
+        uint256 btcPrice = IPriceChainLink(address(jojoOracle2))
+            .getAssetPrice();
         console.log("btcPrice", btcPrice);
         address[] memory user = new address[](1);
         user[0] = address(alice);
@@ -51,21 +52,33 @@ contract USDOViewTest is USDOBankInitTest {
         usdoBank.deposit(alice, address(BTC), 1e8, alice);
 
         uint256 maxMintAmount = usdoBank.getDepositMaxMintAmount(alice);
-        uint256 maxWithdrawBTC = usdoBank.getMaxWithdrawAmount(address(BTC), alice);
-        uint256 maxWithdrawETH = usdoBank.getMaxWithdrawAmount(address(mockToken1), alice);
+        uint256 maxWithdrawBTC = usdoBank.getMaxWithdrawAmount(
+            address(BTC),
+            alice
+        );
+        uint256 maxWithdrawETH = usdoBank.getMaxWithdrawAmount(
+            address(mockToken1),
+            alice
+        );
         assertEq(maxMintAmount, 8700000000);
         assertEq(maxWithdrawBTC, 1e8);
         assertEq(maxWithdrawETH, 10e18);
 
         usdoBank.borrow(7200e6, alice, false);
         maxWithdrawBTC = usdoBank.getMaxWithdrawAmount(address(BTC), alice);
-        maxWithdrawETH = usdoBank.getMaxWithdrawAmount(address(mockToken1), alice);
+        maxWithdrawETH = usdoBank.getMaxWithdrawAmount(
+            address(mockToken1),
+            alice
+        );
         assertEq(maxWithdrawBTC, 100000000);
         assertEq(maxWithdrawETH, 1875000000000000000);
 
         usdoBank.borrow(800e6, alice, false);
         usdoBank.withdraw(address(BTC), 1e8, alice, false);
-        maxWithdrawETH = usdoBank.getMaxWithdrawAmount(address(mockToken1), alice);
+        maxWithdrawETH = usdoBank.getMaxWithdrawAmount(
+            address(mockToken1),
+            alice
+        );
         assertEq(maxWithdrawETH, 0);
     }
 }

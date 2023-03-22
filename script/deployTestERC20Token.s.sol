@@ -9,8 +9,8 @@ contract WETHScript is Script {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
-        new TestERC20("USDO", "USDO", 6);
-        console2.log("deploy USDO");
+        new TestERC20("JUSD", "JUSD", 6);
+        console2.log("deploy JUSD");
         vm.stopBroadcast();
     }
 }

@@ -2,9 +2,9 @@
 pragma solidity 0.8.9;
 
 import "ds-test/test.sol";
-import "../../src/Impl/USDOBank.sol";
+import "../../src/Impl/JUSDBank.sol";
 import "../mocks/MockERC20.sol";
-import "../../src/token/USDO.sol";
+import "../../src/token/JUSD.sol";
 import "../../src/Impl/JOJOOracleAdaptor.sol";
 import "../mocks/MockChainLink.t.sol";
 import "../mocks/MockJOJODealer.sol";
@@ -14,9 +14,9 @@ import "@JOJO/contracts/impl/JOJODealer.sol";
 import "@JOJO/contracts/intf/IDealer.sol";
 import "@JOJO/contracts/subaccount/SubaccountFactory.sol";
 import "@JOJO/contracts/testSupport/TestERC20.sol";
-import { console } from "forge-std/console.sol";
+import {console} from "forge-std/console.sol";
 import "forge-std/Test.sol";
-import "../../src/Impl/USDOExchange.sol";
+import "../../src/Impl/JUSDExchange.sol";
 import "../../src/Impl/FlashLoanRepay.sol";
 import "../../src/support/SupportsDODO.sol";
 import "../mocks/MockChainLinkBadDebt.sol";
@@ -30,20 +30,21 @@ interface Cheats {
 }
 
 contract SubaccountTest is Test {
-    Cheats internal constant cheats = Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
+    Cheats internal constant cheats =
+        Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
 
     using DecimalMath for uint256;
 
-    USDOBank public usdoBank;
+    JUSDBank public usdoBank;
     MockERC20 public mockToken1;
     TestERC20 public USDC;
-    USDO public usdo;
+    JUSD public usdo;
     JOJOOracleAdaptor public jojoOracle1;
     MockChainLink public mockToken1ChainLink;
     MockUSDCPrice public usdcPrice;
     JOJODealer public jojoDealer;
     SubaccountFactory public subaccountFactory;
-    USDOExchange usdoExchange;
+    JUSDExchange usdoExchange;
     FlashLoanRepay public flashLoanRepay;
     SupportsDODO public supportsDODO;
     address internal alice = address(1);
@@ -52,7 +53,7 @@ contract SubaccountTest is Test {
 
     function setUp() public {
         mockToken1 = new MockERC20(2000e18);
-        usdo = new USDO(6);
+        usdo = new JUSD(6);
         USDC = new TestERC20("USDC", "USDC", 6);
         mockToken1ChainLink = new MockChainLink();
         usdcPrice = new MockUSDCPrice();
@@ -68,9 +69,9 @@ contract SubaccountTest is Test {
         vm.label(insurance, "Insurance");
         usdo.mint(200000e6);
         subaccountFactory = new SubaccountFactory();
-        usdoExchange = new USDOExchange(address(USDC), address(usdo));
+        usdoExchange = new JUSDExchange(address(USDC), address(usdo));
         usdo.transfer(address(usdoExchange), 100000e6);
-        usdoBank = new USDOBank( // maxReservesAmount_
+        usdoBank = new JUSDBank( // maxReservesAmount_
             2,
             insurance,
             address(usdo),
@@ -117,8 +118,12 @@ contract SubaccountTest is Test {
         );
     }
 
-    function getSetOperatorData(address op, bool isValid) public pure returns (bytes memory) {
-        return abi.encodeWithSignature("setOperator(address,bool) ", op, isValid);
+    function getSetOperatorData(
+        address op,
+        bool isValid
+    ) public pure returns (bytes memory) {
+        return
+            abi.encodeWithSignature("setOperator(address,bool) ", op, isValid);
     }
 
     function testOperatorJOJOSubaccount() public {
@@ -138,7 +143,7 @@ contract SubaccountTest is Test {
         // alice is the operator of aliceSub in JOJODealer system and can operate the sub account.
         assertEq(IDealer(jojoDealer).isOperatorValid(aliceSub, alice), true);
 
-        // aliceSub is the operator of alice in USDO system and can operate alice
+        // aliceSub is the operator of alice in JUSD system and can operate alice
         // so that aliceSub can control alice to deposit collateral to subaccount
         // deposit can be devided into two situation:
         // 1. main account can deposit directly into sub account.
@@ -146,25 +151,56 @@ contract SubaccountTest is Test {
         // 2. multicall deposit and borrow, in this situation,
         // users need to let aliceSub operate main account, and borrow from subaccount
         usdoBank.setOperator(aliceSub, true);
-        bytes memory dataDeposit = usdoBank.getDepositData(alice, address(mockToken1), 1e18, aliceSub);
-        bytes memory dataBorrow = usdoBank.getBorrowData(500e6, aliceSub, false);
+        bytes memory dataDeposit = usdoBank.getDepositData(
+            alice,
+            address(mockToken1),
+            1e18,
+            aliceSub
+        );
+        bytes memory dataBorrow = usdoBank.getBorrowData(
+            500e6,
+            aliceSub,
+            false
+        );
         bytes[] memory multiCallData = new bytes[](2);
         multiCallData[0] = dataDeposit;
         multiCallData[1] = dataBorrow;
-        bytes memory excuteData = abi.encodeWithSignature("multiCall(bytes[])", multiCallData);
+        bytes memory excuteData = abi.encodeWithSignature(
+            "multiCall(bytes[])",
+            multiCallData
+        );
         Subaccount(aliceSub).execute(address(usdoBank), excuteData, 0);
-        console.log("aliceSub deposit", usdoBank.getDepositBalance(address(mockToken1), aliceSub));
+        console.log(
+            "aliceSub deposit",
+            usdoBank.getDepositBalance(address(mockToken1), aliceSub)
+        );
         console.log("aliceSub borrow", usdoBank.getBorrowBalance(aliceSub));
         console.log("alice borrow", usdoBank.getBorrowBalance(alice));
 
-        bytes memory dataWithdraw = usdoBank.getWithdrawData(address(mockToken1), 5e17, alice, false);
+        bytes memory dataWithdraw = usdoBank.getWithdrawData(
+            address(mockToken1),
+            5e17,
+            alice,
+            false
+        );
         Subaccount(aliceSub).execute(address(usdoBank), dataWithdraw, 0);
-        console.log("aliceSub deposit", usdoBank.getDepositBalance(address(mockToken1), aliceSub));
+        console.log(
+            "aliceSub deposit",
+            usdoBank.getDepositBalance(address(mockToken1), aliceSub)
+        );
 
         // flashloan situation
         // subaccount call flashloan and repay to it's own account
-        bytes memory swapParam = abi.encodeWithSignature("swap(uint256,address)", 2e17, address(mockToken1));
-        bytes memory param = abi.encode(address(supportsDODO), address(supportsDODO), swapParam);
+        bytes memory swapParam = abi.encodeWithSignature(
+            "swap(uint256,address)",
+            2e17,
+            address(mockToken1)
+        );
+        bytes memory param = abi.encode(
+            address(supportsDODO),
+            address(supportsDODO),
+            swapParam
+        );
         bytes memory dataFlashloan = abi.encodeWithSignature(
             "flashLoan(address,address,uint256,address,bytes)",
             address(flashLoanRepay),
@@ -178,9 +214,23 @@ contract SubaccountTest is Test {
 
         // main account call flashloan function repay to other account
         usdoBank.deposit(alice, address(mockToken1), 1e18, alice);
-        swapParam = abi.encodeWithSignature("swap(uint256,address)", 3e17, address(mockToken1));
-        param = abi.encode(address(supportsDODO), address(supportsDODO), swapParam);
-        usdoBank.flashLoan(address(flashLoanRepay), address(mockToken1), 3e17, aliceSub, param);
+        swapParam = abi.encodeWithSignature(
+            "swap(uint256,address)",
+            3e17,
+            address(mockToken1)
+        );
+        param = abi.encode(
+            address(supportsDODO),
+            address(supportsDODO),
+            swapParam
+        );
+        usdoBank.flashLoan(
+            address(flashLoanRepay),
+            address(mockToken1),
+            3e17,
+            aliceSub,
+            param
+        );
         console.log("aliceSub borrow", usdoBank.getBorrowBalance(aliceSub));
 
         assertEq(usdoBank.getBorrowBalance(aliceSub), 0);

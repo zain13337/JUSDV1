@@ -4,12 +4,16 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import { DataTypes } from "../lib/DataTypes.sol";
+import {DataTypes} from "../lib/DataTypes.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "../utils/FlashLoanReentrancyGuard.sol";
 import "../lib/JOJOConstant.sol";
 
-abstract contract USDOBankStorage is Ownable, ReentrancyGuard, FlashLoanReentrancyGuard {
+abstract contract JUSDBankStorage is
+    Ownable,
+    ReentrancyGuard,
+    FlashLoanReentrancyGuard
+{
     // reserve token address ==> reserve info
     mapping(address => DataTypes.ReserveInfo) public reserveInfo;
     // reserve token address ==> user info
@@ -20,11 +24,11 @@ abstract contract USDOBankStorage is Ownable, ReentrancyGuard, FlashLoanReentran
     uint256 public reservesNum;
     // max reserves amount
     uint256 public maxReservesNum;
-    // max borrow USDO amount per account
+    // max borrow JUSD amount per account
     uint256 public maxPerAccountBorrowAmount;
-    // max total borrow USDO amount
+    // max total borrow JUSD amount
     uint256 public maxTotalBorrowAmount;
-    // t0 total borrow USDO amount
+    // t0 total borrow JUSD amount
     uint256 public t0TotalBorrowAmount;
     // borrow fee rate
     uint256 public borrowFeeRate;
@@ -36,14 +40,17 @@ abstract contract USDOBankStorage is Ownable, ReentrancyGuard, FlashLoanReentran
     address[] public reservesList;
     // insurance account
     address public insurance;
-    // USDO address
-    address public USDO;
+    // JUSD address
+    address public JUSD;
     // primary address
     address public primaryAsset;
     address public JOJODealer;
 
     function getTRate() public view returns (uint256) {
         uint256 timeDifference = block.timestamp - uint256(lastUpdateTimestamp);
-        return t0Rate + (borrowFeeRate * timeDifference) / JOJOConstant.SECONDS_PER_YEAR;
+        return
+            t0Rate +
+            (borrowFeeRate * timeDifference) /
+            JOJOConstant.SECONDS_PER_YEAR;
     }
 }

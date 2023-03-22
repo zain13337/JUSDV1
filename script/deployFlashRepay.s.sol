@@ -17,7 +17,7 @@ contract FlashRepayScript is Script {
                 0x8Dd79B16AA7ab776CE8aA15D67c7C04cAFe0f4de,
         // _USDC
             0xDd29a69462a08006Fda068D090b44B045958C5B7,
-        // _USDO
+        // _JUSD
             0x834D14F87700e5fFc084e732c7381673133cdbcC);
         console2.log("deploy FlashLoanRepay");
         vm.stopBroadcast();

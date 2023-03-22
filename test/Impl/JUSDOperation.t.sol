@@ -2,14 +2,14 @@
 pragma solidity 0.8.9;
 
 import "ds-test/test.sol";
-import "../../src/Impl/USDOBank.sol";
+import "../../src/Impl/JUSDBank.sol";
 import "../mocks/MockERC20.sol";
-import "../../src/token/USDO.sol";
+import "../../src/token/JUSD.sol";
 import "../../src/Impl/JOJOOracleAdaptor.sol";
 import "../mocks/MockChainLink.t.sol";
 import "../mocks/MockJOJODealer.sol";
 import "../../src/lib/DataTypes.sol";
-import { console } from "forge-std/console.sol";
+import {console} from "forge-std/console.sol";
 import "forge-std/Test.sol";
 import "@JOJO/contracts/testSupport/TestERC20.sol";
 import "../mocks/MockUSDCPrice.sol";
@@ -21,14 +21,15 @@ interface Cheats {
     function expectRevert(bytes calldata) external;
 }
 
-contract USDOOperationTest is Test {
-    Cheats internal constant cheats = Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
+contract JUSDOperationTest is Test {
+    Cheats internal constant cheats =
+        Cheats(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
 
     using DecimalMath for uint256;
 
-    USDOBank public usdoBank;
+    JUSDBank public usdoBank;
     MockERC20 public mockToken1;
-    USDO public usdo;
+    JUSD public usdo;
     JOJOOracleAdaptor public jojoOracle1;
     MockChainLink public mockToken1ChainLink;
     MockUSDCPrice public usdcPrice;
@@ -41,7 +42,7 @@ contract USDOOperationTest is Test {
 
     function setUp() public {
         mockToken1 = new MockERC20(2000e18);
-        usdo = new USDO(6);
+        usdo = new JUSD(6);
         mockToken1ChainLink = new MockChainLink();
         usdcPrice = new MockUSDCPrice();
         jojoDealer = new MockJOJODealer();
@@ -56,7 +57,7 @@ contract USDOOperationTest is Test {
         vm.label(insurance, "Insurance");
         usdo.mint(100000e6);
         USDC = new TestERC20("USDC", "USDC", 6);
-        usdoBank = new USDOBank( // maxReservesAmount_
+        usdoBank = new JUSDBank( // maxReservesAmount_
             2,
             insurance,
             address(usdo),
@@ -91,17 +92,17 @@ contract USDOOperationTest is Test {
         );
     }
 
-    function testUSDOMint() public {
+    function testJUSDMint() public {
         usdo.mint(100e6);
         assertEq(usdo.balanceOf(address(this)), 100100e6);
     }
 
-    function testUSDOBurn() public {
+    function testJUSDBurn() public {
         usdo.burn(50000e6);
         assertEq(usdo.balanceOf(address(this)), 50000e6);
     }
 
-    function testUSDODecimal() public {
+    function testJUSDDecimal() public {
         emit log_uint(usdo.decimals());
         assertEq(usdo.decimals(), 6);
     }
@@ -197,7 +198,13 @@ contract USDOOperationTest is Test {
     }
 
     function testUpdateReserveParam() public {
-        usdoBank.updateReserveParam(address(mockToken1), 1e18, 100e18, 100e18, 200000e18);
+        usdoBank.updateReserveParam(
+            address(mockToken1),
+            1e18,
+            100e18,
+            100e18,
+            200000e18
+        );
         //        assertEq(usdoBank.getInitialRate(address(mockToken1)), 1e18);
     }
 
@@ -237,7 +244,10 @@ contract USDOOperationTest is Test {
     }
 
     function testCollateraltMaxMintAmount() public {
-        uint256 value = usdoBank.getCollateralMaxMintAmount(address(mockToken1), 2e18);
+        uint256 value = usdoBank.getCollateralMaxMintAmount(
+            address(mockToken1),
+            2e18
+        );
         assertEq(value, 1000e6);
     }
 }
