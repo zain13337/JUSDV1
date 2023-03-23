@@ -19,17 +19,17 @@ contract MockFlashloan3 is IFlashLoanReceive {
     ) external {
         address bob = 0x2f66c75A001Ba71ccb135934F48d844b46454543;
         address mockToken2 = 0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f;
-        address usdoBank = 0x212224D2F2d262cd093eE13240ca4873fcCBbA3C;
+        address jusdBank = 0x212224D2F2d262cd093eE13240ca4873fcCBbA3C;
         IERC20(asset).safeTransfer(bob, amount);
 
         MockFlashloan mockFlashloan = new MockFlashloan();
-        IJUSDBank(usdoBank).deposit(
+        IJUSDBank(jusdBank).deposit(
             address(this),
             address(mockToken2),
             5e8,
             to
         );
-        IJUSDBank(usdoBank).flashLoan(
+        IJUSDBank(jusdBank).flashLoan(
             address(mockFlashloan),
             address(mockToken2),
             20e8,

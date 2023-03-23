@@ -15,7 +15,7 @@ contract JUSDViewTest is JUSDBankInitTest {
             86400,
             address(usdcPrice)
         );
-        usdoBank.initReserve(
+        jusdBank.initReserve(
             // token
             address(BTC),
             // maxCurrencyBorrowRate
@@ -46,17 +46,17 @@ contract JUSDViewTest is JUSDBankInitTest {
 
         vm.startPrank(alice);
 
-        BTC.approve(address(usdoBank), 1e8);
-        mockToken1.approve(address(usdoBank), 10e18);
-        usdoBank.deposit(alice, address(mockToken1), 10e18, alice);
-        usdoBank.deposit(alice, address(BTC), 1e8, alice);
+        BTC.approve(address(jusdBank), 1e8);
+        mockToken1.approve(address(jusdBank), 10e18);
+        jusdBank.deposit(alice, address(mockToken1), 10e18, alice);
+        jusdBank.deposit(alice, address(BTC), 1e8, alice);
 
-        uint256 maxMintAmount = usdoBank.getDepositMaxMintAmount(alice);
-        uint256 maxWithdrawBTC = usdoBank.getMaxWithdrawAmount(
+        uint256 maxMintAmount = jusdBank.getDepositMaxMintAmount(alice);
+        uint256 maxWithdrawBTC = jusdBank.getMaxWithdrawAmount(
             address(BTC),
             alice
         );
-        uint256 maxWithdrawETH = usdoBank.getMaxWithdrawAmount(
+        uint256 maxWithdrawETH = jusdBank.getMaxWithdrawAmount(
             address(mockToken1),
             alice
         );
@@ -64,18 +64,18 @@ contract JUSDViewTest is JUSDBankInitTest {
         assertEq(maxWithdrawBTC, 1e8);
         assertEq(maxWithdrawETH, 10e18);
 
-        usdoBank.borrow(7200e6, alice, false);
-        maxWithdrawBTC = usdoBank.getMaxWithdrawAmount(address(BTC), alice);
-        maxWithdrawETH = usdoBank.getMaxWithdrawAmount(
+        jusdBank.borrow(7200e6, alice, false);
+        maxWithdrawBTC = jusdBank.getMaxWithdrawAmount(address(BTC), alice);
+        maxWithdrawETH = jusdBank.getMaxWithdrawAmount(
             address(mockToken1),
             alice
         );
         assertEq(maxWithdrawBTC, 100000000);
         assertEq(maxWithdrawETH, 1875000000000000000);
 
-        usdoBank.borrow(800e6, alice, false);
-        usdoBank.withdraw(address(BTC), 1e8, alice, false);
-        maxWithdrawETH = usdoBank.getMaxWithdrawAmount(
+        jusdBank.borrow(800e6, alice, false);
+        jusdBank.withdraw(address(BTC), 1e8, alice, false);
+        maxWithdrawETH = jusdBank.getMaxWithdrawAmount(
             address(mockToken1),
             alice
         );

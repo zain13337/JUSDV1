@@ -11,20 +11,20 @@ pragma solidity 0.8.9;
 
 contract GeneralRepay {
     address public immutable USDC;
-    address public usdoBank;
-    address public usdoExchange;
+    address public jusdBank;
+    address public jusdExchange;
     address public immutable JUSD;
 
     using SafeERC20 for IERC20;
 
     constructor(
-        address _usdoBank,
-        address _usdoExchange,
+        address _jusdBank,
+        address _jusdExchange,
         address _USDC,
         address _JUSD
     ) {
-        usdoBank = _usdoBank;
-        usdoExchange = _usdoExchange;
+        jusdBank = _jusdBank;
+        jusdExchange = _jusdExchange;
         USDC = _USDC;
         JUSD = _JUSD;
     }
@@ -54,18 +54,18 @@ contract GeneralRepay {
         uint256 USDCAmount = IERC20(USDC).balanceOf(address(this));
         uint256 JUSDAmount = USDCAmount;
 
-        uint256 borrowBalance = IJUSDBank(usdoBank).getBorrowBalance(to);
+        uint256 borrowBalance = IJUSDBank(jusdBank).getBorrowBalance(to);
         if (USDCAmount <= borrowBalance) {
-            IERC20(USDC).approve(usdoExchange, USDCAmount);
-            IJUSDExchange(usdoExchange).buyJUSD(USDCAmount, address(this));
+            IERC20(USDC).approve(jusdExchange, USDCAmount);
+            IJUSDExchange(jusdExchange).buyJUSD(USDCAmount, address(this));
         } else {
-            IERC20(USDC).approve(usdoExchange, borrowBalance);
-            IJUSDExchange(usdoExchange).buyJUSD(borrowBalance, address(this));
+            IERC20(USDC).approve(jusdExchange, borrowBalance);
+            IJUSDExchange(jusdExchange).buyJUSD(borrowBalance, address(this));
             IERC20(USDC).safeTransfer(to, USDCAmount - borrowBalance);
             JUSDAmount = borrowBalance;
         }
 
-        IERC20(JUSD).approve(usdoBank, JUSDAmount);
-        IJUSDBank(usdoBank).repay(JUSDAmount, to);
+        IERC20(JUSD).approve(jusdBank, JUSDAmount);
+        IJUSDBank(jusdBank).repay(JUSDAmount, to);
     }
 }

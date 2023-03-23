@@ -36,13 +36,13 @@ contract JUSDBankInitTest is Test {
     Utils internal utils;
     address deployAddress;
 
-    JUSDBank public usdoBank;
+    JUSDBank public jusdBank;
     TestERC20 public mockToken2;
 
     MockERC20 public mockToken1;
-    JUSDExchange public usdoExchange;
+    JUSDExchange public jusdExchange;
 
-    JUSD public usdo;
+    JUSD public jusd;
     JOJOOracleAdaptor public jojoOracle1;
     JOJOOracleAdaptor public jojoOracle2;
     MockChainLink public mockToken1ChainLink;
@@ -69,7 +69,7 @@ contract JUSDBankInitTest is Test {
 
         mockToken1 = new MockERC20(5000e18);
 
-        usdo = new JUSD(6);
+        jusd = new JUSD(6);
         mockToken1ChainLink = new MockChainLink();
         mockToken2ChainLink = new MockChainLink2();
         usdcPrice = new MockUSDCPrice();
@@ -97,14 +97,14 @@ contract JUSDBankInitTest is Test {
         vm.label(insurance, "Insurance");
         jim = users[3];
         vm.label(jim, "Jim");
-        usdo.mint(200000e6);
-        usdo.mint(100000e6);
+        jusd.mint(200000e6);
+        jusd.mint(100000e6);
         USDC = new TestERC20("USDC", "USDC", 6);
         // initial
-        usdoBank = new JUSDBank( // maxReservesAmount_
+        jusdBank = new JUSDBank( // maxReservesAmount_
             10,
             insurance,
-            address(usdo),
+            address(jusd),
             address(jojoDealer),
             // maxBorrowAmountPerAccount_
             100000000000,
@@ -114,11 +114,11 @@ contract JUSDBankInitTest is Test {
             2e16,
             address(USDC)
         );
-        deployAddress = usdoBank.owner();
+        deployAddress = jusdBank.owner();
 
-        usdo.transfer(address(usdoBank), 200000e6);
+        jusd.transfer(address(jusdBank), 200000e6);
         //  mockToken2 BTC mockToken1 ETH
-        usdoBank.initReserve(
+        jusdBank.initReserve(
             // token
             address(mockToken2),
             // initialMortgageRate
@@ -138,7 +138,7 @@ contract JUSDBankInitTest is Test {
             address(jojoOracle2)
         );
 
-        usdoBank.initReserve(
+        jusdBank.initReserve(
             // token
             address(mockToken1),
             // initialMortgageRate
@@ -169,22 +169,22 @@ contract JUSDBankInitTest is Test {
         amountList[0] = 100000e6;
         USDC.mint(dodoList, amountList);
 
-        usdoExchange = new JUSDExchange(address(USDC), address(usdo));
-        usdo.transfer(address(usdoExchange), 100000e6);
+        jusdExchange = new JUSDExchange(address(USDC), address(jusd));
+        jusd.transfer(address(jusdExchange), 100000e6);
 
         generalRepay = new GeneralRepay(
-            address(usdoBank),
-            address(usdoExchange),
+            address(jusdBank),
+            address(jusdExchange),
             address(USDC),
-            address(usdo)
+            address(jusd)
         );
     }
 
     function testOwner() public {
-        assertEq(deployAddress, usdoBank.owner());
+        assertEq(deployAddress, jusdBank.owner());
     }
 
     function testInitMint() public {
-        assertEq(usdo.balanceOf(address(usdoBank)), 200000e6);
+        assertEq(jusd.balanceOf(address(jusdBank)), 200000e6);
     }
 }

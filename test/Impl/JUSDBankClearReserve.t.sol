@@ -5,27 +5,27 @@ import "./JUSDBankInit.t.sol";
 import "../../src/Impl/FlashLoanLiquidate.sol";
 
 contract JUSDBankClearReserveTest is JUSDBankInitTest {
-    /// @notice user borrow usdo account is not safe
+    /// @notice user borrow jusd account is not safe
     function testClearReserve() public {
         mockToken1.transfer(alice, 10e18);
         mockToken2.transfer(bob, 10e8);
 
         vm.startPrank(alice);
-        mockToken1.approve(address(usdoBank), 10e18);
+        mockToken1.approve(address(jusdBank), 10e18);
         vm.warp(1000);
-        usdoBank.deposit(alice, address(mockToken1), 10e18, alice);
+        jusdBank.deposit(alice, address(mockToken1), 10e18, alice);
         vm.warp(2000);
-        usdoBank.borrow(3000e6, alice, false);
+        jusdBank.borrow(3000e6, alice, false);
         vm.stopPrank();
         //mocktoken1 relist
-        usdoBank.delistReserve(address(mockToken1));
+        jusdBank.delistReserve(address(mockToken1));
         //bob liquidate alice
         vm.startPrank(bob);
         FlashLoanLiquidate flashLoanLiquidate = new FlashLoanLiquidate(
-            address(usdoBank),
-            address(usdoExchange),
+            address(jusdBank),
+            address(jusdExchange),
             address(USDC),
-            address(usdo),
+            address(jusd),
             insurance
         );
         bytes memory data = dodo.getSwapData(10e18, address(mockToken1));
@@ -35,7 +35,7 @@ contract JUSDBankClearReserveTest is JUSDBankInitTest {
             param
         );
 
-        DataTypes.LiquidateData memory liq = usdoBank.liquidate(
+        DataTypes.LiquidateData memory liq = jusdBank.liquidate(
             alice,
             address(mockToken1),
             bob,
@@ -46,16 +46,16 @@ contract JUSDBankClearReserveTest is JUSDBankInitTest {
 
         // logs
 
-        uint256 bobDeposit = usdoBank.getDepositBalance(
+        uint256 bobDeposit = jusdBank.getDepositBalance(
             address(mockToken1),
             bob
         );
-        uint256 aliceDeposit = usdoBank.getDepositBalance(
+        uint256 aliceDeposit = jusdBank.getDepositBalance(
             address(mockToken1),
             alice
         );
-        uint256 bobBorrow = usdoBank.getBorrowBalance(bob);
-        uint256 aliceBorrow = usdoBank.getBorrowBalance(alice);
+        uint256 bobBorrow = jusdBank.getBorrowBalance(bob);
+        uint256 aliceBorrow = jusdBank.getBorrowBalance(alice);
         uint256 insuranceUSDC = IERC20(USDC).balanceOf(insurance);
         uint256 aliceUSDC = IERC20(USDC).balanceOf(alice);
         uint256 bobUSDC = IERC20(USDC).balanceOf(bob);
@@ -75,24 +75,24 @@ contract JUSDBankClearReserveTest is JUSDBankInitTest {
         mockToken2.transfer(alice, 1e8);
 
         vm.startPrank(alice);
-        mockToken1.approve(address(usdoBank), 10e18);
-        usdoBank.deposit(alice, address(mockToken1), 10e18, alice);
-        usdoBank.borrow(3000e6, alice, false);
+        mockToken1.approve(address(jusdBank), 10e18);
+        jusdBank.deposit(alice, address(mockToken1), 10e18, alice);
+        jusdBank.borrow(3000e6, alice, false);
         vm.stopPrank();
 
-        usdoBank.delistReserve(address(mockToken1));
+        jusdBank.delistReserve(address(mockToken1));
 
         vm.startPrank(alice);
-        mockToken2.approve(address(usdoBank), 1e8);
-        usdoBank.deposit(alice, address(mockToken2), 1e8, alice);
+        mockToken2.approve(address(jusdBank), 1e8);
+        jusdBank.deposit(alice, address(mockToken2), 1e8, alice);
 
         cheats.expectRevert("AFTER_WITHDRAW_ACCOUNT_IS_NOT_SAFE");
-        usdoBank.withdraw(address(mockToken2), 1e8, alice, false);
-        uint256 maxWithdrawBTC = usdoBank.getMaxWithdrawAmount(
+        jusdBank.withdraw(address(mockToken2), 1e8, alice, false);
+        uint256 maxWithdrawBTC = jusdBank.getMaxWithdrawAmount(
             address(mockToken2),
             alice
         );
-        uint256 maxMint = usdoBank.getDepositMaxMintAmount(alice);
+        uint256 maxMint = jusdBank.getDepositMaxMintAmount(alice);
         assertEq(maxMint, 14000e6);
         assertEq(maxWithdrawBTC, 78571428);
         vm.stopPrank();
@@ -102,26 +102,26 @@ contract JUSDBankClearReserveTest is JUSDBankInitTest {
     function testClearAndRegister() public {
         mockToken1.transfer(alice, 10e18);
 
-        vm.startPrank(address(usdoBank));
-        usdo.transfer(alice, 1000e6);
+        vm.startPrank(address(jusdBank));
+        jusd.transfer(alice, 1000e6);
         vm.stopPrank();
 
         vm.startPrank(alice);
-        mockToken1.approve(address(usdoBank), 10e18);
+        mockToken1.approve(address(jusdBank), 10e18);
         vm.warp(1000);
-        usdoBank.deposit(alice, address(mockToken1), 10e18, alice);
+        jusdBank.deposit(alice, address(mockToken1), 10e18, alice);
         vm.warp(2000);
-        usdoBank.borrow(3000e6, alice, false);
+        jusdBank.borrow(3000e6, alice, false);
         vm.stopPrank();
         vm.warp(3000);
-        usdoBank.delistReserve(address(mockToken1));
+        jusdBank.delistReserve(address(mockToken1));
 
         vm.warp(4000);
-        usdoBank.relistReserve(address(mockToken1));
+        jusdBank.relistReserve(address(mockToken1));
 
         vm.startPrank(alice);
-        usdoBank.withdraw(address(mockToken1), 1e18, alice, false);
+        jusdBank.withdraw(address(mockToken1), 1e18, alice, false);
         vm.stopPrank();
-        assertEq(usdoBank.getDepositBalance(address(mockToken1), alice), 9e18);
+        assertEq(jusdBank.getDepositBalance(address(mockToken1), alice), 9e18);
     }
 }

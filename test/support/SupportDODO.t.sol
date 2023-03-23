@@ -13,7 +13,7 @@ import "../mocks/MockChainLink.t.sol";
 
 contract SupportDODO is Test {
     SupportsDODO public supportsDODO;
-    JUSD public usdo;
+    JUSD public jusd;
     MockERC20 public eth;
     MockERC20 public lido;
     JOJOOracleAdaptor public ethAdaptor;
@@ -23,7 +23,7 @@ contract SupportDODO is Test {
     MockUSDCPrice public usdcPrice;
 
     function setUp() public {
-        usdo = new JUSD(6);
+        jusd = new JUSD(6);
         eth = new MockERC20(10e18);
         lido = new MockERC20(10e18);
 
@@ -43,7 +43,7 @@ contract SupportDODO is Test {
             address(usdcPrice)
         );
         supportsDODO = new SupportsDODO(
-            address(usdo),
+            address(jusd),
             address(eth),
             address(ethAdaptor)
         );
@@ -52,8 +52,8 @@ contract SupportDODO is Test {
     function testAddToken() public {
         assertEq(ethAdaptor.getAssetPrice(), 1000e6);
         supportsDODO.addTokenPrice(address(lido), address(lidoAdaptor));
-        usdo.mint(5000e6);
-        usdo.transfer(address(supportsDODO), 5000e6);
+        jusd.mint(5000e6);
+        jusd.transfer(address(supportsDODO), 5000e6);
         eth.transfer(address(supportsDODO), 5e18);
         lido.transfer(address(supportsDODO), 5e18);
 
@@ -62,6 +62,6 @@ contract SupportDODO is Test {
         lido.approve(address(supportsDODO), 5e18);
         supportsDODO.swap(1e18, address(lido));
         assertEq(lido.balanceOf(address(123)), 4e18);
-        assertEq(usdo.balanceOf(address(123)), 1000e6);
+        assertEq(jusd.balanceOf(address(123)), 1000e6);
     }
 }

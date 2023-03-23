@@ -10,15 +10,15 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
     function testLiquidateCollateralAccountIsSafe() public {
         mockToken1.transfer(alice, 10e18);
         vm.startPrank(alice);
-        mockToken1.approve(address(usdoBank), 10e18);
-        usdoBank.deposit(alice, address(mockToken1), 10e18, alice);
-        bool ifSafe = usdoBank.isAccountSafe(alice);
+        mockToken1.approve(address(jusdBank), 10e18);
+        jusdBank.deposit(alice, address(mockToken1), 10e18, alice);
+        bool ifSafe = jusdBank.isAccountSafe(alice);
         assertEq(ifSafe, true);
         vm.stopPrank();
         vm.startPrank(bob);
         cheats.expectRevert("ACCOUNT_IS_SAFE");
-        bytes memory afterParam = abi.encode(address(usdo), 10e18);
-        usdoBank.liquidate(
+        bytes memory afterParam = abi.encode(address(jusd), 10e18);
+        jusdBank.liquidate(
             alice,
             address(mockToken1),
             bob,
@@ -31,13 +31,13 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
 
     function testLiquidateCollateralAmountIsZero() public {
         mockToken1.transfer(alice, 10e18);
-        vm.startPrank(address(usdoBank));
-        usdo.transfer(bob, 5000e6);
+        vm.startPrank(address(jusdBank));
+        jusd.transfer(bob, 5000e6);
         vm.stopPrank();
         vm.startPrank(alice);
-        mockToken1.approve(address(usdoBank), 10e18);
-        usdoBank.deposit(alice, address(mockToken1), 10e18, alice);
-        usdoBank.borrow(5000e6, alice, false);
+        mockToken1.approve(address(jusdBank), 10e18);
+        jusdBank.deposit(alice, address(mockToken1), 10e18, alice);
+        jusdBank.borrow(5000e6, alice, false);
         vm.stopPrank();
         vm.startPrank(address(this));
         MockChainLinkBadDebt mockChainLinkBadDebt = new MockChainLinkBadDebt();
@@ -47,25 +47,25 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
             86400,
             address(usdcPrice)
         );
-        usdoBank.updateOracle(address(mockToken1), address(jojoOracle3));
+        jusdBank.updateOracle(address(mockToken1), address(jojoOracle3));
         vm.stopPrank();
         vm.startPrank(bob);
-        usdo.approve(address(usdoBank), 5225e6);
+        jusd.approve(address(jusdBank), 5225e6);
         vm.warp(3000);
         cheats.expectRevert("LIQUIDATE_AMOUNT_IS_ZERO");
-        bytes memory afterParam = abi.encode(address(usdo), 5000e6);
-        usdoBank.liquidate(alice, address(mockToken1), bob, 0, afterParam, 0);
+        bytes memory afterParam = abi.encode(address(jusd), 5000e6);
+        jusdBank.liquidate(alice, address(mockToken1), bob, 0, afterParam, 0);
     }
 
     function testLiquidateCollateralPriceProtect() public {
         mockToken1.transfer(alice, 10e18);
-        vm.startPrank(address(usdoBank));
-        usdo.transfer(bob, 5000e6);
+        vm.startPrank(address(jusdBank));
+        jusd.transfer(bob, 5000e6);
         vm.stopPrank();
         vm.startPrank(alice);
-        mockToken1.approve(address(usdoBank), 10e18);
-        usdoBank.deposit(alice, address(mockToken1), 10e18, alice);
-        usdoBank.borrow(7426e6, alice, false);
+        mockToken1.approve(address(jusdBank), 10e18);
+        jusdBank.deposit(alice, address(mockToken1), 10e18, alice);
+        jusdBank.borrow(7426e6, alice, false);
         vm.stopPrank();
         vm.startPrank(address(this));
         MockChainLink900 eth900 = new MockChainLink900();
@@ -75,25 +75,25 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
             86400,
             address(usdcPrice)
         );
-        usdoBank.updateOracle(address(mockToken1), address(jojoOracle900));
+        jusdBank.updateOracle(address(mockToken1), address(jojoOracle900));
         dodo.addTokenPrice(address(mockToken1), address(jojoOracle900));
         vm.stopPrank();
 
         vm.startPrank(bob);
-        usdo.approve(address(usdoBank), 5225e6);
+        jusd.approve(address(jusdBank), 5225e6);
         vm.warp(3000);
         bytes memory data = dodo.getSwapData(1e18, address(mockToken1));
         bytes memory param = abi.encode(dodo, dodo, address(bob), data);
         FlashLoanLiquidate flashloanRepay = new FlashLoanLiquidate(
-            address(usdoBank),
-            address(usdoExchange),
+            address(jusdBank),
+            address(jusdExchange),
             address(USDC),
-            address(usdo),
+            address(jusd),
             insurance
         );
         bytes memory afterParam = abi.encode(address(flashloanRepay), param);
         cheats.expectRevert("LIQUIDATION_PRICE_PROTECTION");
-        usdoBank.liquidate(
+        jusdBank.liquidate(
             alice,
             address(mockToken1),
             bob,
@@ -105,13 +105,13 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
 
     function testSelfLiquidateCollateral() public {
         mockToken1.transfer(alice, 10e18);
-        vm.startPrank(address(usdoBank));
-        usdo.transfer(bob, 5000e6);
+        vm.startPrank(address(jusdBank));
+        jusd.transfer(bob, 5000e6);
         vm.stopPrank();
         vm.startPrank(alice);
-        mockToken1.approve(address(usdoBank), 10e18);
-        usdoBank.deposit(alice, address(mockToken1), 10e18, alice);
-        usdoBank.borrow(7426e6, alice, false);
+        mockToken1.approve(address(jusdBank), 10e18);
+        jusdBank.deposit(alice, address(mockToken1), 10e18, alice);
+        jusdBank.borrow(7426e6, alice, false);
         vm.stopPrank();
         vm.startPrank(address(this));
         MockChainLink900 eth900 = new MockChainLink900();
@@ -121,7 +121,7 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
             86400,
             address(usdcPrice)
         );
-        usdoBank.updateOracle(address(mockToken1), address(jojoOracle900));
+        jusdBank.updateOracle(address(mockToken1), address(jojoOracle900));
         dodo.addTokenPrice(address(mockToken1), address(jojoOracle900));
         vm.stopPrank();
 
@@ -131,15 +131,15 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
         bytes memory data = dodo.getSwapData(1e18, address(mockToken1));
         bytes memory param = abi.encode(dodo, dodo, address(bob), data);
         FlashLoanLiquidate flashloanRepay = new FlashLoanLiquidate(
-            address(usdoBank),
-            address(usdoExchange),
+            address(jusdBank),
+            address(jusdExchange),
             address(USDC),
-            address(usdo),
+            address(jusd),
             insurance
         );
         bytes memory afterParam = abi.encode(address(flashloanRepay), param);
         cheats.expectRevert("SELF_LIQUIDATION_NOT_ALLOWED");
-        usdoBank.liquidate(
+        jusdBank.liquidate(
             alice,
             address(mockToken1),
             alice,
@@ -151,13 +151,13 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
 
     function testLiquidateCollateralAmountIsTooBig() public {
         mockToken1.transfer(alice, 10e18);
-        vm.startPrank(address(usdoBank));
-        usdo.transfer(bob, 5000e6);
+        vm.startPrank(address(jusdBank));
+        jusd.transfer(bob, 5000e6);
         vm.stopPrank();
         vm.startPrank(alice);
-        mockToken1.approve(address(usdoBank), 10e18);
-        usdoBank.deposit(alice, address(mockToken1), 10e18, alice);
-        usdoBank.borrow(7426e6, alice, false);
+        mockToken1.approve(address(jusdBank), 10e18);
+        jusdBank.deposit(alice, address(mockToken1), 10e18, alice);
+        jusdBank.borrow(7426e6, alice, false);
         vm.stopPrank();
         vm.startPrank(address(this));
         MockChainLink900 eth900 = new MockChainLink900();
@@ -167,25 +167,25 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
             86400,
             address(usdcPrice)
         );
-        usdoBank.updateOracle(address(mockToken1), address(jojoOracle900));
+        jusdBank.updateOracle(address(mockToken1), address(jojoOracle900));
         dodo.addTokenPrice(address(mockToken1), address(jojoOracle900));
         vm.stopPrank();
 
         vm.startPrank(bob);
-        usdo.approve(address(usdoBank), 5225e6);
+        jusd.approve(address(jusdBank), 5225e6);
         vm.warp(3000);
         bytes memory data = dodo.getSwapData(1e18, address(mockToken1));
         bytes memory param = abi.encode(dodo, dodo, address(bob), data);
         FlashLoanLiquidate flashloanRepay = new FlashLoanLiquidate(
-            address(usdoBank),
-            address(usdoExchange),
+            address(jusdBank),
+            address(jusdExchange),
             address(USDC),
-            address(usdo),
+            address(jusd),
             insurance
         );
         bytes memory afterParam = abi.encode(address(flashloanRepay), param);
         cheats.expectRevert("LIQUIDATE_AMOUNT_IS_TOO_BIG");
-        usdoBank.liquidate(
+        jusdBank.liquidate(
             alice,
             address(mockToken1),
             bob,
@@ -199,26 +199,26 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
     // //     function testLiquidateFuzzyLiquidatedTrader(address liquidatedTrader) public {
     // //         mockToken1.transfer(alice, 10e18);
     // //         vm.startPrank(alice);
-    // //         mockToken1.approve(address(usdoBank), 10e18);
-    // //         usdoBank.deposit(address(mockToken1), 10e18, alice);
-    // //         usdoBank.liquidate(liquidatedTrader, address(mockToken1), 10e18, address(usdo), 10e18, alice);
+    // //         mockToken1.approve(address(jusdBank), 10e18);
+    // //         jusdBank.deposit(address(mockToken1), 10e18, alice);
+    // //         jusdBank.liquidate(liquidatedTrader, address(mockToken1), 10e18, address(jusd), 10e18, alice);
     // //         vm.stopPrank();
     // //     }
     // //     function testLiquidateFuzzyLiquidationCollateral(address liquidationCollateral) public {
     // //         vm.startPrank(alice);
-    // //         usdoBank.liquidate(alice, liquidationCollateral, 10e18, address(usdo), 5000e18, alice);
+    // //         jusdBank.liquidate(alice, liquidationCollateral, 10e18, address(jusd), 5000e18, alice);
     // //     }
 
     // // //
     // //     function testLiquidateFuzzyLiquidationAmount(uint256 amount) public {
     // //         mockToken1.transfer(alice, 10e18);
-    // //         vm.startPrank(address(usdoBank));
-    // //         usdo.transfer(bob, 5000e18);
+    // //         vm.startPrank(address(jusdBank));
+    // //         jusd.transfer(bob, 5000e18);
     // //         vm.stopPrank();
     // //         vm.startPrank(alice);
-    // //         mockToken1.approve(address(usdoBank), 10e18);
-    // //         usdoBank.deposit(address(mockToken1), 10e18, alice);
-    // //         usdoBank.borrow(5000e18, alice, false, alice);
+    // //         mockToken1.approve(address(jusdBank), 10e18);
+    // //         jusdBank.deposit(address(mockToken1), 10e18, alice);
+    // //         jusdBank.borrow(5000e18, alice, false, alice);
     // //         vm.stopPrank();
     // //         vm.startPrank(address(this));
     // //         MockChainLinkBadDebt mockChainLinkBadDebt = new MockChainLinkBadDebt();
@@ -226,24 +226,24 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
     // //             address(mockChainLinkBadDebt),
     // //             20
     // //         );
-    // //         usdoBank.updateOracle(address(mockToken1), address(jojoOracle3));
+    // //         jusdBank.updateOracle(address(mockToken1), address(jojoOracle3));
     // //         vm.stopPrank();
 
     // //         vm.startPrank(bob);
-    // //         usdo.approve(address(usdoBank), 5225e18);
+    // //         jusd.approve(address(jusdBank), 5225e18);
     // //         vm.warp(3000);
-    // //         usdoBank.liquidate(alice, address(mockToken1), amount, address(usdo), 5000e18, bob);
+    // //         jusdBank.liquidate(alice, address(mockToken1), amount, address(jusd), 5000e18, bob);
     // //     }
 
     // //      function testLiquidateFuzzyDepositCollateral(address depositCollateral) public {
     // //         mockToken1.transfer(alice, 10e18);
-    // //         vm.startPrank(address(usdoBank));
-    // //         usdo.transfer(bob, 5000e18);
+    // //         vm.startPrank(address(jusdBank));
+    // //         jusd.transfer(bob, 5000e18);
     // //         vm.stopPrank();
     // //         vm.startPrank(alice);
-    // //         mockToken1.approve(address(usdoBank), 10e18);
-    // //         usdoBank.deposit(address(mockToken1), 10e18, alice);
-    // //         usdoBank.borrow(5000e18, alice, false, alice);
+    // //         mockToken1.approve(address(jusdBank), 10e18);
+    // //         jusdBank.deposit(address(mockToken1), 10e18, alice);
+    // //         jusdBank.borrow(5000e18, alice, false, alice);
     // //         vm.stopPrank();
     // //         vm.startPrank(address(this));
     // //         MockChainLinkBadDebt mockChainLinkBadDebt = new MockChainLinkBadDebt();
@@ -251,26 +251,26 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
     // //             address(mockChainLinkBadDebt),
     // //             20
     // //         );
-    // //         usdoBank.updateOracle(address(mockToken1), address(jojoOracle3));
+    // //         jusdBank.updateOracle(address(mockToken1), address(jojoOracle3));
     // //         vm.stopPrank();
 
     // //         vm.startPrank(bob);
-    // //         usdo.approve(address(usdoBank), 5225e18);
+    // //         jusd.approve(address(jusdBank), 5225e18);
     // //         vm.warp(3000);
-    // //         usdoBank.liquidate(alice, address(mockToken1), 10e18, depositCollateral, 5000e18, bob);
+    // //         jusdBank.liquidate(alice, address(mockToken1), 10e18, depositCollateral, 5000e18, bob);
     // //     }
 
     // //      function testLiquidateFuzzyDepositAmount(uint256 depositAmount) public {
     // //         mockToken1.transfer(alice, 10e18);
 
-    // //         vm.startPrank(address(usdoBank));
-    // //         usdo.transfer(bob, depositAmount);
+    // //         vm.startPrank(address(jusdBank));
+    // //         jusd.transfer(bob, depositAmount);
     // //         vm.stopPrank();
 
     // //         vm.startPrank(alice);
-    // //         mockToken1.approve(address(usdoBank), 10e18);
-    // //         usdoBank.deposit(address(mockToken1), 10e18, alice);
-    // //         usdoBank.borrow(5000e18, alice, false, alice);
+    // //         mockToken1.approve(address(jusdBank), 10e18);
+    // //         jusdBank.deposit(address(mockToken1), 10e18, alice);
+    // //         jusdBank.borrow(5000e18, alice, false, alice);
     // //         vm.stopPrank();
 
     // //         vm.startPrank(address(this));
@@ -279,24 +279,24 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
     // //             address(mockChainLinkBadDebt),
     // //             20
     // //         );
-    // //         usdoBank.updateOracle(address(mockToken1), address(jojoOracle3));
+    // //         jusdBank.updateOracle(address(mockToken1), address(jojoOracle3));
     // //         vm.stopPrank();
 
     // //         vm.startPrank(bob);
-    // //         usdo.approve(address(usdoBank), depositAmount);
+    // //         jusd.approve(address(jusdBank), depositAmount);
     // //         vm.warp(3000);
-    // //         usdoBank.liquidate(alice, address(mockToken1), 10e18, address(usdo), depositAmount, bob);
+    // //         jusdBank.liquidate(alice, address(mockToken1), 10e18, address(jusd), depositAmount, bob);
     // //     }
 
     // //     function testLiquidateFuzzy2DepositAmount(uint256 depositAmount) public {
     // //         mockToken1.transfer(alice, 10e18);
     // //         mockToken2.transfer(bob, depositAmount);
     // //         vm.startPrank(alice);
-    // //         mockToken1.approve(address(usdoBank), 10e18);
+    // //         mockToken1.approve(address(jusdBank), 10e18);
     // //         vm.warp(1000);
-    // //         usdoBank.deposit(address(mockToken1), 10e18, alice);
+    // //         jusdBank.deposit(address(mockToken1), 10e18, alice);
     // //         vm.warp(2000);
-    // //         usdoBank.borrow(5000e18, alice, false, alice);
+    // //         jusdBank.borrow(5000e18, alice, false, alice);
     // //         vm.stopPrank();
     // //         vm.startPrank(address(this));
     // //         MockChainLinkBadDebt mockChainLinkBadDebt = new MockChainLinkBadDebt();
@@ -304,13 +304,13 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
     // //             address(mockChainLinkBadDebt),
     // //             20
     // //         );
-    // //         usdoBank.updateOracle(address(mockToken1), address(jojoOracle3));
+    // //         jusdBank.updateOracle(address(mockToken1), address(jojoOracle3));
     // //         vm.stopPrank();
     // //         vm.startPrank(bob);
-    // //         mockToken2.approve(address(usdoBank), depositAmount);
+    // //         mockToken2.approve(address(jusdBank), depositAmount);
     // //         vm.warp(3000);
 
-    // //         usdoBank.liquidate(alice, address(mockToken1), 5e18, address(mockToken2), depositAmount, bob);
+    // //         jusdBank.liquidate(alice, address(mockToken1), 5e18, address(mockToken2), depositAmount, bob);
     // //         vm.stopPrank();
     // //     }
 
@@ -318,11 +318,11 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
     // //         mockToken1.transfer(alice, 10e18);
     // //         mockToken2.transfer(liquidator, 10e18);
     // //         vm.startPrank(alice);
-    // //         mockToken1.approve(address(usdoBank), 10e18);
+    // //         mockToken1.approve(address(jusdBank), 10e18);
     // //         vm.warp(1000);
-    // //         usdoBank.deposit(address(mockToken1), 10e18, alice);
+    // //         jusdBank.deposit(address(mockToken1), 10e18, alice);
     // //         vm.warp(2000);
-    // //         usdoBank.borrow(5000e18, alice, false, alice);
+    // //         jusdBank.borrow(5000e18, alice, false, alice);
     // //         vm.stopPrank();
     // //         vm.startPrank(address(this));
     // //         MockChainLinkBadDebt mockChainLinkBadDebt = new MockChainLinkBadDebt();
@@ -330,13 +330,13 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
     // //             address(mockChainLinkBadDebt),
     // //             20
     // //         );
-    // //         usdoBank.updateOracle(address(mockToken1), address(jojoOracle3));
+    // //         jusdBank.updateOracle(address(mockToken1), address(jojoOracle3));
     // //         vm.stopPrank();
 
     // //         vm.startPrank(liquidator);
-    // //         mockToken2.approve(address(usdoBank), 10e18);
+    // //         mockToken2.approve(address(jusdBank), 10e18);
     // //         vm.warp(3000);
-    // //         usdoBank.liquidate(alice, address(mockToken1), 5e18, address(mockToken2), 10e18, liquidator);
+    // //         jusdBank.liquidate(alice, address(mockToken1), 5e18, address(mockToken2), 10e18, liquidator);
     // //         vm.stopPrank();
     // //     }
 }

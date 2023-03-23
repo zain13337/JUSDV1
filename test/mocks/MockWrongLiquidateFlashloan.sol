@@ -15,8 +15,8 @@ contract LiquidateCollateralRepayNotEnough is IFlashLoanReceive {
     using SafeERC20 for IERC20;
     using DecimalMath for uint256;
 
-    address public usdoBank;
-    address public usdoExchange;
+    address public jusdBank;
+    address public jusdExchange;
     address public immutable USDC;
     address public immutable JUSD;
     address public insurance;
@@ -30,14 +30,14 @@ contract LiquidateCollateralRepayNotEnough is IFlashLoanReceive {
     }
 
     constructor(
-        address _usdoBank,
-        address _usdoExchange,
+        address _jusdBank,
+        address _jusdExchange,
         address _USDC,
         address _JUSD,
         address _insurance
     ) {
-        usdoBank = _usdoBank;
-        usdoExchange = _usdoExchange;
+        jusdBank = _jusdBank;
+        jusdExchange = _jusdExchange;
         USDC = _USDC;
         JUSD = _JUSD;
         insurance = _insurance;
@@ -65,13 +65,13 @@ contract LiquidateCollateralRepayNotEnough is IFlashLoanReceive {
             }
         }
 
-        IERC20(USDC).approve(usdoExchange, liquidateData.actualLiquidated - 1);
-        IJUSDExchange(usdoExchange).buyJUSD(
+        IERC20(USDC).approve(jusdExchange, liquidateData.actualLiquidated - 1);
+        IJUSDExchange(jusdExchange).buyJUSD(
             liquidateData.actualLiquidated - 1,
             address(this)
         );
-        IERC20(JUSD).approve(usdoBank, liquidateData.actualLiquidated - 1);
-        IJUSDBank(usdoBank).repay(liquidateData.actualLiquidated - 1, to);
+        IERC20(JUSD).approve(jusdBank, liquidateData.actualLiquidated - 1);
+        IJUSDBank(jusdBank).repay(liquidateData.actualLiquidated - 1, to);
     }
 }
 
@@ -79,8 +79,8 @@ contract LiquidateCollateralInsuranceNotEnough is IFlashLoanReceive {
     using SafeERC20 for IERC20;
     using DecimalMath for uint256;
 
-    address public usdoBank;
-    address public usdoExchange;
+    address public jusdBank;
+    address public jusdExchange;
     address public immutable USDC;
     address public immutable JUSD;
     address public insurance;
@@ -94,14 +94,14 @@ contract LiquidateCollateralInsuranceNotEnough is IFlashLoanReceive {
     }
 
     constructor(
-        address _usdoBank,
-        address _usdoExchange,
+        address _jusdBank,
+        address _jusdExchange,
         address _USDC,
         address _JUSD,
         address _insurance
     ) {
-        usdoBank = _usdoBank;
-        usdoExchange = _usdoExchange;
+        jusdBank = _jusdBank;
+        jusdExchange = _jusdExchange;
         USDC = _USDC;
         JUSD = _JUSD;
         insurance = _insurance;
@@ -129,13 +129,13 @@ contract LiquidateCollateralInsuranceNotEnough is IFlashLoanReceive {
             }
         }
 
-        IERC20(USDC).approve(usdoExchange, liquidateData.actualLiquidated);
-        IJUSDExchange(usdoExchange).buyJUSD(
+        IERC20(USDC).approve(jusdExchange, liquidateData.actualLiquidated);
+        IJUSDExchange(jusdExchange).buyJUSD(
             liquidateData.actualLiquidated,
             address(this)
         );
-        IERC20(JUSD).approve(usdoBank, liquidateData.actualLiquidated);
-        IJUSDBank(usdoBank).repay(liquidateData.actualLiquidated, to);
+        IERC20(JUSD).approve(jusdBank, liquidateData.actualLiquidated);
+        IJUSDBank(jusdBank).repay(liquidateData.actualLiquidated, to);
 
         // 2. insurance
         IERC20(USDC).transfer(insurance, liquidateData.insuranceFee - 1);
@@ -151,8 +151,8 @@ contract LiquidateCollateralLiquidatedNotEnough is IFlashLoanReceive {
     using SafeERC20 for IERC20;
     using DecimalMath for uint256;
 
-    address public usdoBank;
-    address public usdoExchange;
+    address public jusdBank;
+    address public jusdExchange;
     address public immutable USDC;
     address public immutable JUSD;
     address public insurance;
@@ -166,14 +166,14 @@ contract LiquidateCollateralLiquidatedNotEnough is IFlashLoanReceive {
     }
 
     constructor(
-        address _usdoBank,
-        address _usdoExchange,
+        address _jusdBank,
+        address _jusdExchange,
         address _USDC,
         address _JUSD,
         address _insurance
     ) {
-        usdoBank = _usdoBank;
-        usdoExchange = _usdoExchange;
+        jusdBank = _jusdBank;
+        jusdExchange = _jusdExchange;
         USDC = _USDC;
         JUSD = _JUSD;
         insurance = _insurance;
@@ -201,13 +201,13 @@ contract LiquidateCollateralLiquidatedNotEnough is IFlashLoanReceive {
             }
         }
 
-        IERC20(USDC).approve(usdoExchange, liquidateData.actualLiquidated);
-        IJUSDExchange(usdoExchange).buyJUSD(
+        IERC20(USDC).approve(jusdExchange, liquidateData.actualLiquidated);
+        IJUSDExchange(jusdExchange).buyJUSD(
             liquidateData.actualLiquidated,
             address(this)
         );
-        IERC20(JUSD).approve(usdoBank, liquidateData.actualLiquidated);
-        IJUSDBank(usdoBank).repay(liquidateData.actualLiquidated, to);
+        IERC20(JUSD).approve(jusdBank, liquidateData.actualLiquidated);
+        IJUSDBank(jusdBank).repay(liquidateData.actualLiquidated, to);
 
         // 2. insurance
         IERC20(USDC).transfer(insurance, liquidateData.insuranceFee);

@@ -8,11 +8,11 @@ import "forge-std/console2.sol";
 contract JUSDInvariantTest is JUSDBankInitTest {
     //     reserveAmount <= maxAmount
     //    function invariant_ReservesAmount() public {
-    //        assertTrue(usdoBank.reservesAmount() <= usdoBank.maxReservesAmount());
+    //        assertTrue(jusdBank.reservesAmount() <= jusdBank.maxReservesAmount());
     //    }
     //
     //    function invariant_TotalBorrowAmount() public {
     //        emit log_uint(1);
-    //        assertTrue(usdoBank.t0TotalBorrowAmount() <= usdoBank.maxTotalBorrowAmount());
+    //        assertTrue(jusdBank.t0TotalBorrowAmount() <= jusdBank.maxTotalBorrowAmount());
     //    }
 }
