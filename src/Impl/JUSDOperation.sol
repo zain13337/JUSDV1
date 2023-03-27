@@ -125,6 +125,22 @@ abstract contract JUSDOperation is JUSDBankStorage {
         JOJODealer = newJOJODealer;
     }
 
+    function liquidatorWhitelistOpen() external onlyOwner {
+        isLiquidatorWhitelistOpen = true;
+    }
+
+    function liquidatorWhitelistClose() external onlyOwner {
+        isLiquidatorWhitelistOpen = false;
+    }
+
+    function addLiquidator(address liquidator) external onlyOwner {
+        isLiquidatorWhiteList[liquidator] = true;
+    }
+
+    function removeLiquidator(address liquidator) external onlyOwner {
+        isLiquidatorWhiteList[liquidator] = false;
+    }
+
     /// @notice update collateral oracle
     function updateOracle(
         address collateral,

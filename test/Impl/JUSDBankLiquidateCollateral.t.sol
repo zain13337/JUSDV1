@@ -195,6 +195,40 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
         );
     }
 
+    function testLiquidatorIsNotInWhiteList() public {
+        mockToken1.transfer(alice, 10e18);
+        bool isOpen = jusdBank.isLiquidatorWhitelistOpen();
+        assertEq(isOpen, false);
+        jusdBank.liquidatorWhitelistOpen();
+        vm.startPrank(alice);
+        mockToken1.approve(address(jusdBank), 10e18);
+        jusdBank.deposit(alice, address(mockToken1), 10e18, alice);
+        jusdBank.borrow(7426e6, alice, false);
+        vm.stopPrank();
+
+        vm.startPrank(bob);
+        vm.warp(3000);
+        bytes memory data = dodo.getSwapData(1e18, address(mockToken1));
+        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
+        FlashLoanLiquidate flashloanRepay = new FlashLoanLiquidate(
+            address(jusdBank),
+            address(jusdExchange),
+            address(USDC),
+            address(jusd),
+            insurance
+        );
+        bytes memory afterParam = abi.encode(address(flashloanRepay), param);
+        cheats.expectRevert("LIQUIDATOR_NOT_IN_THE_WHITELIST");
+        jusdBank.liquidate(
+            alice,
+            address(mockToken1),
+            bob,
+            1e18,
+            afterParam,
+            0
+        );
+    }
+
     // // Fuzzy test
     // //     function testLiquidateFuzzyLiquidatedTrader(address liquidatedTrader) public {
     // //         mockToken1.transfer(alice, 10e18);

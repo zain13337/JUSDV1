@@ -50,6 +50,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
 
     address internal alice = address(1);
     address internal bob = address(2);
+    address internal jim = address(4);
     address internal insurance = address(3);
 
     function setUp() public {
@@ -123,6 +124,101 @@ contract JUSDBankOperatorLiquidateTest is Test {
 
     function testLiquidateAll() public {
         ETH.transfer(alice, 10e18);
+        vm.startPrank(alice);
+        ETH.approve(address(jusdBank), 10e18);
+
+        // eth 10 0.8 1000 8000
+        jusdBank.deposit(alice, address(ETH), 10e18, alice);
+        vm.warp(1000);
+        jusdBank.borrow(7426e6, alice, false);
+        vm.stopPrank();
+
+        // price exchange 900 * 10 * 0.825 = 7425
+        // liquidateAmount = 7695, USDJBorrow 7426 liquidationPriceOff = 0.05 priceOff = 855 actualJUSD = 8,251.1111111111 insuranceFee = 8,25.11111111111
+        // actualCollateral 9.6504223522
+        vm.warp(2000);
+        MockChainLink900 eth900 = new MockChainLink900();
+        JOJOOracleAdaptor jojoOracle900 = new JOJOOracleAdaptor(
+            address(eth900),
+            20,
+            86400,
+            address(usdcPrice)
+        );
+        jusdBank.updateOracle(address(ETH), address(jojoOracle900));
+        dodo.addTokenPrice(address(ETH), address(jojoOracle900));
+
+        //init flashloanRepay
+        jusd.mint(50000e6);
+        IERC20(jusd).transfer(address(jusdExchange), 50000e6);
+        FlashLoanLiquidate flashLoanLiquidate = new FlashLoanLiquidate(
+            address(jusdBank),
+            address(jusdExchange),
+            address(USDC),
+            address(jusd),
+            insurance
+        );
+
+        bytes memory data = dodo.getSwapData(10e18, address(ETH));
+        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
+
+        // liquidate
+
+        vm.startPrank(bob);
+
+        uint256 aliceUsedBorrowed = jusdBank.getBorrowBalance(alice);
+        bytes memory afterParam = abi.encode(
+            address(flashLoanLiquidate),
+            param
+        );
+        DataTypes.LiquidateData memory liq = jusdBank.liquidate(
+            alice,
+            address(ETH),
+            bob,
+            10e18,
+            afterParam,
+            0
+        );
+
+        //judge
+        uint256 bobDeposit = jusdBank.getDepositBalance(address(ETH), bob);
+        uint256 aliceDeposit = jusdBank.getDepositBalance(address(ETH), alice);
+        uint256 bobBorrow = jusdBank.getBorrowBalance(bob);
+        uint256 aliceBorrow = jusdBank.getBorrowBalance(alice);
+        uint256 insuranceUSDC = IERC20(USDC).balanceOf(insurance);
+        uint256 aliceUSDC = IERC20(USDC).balanceOf(alice);
+        uint256 bobUSDC = IERC20(USDC).balanceOf(bob);
+        console.log((((aliceUsedBorrowed * 1e18) / 855000000) * 1e18) / 9e17);
+        console.log((((aliceUsedBorrowed * 1e17) / 1e18) * 1e18) / 9e17);
+        console.log(((10e18 - liq.actualCollateral) * 900e6) / 1e18);
+        console.log((((liq.actualCollateral * 900e6) / 1e18) * 5e16) / 1e18);
+
+        assertEq(aliceDeposit, 0);
+        assertEq(bobDeposit, 0);
+        assertEq(bobBorrow, 0);
+        assertEq(aliceBorrow, 0);
+        assertEq(liq.actualCollateral, 9650428473034437946);
+        assertEq(insuranceUSDC, 825111634);
+        assertEq(aliceUSDC, 314614374);
+        assertEq(bobUSDC, 434269282);
+
+        // logs
+        console.log("liquidate amount", liq.actualCollateral);
+        console.log("bob deposit", bobDeposit);
+        console.log("alice deposit", aliceDeposit);
+        console.log("bob borrow", bobBorrow);
+        console.log("alice borrow", aliceBorrow);
+        console.log("bob usdc", bobUSDC);
+        console.log("alice usdc", aliceUSDC);
+        console.log("insurance balance", insuranceUSDC);
+        vm.stopPrank();
+    }
+
+    function testLiquidateWhiteListOpen() public {
+        ETH.transfer(alice, 10e18);
+        bool isOpen = jusdBank.isLiquidatorWhitelistOpen();
+        assertEq(isOpen, false);
+        jusdBank.liquidatorWhitelistOpen();
+        jusdBank.addLiquidator(bob);
         vm.startPrank(alice);
         ETH.approve(address(jusdBank), 10e18);
 
@@ -583,6 +679,146 @@ contract JUSDBankOperatorLiquidateTest is Test {
         );
         cheats.expectRevert("ERC20: transfer amount exceeds balance");
         jusdBank.liquidate(alice, address(ETH), bob, 20e18, afterParam, 0);
+        vm.stopPrank();
+    }
+
+    function testLiquidateOperatorNotInWhiteList() public {
+        // liquidator is in the whiteliste but operator is not
+        ETH.transfer(alice, 10e18);
+        bool isOpen = jusdBank.isLiquidatorWhitelistOpen();
+        assertEq(isOpen, false);
+        jusdBank.liquidatorWhitelistOpen();
+        jusdBank.addLiquidator(bob);
+        vm.startPrank(alice);
+        ETH.approve(address(jusdBank), 10e18);
+
+        // eth 10 0.8 1000 8000
+        jusdBank.deposit(alice, address(ETH), 10e18, alice);
+        vm.warp(1000);
+        jusdBank.borrow(7426e6, alice, false);
+        vm.stopPrank();
+
+        // price exchange 900 * 10 * 0.825 = 7425
+        // liquidateAmount = 7695, USDJBorrow 7426 liquidationPriceOff = 0.05 priceOff = 855 actualJUSD = 8,251.1111111111 insuranceFee = 8,25.11111111111
+        // actualCollateral 9.6504223522
+        vm.warp(2000);
+        MockChainLink900 eth900 = new MockChainLink900();
+        JOJOOracleAdaptor jojoOracle900 = new JOJOOracleAdaptor(
+            address(eth900),
+            20,
+            86400,
+            address(usdcPrice)
+        );
+        jusdBank.updateOracle(address(ETH), address(jojoOracle900));
+        dodo.addTokenPrice(address(ETH), address(jojoOracle900));
+
+        //init flashloanRepay
+        jusd.mint(50000e6);
+        IERC20(jusd).transfer(address(jusdExchange), 50000e6);
+        FlashLoanLiquidate flashLoanLiquidate = new FlashLoanLiquidate(
+            address(jusdBank),
+            address(jusdExchange),
+            address(USDC),
+            address(jusd),
+            insurance
+        );
+
+        bytes memory data = dodo.getSwapData(10e18, address(ETH));
+        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
+
+        // liquidate
+
+        vm.startPrank(bob);
+        jusdBank.setOperator(jim, true);
+        vm.stopPrank();
+        vm.startPrank(jim);
+        bytes memory afterParam = abi.encode(
+            address(flashLoanLiquidate),
+            param
+        );
+        DataTypes.LiquidateData memory liqBefore = jusdBank.liquidate(
+            alice,
+            address(ETH),
+            bob,
+            10e18,
+            afterParam,
+            0
+        );
+
+        //judge
+        uint256 bobDeposit = jusdBank.getDepositBalance(address(ETH), bob);
+        uint256 aliceDeposit = jusdBank.getDepositBalance(address(ETH), alice);
+        uint256 bobBorrow = jusdBank.getBorrowBalance(bob);
+        uint256 aliceBorrow = jusdBank.getBorrowBalance(alice);
+        uint256 insuranceUSDC = IERC20(USDC).balanceOf(insurance);
+        uint256 aliceUSDC = IERC20(USDC).balanceOf(alice);
+        uint256 bobUSDC = IERC20(USDC).balanceOf(bob);
+
+        assertEq(aliceDeposit, 0);
+        assertEq(bobDeposit, 0);
+        assertEq(bobBorrow, 0);
+        assertEq(aliceBorrow, 0);
+        assertEq(liqBefore.actualCollateral, 9650428473034437946);
+        assertEq(insuranceUSDC, 825111634);
+        assertEq(aliceUSDC, 314614374);
+        assertEq(bobUSDC, 434269282);
+        vm.stopPrank();
+
+        jusdBank.removeLiquidator(bob);
+        jusdBank.addLiquidator(jim);
+        vm.startPrank(jim);
+        cheats.expectRevert("LIQUIDATOR_NOT_IN_THE_WHITELIST");
+        jusdBank.liquidate(
+            alice,
+            address(ETH),
+            bob,
+            10e18,
+            afterParam,
+            0
+        );
+    }
+
+     function testLiquidateNotOperator() public {
+        // liquidator is in the whiteliste but operator is not
+        ETH.transfer(alice, 10e18);
+        vm.startPrank(alice);
+        ETH.approve(address(jusdBank), 10e18);
+
+        // eth 10 0.8 1000 8000
+        jusdBank.deposit(alice, address(ETH), 10e18, alice);
+        vm.warp(1000);
+        jusdBank.borrow(7426e6, alice, false);
+        vm.stopPrank();
+
+        //init flashloanRepay
+        jusd.mint(50000e6);
+        IERC20(jusd).transfer(address(jusdExchange), 50000e6);
+        FlashLoanLiquidate flashLoanLiquidate = new FlashLoanLiquidate(
+            address(jusdBank),
+            address(jusdExchange),
+            address(USDC),
+            address(jusd),
+            insurance
+        );
+
+        bytes memory data = dodo.getSwapData(10e18, address(ETH));
+        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
+
+        // liquidate
+        vm.startPrank(jim);
+        bytes memory afterParam = abi.encode(
+            address(flashLoanLiquidate),
+            param
+        );
+        cheats.expectRevert("CAN_NOT_OPERATE_ACCOUNT");
+        jusdBank.liquidate(
+            alice,
+            address(ETH),
+            bob,
+            10e18,
+            afterParam,
+            0
+        );
         vm.stopPrank();
     }
 }

@@ -45,6 +45,8 @@ abstract contract JUSDBankStorage is
     // primary address
     address public primaryAsset;
     address public JOJODealer;
+    bool public isLiquidatorWhitelistOpen;
+    mapping(address => bool) isLiquidatorWhiteList;
 
     function getTRate() public view returns (uint256) {
         uint256 timeDifference = block.timestamp - uint256(lastUpdateTimestamp);

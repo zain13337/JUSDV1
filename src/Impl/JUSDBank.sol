@@ -82,6 +82,12 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         );
         _;
     }
+    modifier isLiquidator(address liquidator) {
+        if(isLiquidatorWhitelistOpen){
+            require(isLiquidatorWhiteList[liquidator], "liquidator is not in the liquidator white list");
+        }
+        _;
+    }
 
     function deposit(
         address from,
@@ -153,10 +159,7 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         uint256 primaryInsuranceAmount = IERC20(primaryAsset).balanceOf(
             insurance
         );
-        require(
-            liquidator != liquidated,
-            JUSDErrors.SELF_LIQUIDATION_NOT_ALLOWED
-        );
+        isValidLiquidator(liquidated, liquidator);
         // 1. calculate the liquidate amount
         liquidateData = _calculateLiquidateAmount(
             liquidated,
@@ -361,6 +364,16 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         }
         if (user.depositBalance[collateral] == 0) {
             _removeCollateral(user, collateral);
+        }
+    }
+
+    function isValidLiquidator(address liquidated, address liquidator) internal view {
+        require(
+            liquidator != liquidated,
+            JUSDErrors.SELF_LIQUIDATION_NOT_ALLOWED
+        );
+        if(isLiquidatorWhitelistOpen){
+            require(isLiquidatorWhiteList[liquidator], JUSDErrors.LIQUIDATOR_NOT_IN_THE_WHITELIST);
         }
     }
 
