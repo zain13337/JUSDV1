@@ -105,7 +105,7 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         uint256 amount,
         address to,
         bool isDepositToJOJO
-    ) external override nonReentrant {
+    ) external override nonReentrant nonFlashLoanReentrant{
         //     t0BorrowedAmount = borrowedAmount /  getT0Rate
         DataTypes.UserInfo storage user = userInfo[msg.sender];
         _borrow(user, isDepositToJOJO, to, amount, msg.sender);
@@ -129,7 +129,7 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         uint256 amount,
         address to,
         bool isInternal
-    ) external override nonReentrant {
+    ) external override nonReentrant nonFlashLoanReentrant{
         DataTypes.UserInfo storage user = userInfo[msg.sender];
         _withdraw(amount, collateral, to, msg.sender, isInternal);
         uint256 tRate = getTRate();
@@ -150,6 +150,7 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         external
         override
         isValidOperator(msg.sender, liquidator)
+        nonFlashLoanReentrant
         returns (DataTypes.LiquidateData memory liquidateData)
     {
         uint256 JUSDBorrowedT0 = userInfo[liquidated].t0BorrowBalance;
@@ -206,10 +207,6 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
             liquidateData.actualLiquidated,
             liquidateData.insuranceFee
         );
-        // 4. handle the bad debt
-        if (userInfo[liquidated].collateralList.length == 0) {
-            _handleBadDebt(liquidated);
-        }
     }
 
     function handleDebt(

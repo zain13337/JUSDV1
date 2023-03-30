@@ -108,7 +108,7 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
         jusdBank.deposit(alice, address(mockToken1), 5e18, alice);
         bytes memory test = "just a test";
 
-        cheats.expectRevert("ReentrancyGuard: flashLoan reentrant call");
+        cheats.expectRevert("ReentrancyGuard: Withdraw or Borrow or Liquidate flashLoan reentrant call");
         jusdBank.flashLoan(
             address(mockFlashloan3),
             address(mockToken1),

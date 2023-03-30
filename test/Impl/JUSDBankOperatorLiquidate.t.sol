@@ -577,12 +577,12 @@ contract JUSDBankOperatorLiquidateTest is Test {
         assertEq(aliceDeposit, 0);
         assertEq(bobDeposit, 0);
         assertEq(bobBorrow, 0);
-        assertEq(aliceBorrow, 0);
+        assertEq(aliceBorrow, aliceUsedBorrowed - 4275e6);
         assertEq(liq.actualCollateral, 10e18);
         assertEq(insuranceUSDC, 475000000);
         assertEq(aliceUSDC, 0);
         assertEq(bobUSDC, 250000000);
-        assertEq(insuranceBorrow, aliceUsedBorrowed - 4275e6);
+        assertEq(insuranceBorrow, 0);
 
         // logs
         console.log("liquidate amount", liq.actualCollateral);
