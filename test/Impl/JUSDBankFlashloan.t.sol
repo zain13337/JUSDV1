@@ -7,7 +7,7 @@ import "./JUSDBankInit.t.sol";
 import "../../src/Impl/FlashLoanRepay.sol";
 import "../../src/Impl/JUSDExchange.sol";
 import "../mocks/MockFlashloan.sol";
-import "../../src/support/SupportsDODO.sol";
+import "../../src/Testsupport/SupportsDODO.sol";
 import "../mocks/MockFlashloan2.sol";
 import "../mocks/MockFlashloan3.sol";
 

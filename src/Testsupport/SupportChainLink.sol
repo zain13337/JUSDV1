@@ -1,6 +1,9 @@
 /*
     Copyright 2022 JOJO Exchange
-    SPDX-License-Identifier: BUSL-1.1*/
+    SPDX-License-Identifier: BUSL-1.1
+    ONLY FOR TEST
+    DO NOT DEPLOY IN PRODUCTION ENV
+*/
 pragma solidity ^0.8.9;
 
 contract SupportChainLink {

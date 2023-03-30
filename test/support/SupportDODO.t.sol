@@ -4,7 +4,7 @@
 pragma solidity 0.8.9;
 
 import "forge-std/Test.sol";
-import "../../src/support/SupportsDODO.sol";
+import "../../src/Testsupport/SupportsDODO.sol";
 import "../../src/token/JUSD.sol";
 import "../mocks/MockERC20.sol";
 import "../mocks/MockUSDCPrice.sol";

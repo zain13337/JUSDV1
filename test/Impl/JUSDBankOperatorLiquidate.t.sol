@@ -5,7 +5,7 @@ import "ds-test/test.sol";
 import "../../src/Impl/JUSDBank.sol";
 import "../mocks/MockERC20.sol";
 import "../../src/token/JUSD.sol";
-import "../../src/support/SupportsDODO.sol";
+import "../../src/Testsupport/SupportsDODO.sol";
 import "../mocks/MockChainLink500.sol";
 import "../../src/Impl/JOJOOracleAdaptor.sol";
 import "../../src/Impl/FlashLoanLiquidate.sol";

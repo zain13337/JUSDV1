@@ -1,4 +1,9 @@
-// SPDX-License-Identifier: Unlicense
+/*
+    Copyright 2022 JOJO Exchange
+    SPDX-License-Identifier: BUSL-1.1
+    ONLY FOR TEST
+    DO NOT DEPLOY IN PRODUCTION ENV
+*/
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
