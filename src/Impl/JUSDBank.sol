@@ -251,9 +251,7 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         require(reserve.isDepositAllowed, JUSDErrors.RESERVE_NOT_ALLOW_DEPOSIT);
         require(amount != 0, JUSDErrors.DEPOSIT_AMOUNT_IS_ZERO);
         IERC20(collateral).safeTransferFrom(from, address(this), amount);
-        if (user.depositBalance[collateral] == 0) {
-            user.collateralList.push(collateral);
-        }
+        _addCollateralIfNotExists(user, collateral);
         user.depositBalance[collateral] += amount;
         reserve.totalDepositAmount += amount;
         require(
@@ -335,18 +333,17 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         bool isInternal
     ) internal {
         DataTypes.ReserveInfo storage reserve = reserveInfo[collateral];
-        DataTypes.UserInfo storage user = userInfo[from];
+        DataTypes.UserInfo storage fromAccount = userInfo[from];
         require(amount != 0, JUSDErrors.WITHDRAW_AMOUNT_IS_ZERO);
         require(
-            amount <= user.depositBalance[collateral],
+            amount <= fromAccount.depositBalance[collateral],
             JUSDErrors.WITHDRAW_AMOUNT_IS_TOO_BIG
         );
+
+        fromAccount.depositBalance[collateral] -= amount;
         if (isInternal) {
-            user.depositBalance[collateral] -= amount;
             DataTypes.UserInfo storage toAccount = userInfo[to];
-            if (toAccount.depositBalance[collateral] == 0) {
-                toAccount.collateralList.push(collateral);
-            }
+            _addCollateralIfNotExists(toAccount, collateral);
             toAccount.depositBalance[collateral] += amount;
             require(
                 toAccount.depositBalance[collateral] <=
@@ -355,13 +352,10 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
             );
         } else {
             reserve.totalDepositAmount -= amount;
-            user.depositBalance[collateral] -= amount;
             IERC20(collateral).safeTransfer(to, amount);
             emit Withdraw(collateral, from, to, amount);
         }
-        if (user.depositBalance[collateral] == 0) {
-            _removeCollateral(user, collateral);
-        }
+        _removeEmptyCollateral(fromAccount, collateral);
     }
 
     function isValidLiquidator(address liquidated, address liquidator) internal view {
@@ -439,16 +433,29 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
             liquidateData.actualCollateral).decimalMul(price);
     }
 
-    function _removeCollateral(
+    function _addCollateralIfNotExists(
         DataTypes.UserInfo storage user,
         address collateral
     ) internal {
-        address[] storage collaterals = user.collateralList;
-        for (uint256 i; i < collaterals.length; i = i + 1) {
-            if (collaterals[i] == collateral) {
-                collaterals[i] = collaterals[collaterals.length - 1];
-                collaterals.pop();
-                break;
+        if (!user.hasCollateral[collateral]) {
+            user.hasCollateral[collateral] = true;
+            user.collateralList.push(collateral);
+        }
+    }
+
+    function _removeEmptyCollateral(
+        DataTypes.UserInfo storage user,
+        address collateral
+    ) internal {
+        if (user.depositBalance[collateral] == 0) {
+            user.hasCollateral[collateral] = false;
+            address[] storage collaterals = user.collateralList;
+            for (uint256 i; i < collaterals.length; i = i + 1) {
+                if (collaterals[i] == collateral) {
+                    collaterals[i] = collaterals[collaterals.length - 1];
+                    collaterals.pop();
+                    break;
+                }
             }
         }
     }

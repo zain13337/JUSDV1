@@ -43,6 +43,8 @@ library DataTypes {
     struct UserInfo {
         //        deposit collateral ==> deposit amount
         mapping(address => uint256) depositBalance;
+        
+        mapping(address => bool) hasCollateral;
         //        t0 borrow USDO amount
         uint256 t0BorrowBalance;
         //        user deposit collateral list
