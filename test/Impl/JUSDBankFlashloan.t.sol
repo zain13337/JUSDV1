@@ -64,15 +64,20 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
         jusdBank.flashLoan(
             address(mockFlashloan),
             address(mockToken1),
-            4e18,
+            5e18,
             alice,
             test
         );
         vm.stopPrank();
-        assertEq(jusdBank.getDepositBalance(address(mockToken1), alice), 1e18);
+        address[] memory collateralList = jusdBank.getUserCollateralList(alice);
+        assertEq(collateralList.length, 1);
+        assertEq(jusdBank.getDepositBalance(address(mockToken1), alice), 0);
+        assertEq(jusdBank.getIfHasCollateral(alice, address(mockToken1)), false);
+        assertEq(jusdBank.getIfHasCollateral(alice, address(mockToken2)), true);
+        
         assertEq(jusdBank.getDepositBalance(address(mockToken2), alice), 5e8);
         assertEq(mockToken2.balanceOf(address(mockFlashloan)), 5e8);
-        assertEq(mockToken1.balanceOf(bob), 4e18);
+        assertEq(mockToken1.balanceOf(bob), 5e18);
     }
 
     function testFlashloan2() public {

@@ -70,7 +70,7 @@ abstract contract JUSDView is JUSDBankStorage, IJUSDBank {
         address from,
         address collateral
     ) external view returns (bool) {
-        return userInfo[from].depositBalance[collateral] != 0;
+        return userInfo[from].hasCollateral[collateral];
     }
 
     function getDepositBalance(
