@@ -49,14 +49,14 @@ interface IJUSDBank {
     /// @param liquidatedTrader: is the trader to be liquidated
     /// @param liquidationCollateral: is the liquidated collateral type
     /// @param liquidationAmount: is the collateral amount liqidator want to take
-    /// @param expectLiquidateAmount: expect liquidate amount
+    /// @param expectPrice: expect liquidate amount
     function liquidate(
         address liquidatedTrader,
         address liquidationCollateral,
         address liquidator,
         uint256 liquidationAmount,
         bytes memory param,
-        uint256 expectLiquidateAmount
+        uint256 expectPrice
     ) external returns (DataTypes.LiquidateData memory liquidateData);
 
     /// @notice insurance account take bad debts on unsecured accounts

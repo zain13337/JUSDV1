@@ -145,7 +145,7 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         address liquidator,
         uint256 amount,
         bytes memory afterOperationParam,
-        uint256 expectAmount
+        uint256 expectPrice
     )
         external
         override
@@ -168,7 +168,10 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
             amount
         );
         require(
-            liquidateData.actualCollateral >= expectAmount,
+        // condition: actual liquidate price < max buy price,
+        // price lower, better
+            (liquidateData.insuranceFee + liquidateData.actualLiquidated).decimalDiv(liquidateData.actualCollateral)
+                <= expectPrice,
             JUSDErrors.LIQUIDATION_PRICE_PROTECTION
         );
         // 2. after liquidation flashloan operation

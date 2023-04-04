@@ -41,7 +41,7 @@ contract JUSDBankClearReserveTest is JUSDBankInitTest {
             bob,
             10e18,
             afterParam,
-            0
+            1000e6
         );
 
         // logs

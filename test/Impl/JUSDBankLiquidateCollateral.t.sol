@@ -67,7 +67,7 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
         jusdBank.deposit(alice, address(mockToken1), 10e18, alice);
         jusdBank.borrow(7426e6, alice, false);
         vm.stopPrank();
-        vm.startPrank(address(this));
+
         MockChainLink900 eth900 = new MockChainLink900();
         JOJOOracleAdaptor jojoOracle900 = new JOJOOracleAdaptor(
             address(eth900),
@@ -77,29 +77,31 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
         );
         jusdBank.updateOracle(address(mockToken1), address(jojoOracle900));
         dodo.addTokenPrice(address(mockToken1), address(jojoOracle900));
-        vm.stopPrank();
 
-        vm.startPrank(bob);
-        jusd.approve(address(jusdBank), 5225e6);
-        vm.warp(3000);
-        bytes memory data = dodo.getSwapData(1e18, address(mockToken1));
-        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
-        FlashLoanLiquidate flashloanRepay = new FlashLoanLiquidate(
+        jusd.mint(50000e6);
+        IERC20(jusd).transfer(address(jusdExchange), 50000e6);
+        FlashLoanLiquidate flashLoanLiquidate = new FlashLoanLiquidate(
             address(jusdBank),
             address(jusdExchange),
             address(USDC),
             address(jusd),
             insurance
         );
-        bytes memory afterParam = abi.encode(address(flashloanRepay), param);
+
+        bytes memory data = dodo.getSwapData(10e18, address(mockToken1));
+        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
+
+        vm.startPrank(bob);
+        bytes memory afterParam = abi.encode(address(flashLoanLiquidate), param);
         cheats.expectRevert("LIQUIDATION_PRICE_PROTECTION");
+        // price 854.9999999885
         jusdBank.liquidate(
             alice,
             address(mockToken1),
             bob,
             10e18,
             afterParam,
-            10e18
+            854e6
         );
     }
 

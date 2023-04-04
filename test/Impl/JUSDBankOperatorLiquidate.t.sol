@@ -178,7 +178,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             bob,
             10e18,
             afterParam,
-            0
+                900e6
         );
 
         //judge
@@ -275,7 +275,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             bob,
             10e18,
             afterParam,
-            0
+                900e6
         );
 
         //judge
@@ -375,7 +375,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             bob,
             10e18,
             afterParam,
-            0
+                900e6
         );
 
         //judge
@@ -467,7 +467,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             bob,
             5e18,
             afterParam,
-            0
+                900e6
         );
 
         assertEq(jusdBank.isAccountSafe(alice), true);
@@ -561,7 +561,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             bob,
             10e18,
             afterParam,
-            0
+            900e6
         );
 
         //judge
@@ -642,7 +642,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             param
         );
         cheats.expectRevert("REPAY_AMOUNT_NOT_ENOUGH");
-        jusdBank.liquidate(alice, address(ETH), bob, 10e18, afterParam, 0);
+        jusdBank.liquidate(alice, address(ETH), bob, 10e18, afterParam, 900e6);
     }
 
     function testInsuranceAmountNotEnough() public {
@@ -688,7 +688,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             param
         );
         cheats.expectRevert("INSURANCE_AMOUNT_NOT_ENOUGH");
-        jusdBank.liquidate(alice, address(ETH), bob, 10e18, afterParam, 0);
+        jusdBank.liquidate(alice, address(ETH), bob, 10e18, afterParam, 900e6);
     }
 
     function testLiquidatedAmountNotEnough() public {
@@ -734,7 +734,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             param
         );
         cheats.expectRevert("LIQUIDATED_AMOUNT_NOT_ENOUGH");
-        jusdBank.liquidate(alice, address(ETH), bob, 10e18, afterParam, 0);
+        jusdBank.liquidate(alice, address(ETH), bob, 10e18, afterParam, 900e6);
     }
 
     function testFlashloanLiquidateRevert() public {
@@ -782,7 +782,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             param
         );
         cheats.expectRevert("ERC20: transfer amount exceeds balance");
-        jusdBank.liquidate(alice, address(ETH), bob, 20e18, afterParam, 0);
+        jusdBank.liquidate(alice, address(ETH), bob, 20e18, afterParam, 900e6);
         vm.stopPrank();
     }
 
@@ -846,7 +846,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             bob,
             10e18,
             afterParam,
-            0
+                900e6
         );
 
         //judge
@@ -878,7 +878,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             bob,
             10e18,
             afterParam,
-            0
+                900e6
         );
     }
 
@@ -921,7 +921,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             bob,
             10e18,
             afterParam,
-            0
+                900e6
         );
         vm.stopPrank();
     }
