@@ -60,7 +60,8 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         address indexed collateral,
         address indexed from,
         address indexed to,
-        uint256 amount
+        uint256 amount,
+        bool ifInternal
     );
     event Liquidate(
         address indexed collateral,
@@ -356,8 +357,8 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         } else {
             reserve.totalDepositAmount -= amount;
             IERC20(collateral).safeTransfer(to, amount);
-            emit Withdraw(collateral, from, to, amount);
         }
+        emit Withdraw(collateral, from, to, amount, isInternal);
         _removeEmptyCollateral(fromAccount, collateral);
     }
 
