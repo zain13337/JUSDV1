@@ -29,7 +29,7 @@ contract JOJOOracleAdaptor is IPriceChainLink, Ownable {
         (, int256 USDCPrice,, uint256 USDCUpdatedAt,) = IChainLinkAggregator(USDCSource).latestRoundData();
 
         require(block.timestamp - updatedAt <= heartbeatInterval, "ORACLE_HEARTBEAT_FAILED");
-        require(block.timestamp - USDCUpdatedAt <= heartbeatInterval, "ORACLE_HEARTBEAT_FAILED");
+        require(block.timestamp - USDCUpdatedAt <= heartbeatInterval, "USDC_ORACLE_HEARTBEAT_FAILED");
         uint256 tokenPrice = (SafeCast.toUint256(price) * 1e8) / SafeCast.toUint256(USDCPrice);
         return tokenPrice * JOJOConstant.ONE / decimalsCorrection;
     }
