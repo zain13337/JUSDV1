@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@mean-finance/uniswap-v3-oracle": "^1.0.3",
     "bignumber": "^1.1.0",
     "bignumber.js": "^9.1.0",
     "bignumber.ts": "^1.0.0",
