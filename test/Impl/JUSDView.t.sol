@@ -2,13 +2,27 @@
 pragma solidity 0.8.9;
 
 import "@JOJO/contracts/testSupport/TestERC20.sol";
-
+import "../../src/oracle/UniswapPriceAdaptor.sol";
+import "../mocks/MockEmergencyOracle.sol";
+import "../mocks/MockUniswapOracle.sol";
 import "./JUSDBankInit.t.sol";
 
 contract JUSDViewTest is JUSDBankInitTest {
     function testJUSDView() public {
         TestERC20 BTC = new TestERC20("BTC", "BTC", 8);
-
+        MockUniswapOracle MockUni = new MockUniswapOracle();
+        MockEmergencyOracle mockE = new MockEmergencyOracle();
+        UniswapPriceAdaptor UNIOracle = new UniswapPriceAdaptor(
+            address(MockUni),
+            18,
+            address(BTC),
+            address(USDC),
+            600,
+            address(mockE),
+            50000000000000000
+        );
+        cheats.expectRevert("deviation is too big");
+        UNIOracle.getAssetPrice();
         jojoOracle2 = new JOJOOracleAdaptor(
             address(mockToken1ChainLink),
             10,

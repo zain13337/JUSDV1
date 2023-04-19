@@ -4,7 +4,7 @@
 pragma solidity 0.8.9;
 
 import "./JUSDBankInit.t.sol";
-import "../../src/Impl/FlashLoanRepay.sol";
+import "../../src/Impl/flashloanImpl/FlashLoanRepay.sol";
 import "../../src/Impl/JUSDExchange.sol";
 import "../mocks/MockFlashloan.sol";
 import "../../src/Testsupport/SupportsDODO.sol";

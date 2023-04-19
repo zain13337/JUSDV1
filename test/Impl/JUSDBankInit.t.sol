@@ -9,7 +9,7 @@ import "@JOJO/contracts/testSupport/TestERC20.sol";
 import "../mocks/MockERC20.sol";
 import "@JOJO/contracts/testSupport/TestERC20.sol";
 import "../../src/token/JUSD.sol";
-import "../../src/Impl/JOJOOracleAdaptor.sol";
+import "../../src/oracle/JOJOOracleAdaptor.sol";
 import "../mocks/MockChainLink.t.sol";
 import "../mocks/MockChainLink2.sol";
 import "../../src/Testsupport/SupportsDODO.sol";
@@ -19,7 +19,7 @@ import "../mocks/MockUSDCPrice.sol";
 import "../mocks/MockChainLinkBadDebt.sol";
 import "../../src/lib/DataTypes.sol";
 import {Utils} from "../utils/Utils.sol";
-import "../../src/utils/GeneralRepay.sol";
+import "../../src/Impl/flashloanImpl/GeneralRepay.sol";
 import "forge-std/Test.sol";
 
 interface Cheats {

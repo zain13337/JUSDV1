@@ -5,7 +5,7 @@ import "ds-test/test.sol";
 import "../../src/Impl/JUSDBank.sol";
 import "../mocks/MockERC20.sol";
 import "../../src/token/JUSD.sol";
-import "../../src/Impl/JOJOOracleAdaptor.sol";
+import "../../src/oracle/JOJOOracleAdaptor.sol";
 import "../mocks/MockChainLink.t.sol";
 import "../mocks/MockJOJODealer.sol";
 import "../../src/lib/DataTypes.sol";

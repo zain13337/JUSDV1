@@ -3,7 +3,7 @@ pragma solidity 0.8.9;
 
 import "./JUSDBankInit.t.sol";
 import "../mocks/MockToken.sol";
-import "../../src/Impl/FlashLoanLiquidate.sol";
+import "../../src/Impl/flashloanImpl/FlashLoanLiquidate.sol";
 import "../mocks/MockChainLink900.sol";
     struct LiquidateData {
         uint256 actualCollateral;

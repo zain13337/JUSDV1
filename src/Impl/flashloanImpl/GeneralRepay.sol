@@ -1,24 +1,21 @@
 /*
     Copyright 2022 JOJO Exchange
     SPDX-License-Identifier: BUSL-1.1*/
-pragma solidity 0.8.9;
-
-import "../../src/Interface/IJUSDBank.sol";
-import "../../src/Interface/IJUSDExchange.sol";
-import "../../src/Interface/IFlashLoanReceive.sol";
-import {DecimalMath} from "../lib/DecimalMath.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-contract FlashLoanRepay is IFlashLoanReceive {
-    using SafeERC20 for IERC20;
-    using DecimalMath for uint256;
+import "../../../src/Interface/IJUSDBank.sol";
+import "../../../src/Interface/IJUSDExchange.sol";
 
+pragma solidity 0.8.9;
+
+contract GeneralRepay {
+    address public immutable USDC;
     address public jusdBank;
     address public jusdExchange;
-    address public immutable USDC;
     address public immutable JUSD;
+
+    using SafeERC20 for IERC20;
 
     constructor(
         address _jusdBank,
@@ -32,24 +29,28 @@ contract FlashLoanRepay is IFlashLoanReceive {
         JUSD = _JUSD;
     }
 
-    function JOJOFlashLoan(
+    function repayJUSD(
         address asset,
         uint256 amount,
         address to,
-        bytes calldata param
+        bytes memory param
     ) external {
-        (address approveTarget, address swapTarget, bytes memory data) = abi
-            .decode(param, (address, address, bytes));
-        IERC20(asset).approve(approveTarget, amount);
-        (bool success, ) = swapTarget.call(data);
-        if (success == false) {
-            assembly {
-                let ptr := mload(0x40)
-                let size := returndatasize()
-                returndatacopy(ptr, 0, size)
-                revert(ptr, size)
+        IERC20(asset).safeTransferFrom(msg.sender, address(this), amount);
+        if (asset != USDC) {
+            (address approveTarget, address swapTarget, bytes memory data) = abi
+                .decode(param, (address, address, bytes));
+            IERC20(asset).approve(approveTarget, amount);
+            (bool success, ) = swapTarget.call(data);
+            if (success == false) {
+                assembly {
+                    let ptr := mload(0x40)
+                    let size := returndatasize()
+                    returndatacopy(ptr, 0, size)
+                    revert(ptr, size)
+                }
             }
         }
+
         uint256 USDCAmount = IERC20(USDC).balanceOf(address(this));
         uint256 JUSDAmount = USDCAmount;
 

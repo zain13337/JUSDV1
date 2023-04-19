@@ -8,7 +8,7 @@ import "../../src/Testsupport/SupportsDODO.sol";
 import "../../src/token/JUSD.sol";
 import "../mocks/MockERC20.sol";
 import "../mocks/MockUSDCPrice.sol";
-import "../../src/Impl/JOJOOracleAdaptor.sol";
+import "../../src/oracle/JOJOOracleAdaptor.sol";
 import "../mocks/MockChainLink.t.sol";
 
 contract SupportDODO is Test {
