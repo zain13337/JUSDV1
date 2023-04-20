@@ -199,6 +199,7 @@ contract SubaccountTest is Test {
         bytes memory param = abi.encode(
             address(supportsDODO),
             address(supportsDODO),
+            200e6,
             swapParam
         );
         bytes memory dataFlashloan = abi.encodeWithSignature(
@@ -222,6 +223,7 @@ contract SubaccountTest is Test {
         param = abi.encode(
             address(supportsDODO),
             address(supportsDODO),
+            300e6,
             swapParam
         );
         jusdBank.flashLoan(

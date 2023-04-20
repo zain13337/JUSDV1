@@ -187,7 +187,7 @@ contract JUSDBankRepayTest is JUSDBankInitTest {
         mockToken1.approve(address(generalRepay), 1e18);
 
         bytes memory data = dodo.getSwapData(1e18, address(mockToken1));
-        bytes memory param = abi.encode(dodo, dodo, data);
+        bytes memory param = abi.encode(dodo, dodo, 1000e6, data);
         generalRepay.repayJUSD(address(mockToken1), 1e18, alice, param);
         assertEq(jusdBank.getBorrowBalance(alice), 2000e6);
         assertEq(mockToken1.balanceOf(alice), 4e18);
@@ -203,7 +203,7 @@ contract JUSDBankRepayTest is JUSDBankInitTest {
         mockToken1.approve(address(generalRepay), 2e18);
 
         bytes memory data = dodo.getSwapData(2e18, address(mockToken1));
-        bytes memory param = abi.encode(dodo, dodo, data);
+        bytes memory param = abi.encode(dodo, dodo, 2000e6, data);
         generalRepay.repayJUSD(address(mockToken1), 2e18, alice, param);
         assertEq(jusdBank.getBorrowBalance(alice), 0);
         assertEq(mockToken1.balanceOf(alice), 3e18);
@@ -232,7 +232,7 @@ contract JUSDBankRepayTest is JUSDBankInitTest {
         jusdBank.borrow(300e6, alice, false);
 
         bytes memory data = dodo.getSwapData(1e18, address(mockToken1));
-        bytes memory param = abi.encode(dodo, dodo, data);
+        bytes memory param = abi.encode(dodo, dodo, 1000e6, data);
         mockToken1.approve(address(generalRepay), 1e18);
         cheats.expectRevert("ERC20: transfer amount exceeds balance");
         generalRepay.repayJUSD(address(mockToken1), 1e18, alice, param);

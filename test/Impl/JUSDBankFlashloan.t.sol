@@ -152,7 +152,7 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
         jusdBank.deposit(alice, address(mockToken1), 1e18, alice);
         jusdBank.borrow(300e6, alice, false);
         bytes memory data = dodo.getSwapData(1e18, address(mockToken1));
-        bytes memory param = abi.encode(dodo, dodo, data);
+        bytes memory param = abi.encode(dodo, dodo, 1000e6, data);
         jusdBank.flashLoan(
             address(flashloanRepay),
             address(mockToken1),
@@ -196,7 +196,7 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
         jusdBank.deposit(alice, address(mockToken1), 1e18, alice);
         jusdBank.borrow(300e6, alice, false);
         bytes memory data = dodo.getSwapData(1e16, address(mockToken1));
-        bytes memory param = abi.encode(dodo, dodo, data);
+        bytes memory param = abi.encode(dodo, dodo, 10e6, data);
         cheats.expectRevert("NOT_ALLOWED_TO_EXCHANGE");
         jusdBank.flashLoan(
             address(flashloanRepay),
@@ -234,7 +234,7 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
         jusdBank.deposit(alice, address(mockToken1), 1e18, alice);
         jusdBank.borrow(300e6, alice, false);
         bytes memory data = dodo.getSwapData(1e15, address(mockToken1));
-        bytes memory param = abi.encode(dodo, dodo, data);
+        bytes memory param = abi.encode(dodo, dodo, 1e6, data);
         jusdBank.flashLoan(
             address(flashloanRepay),
             address(mockToken1),
@@ -272,7 +272,7 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
         jusdBank.deposit(alice, address(mockToken1), 3e18, alice);
         jusdBank.borrow(300e6, alice, false);
         bytes memory data = dodo.getSwapData(3e18, address(mockToken1));
-        bytes memory param = abi.encode(dodo, dodo, data);
+        bytes memory param = abi.encode(dodo, dodo, 3000e6, data);
         cheats.expectRevert("ERC20: transfer amount exceeds balance");
         jusdBank.flashLoan(
             address(flashloanRepay),
