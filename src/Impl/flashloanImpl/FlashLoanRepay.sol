@@ -38,8 +38,8 @@ contract FlashLoanRepay is IFlashLoanReceive {
         address to,
         bytes calldata param
     ) external {
-        (address approveTarget, address swapTarget, bytes memory data) = abi
-            .decode(param, (address, address, bytes));
+        (address approveTarget, address swapTarget, uint256 minReceive, bytes memory data) = abi
+            .decode(param, (address, address, uint256, bytes));
         IERC20(asset).approve(approveTarget, amount);
         (bool success, ) = swapTarget.call(data);
         if (success == false) {
@@ -51,6 +51,7 @@ contract FlashLoanRepay is IFlashLoanReceive {
             }
         }
         uint256 USDCAmount = IERC20(USDC).balanceOf(address(this));
+        require(USDCAmount >= minReceive, "receive amount is too small");
         uint256 JUSDAmount = USDCAmount;
 
         uint256 borrowBalance = IJUSDBank(jusdBank).getBorrowBalance(to);
