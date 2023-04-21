@@ -28,8 +28,16 @@ contract JUSDBankClearReserveTest is JUSDBankInitTest {
             address(jusd),
             insurance
         );
-        bytes memory data = dodo.getSwapData(10e18, address(mockToken1));
-        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
+        bytes memory data = swapContract.getSwapData(
+            10e18,
+            address(mockToken1)
+        );
+        bytes memory param = abi.encode(
+            swapContract,
+            swapContract,
+            address(bob),
+            data
+        );
         bytes memory afterParam = abi.encode(
             address(flashLoanLiquidate),
             param

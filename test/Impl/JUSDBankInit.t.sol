@@ -12,7 +12,7 @@ import "../../src/token/JUSD.sol";
 import "../../src/oracle/JOJOOracleAdaptor.sol";
 import "../mocks/MockChainLink.t.sol";
 import "../mocks/MockChainLink2.sol";
-import "../../src/Testsupport/SupportsDODO.sol";
+import "../../src/Testsupport/SupportsSWAP.sol";
 import "../mocks/MockChainLink500.sol";
 import "../mocks/MockJOJODealer.sol";
 import "../mocks/MockUSDCPrice.sol";
@@ -49,7 +49,7 @@ contract JUSDBankInitTest is Test {
     MockChainLink2 public mockToken2ChainLink;
     MockUSDCPrice public usdcPrice;
     MockJOJODealer public jojoDealer;
-    SupportsDODO public dodo;
+    SupportsSWAP public swapContract;
     TestERC20 public USDC;
     GeneralRepay public generalRepay;
     address payable[] internal users;
@@ -158,16 +158,16 @@ contract JUSDBankInitTest is Test {
             address(jojoOracle1)
         );
 
-        dodo = new SupportsDODO(
+        swapContract = new SupportsSWAP(
             address(USDC),
             address(mockToken1),
             address(jojoOracle1)
         );
-        address[] memory dodoList = new address[](1);
-        dodoList[0] = address(dodo);
+        address[] memory swapContractList = new address[](1);
+        swapContractList[0] = address(swapContract);
         uint256[] memory amountList = new uint256[](1);
         amountList[0] = 100000e6;
-        USDC.mint(dodoList, amountList);
+        USDC.mint(swapContractList, amountList);
 
         jusdExchange = new JUSDExchange(address(USDC), address(jusd));
         jusd.transfer(address(jusdExchange), 100000e6);

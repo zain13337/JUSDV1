@@ -18,7 +18,7 @@ import {console} from "forge-std/console.sol";
 import "forge-std/Test.sol";
 import "../../src/Impl/JUSDExchange.sol";
 import "../../src/Impl/flashloanImpl/FlashLoanRepay.sol";
-import "../../src/Testsupport/SupportsDODO.sol";
+import "../../src/Testsupport/SupportsSWAP.sol";
 import "../mocks/MockChainLinkBadDebt.sol";
 import "../../src/lib/DecimalMath.sol";
 import "../mocks/MockUSDCPrice.sol";
@@ -46,7 +46,7 @@ contract SubaccountTest is Test {
     SubaccountFactory public subaccountFactory;
     JUSDExchange jusdExchange;
     FlashLoanRepay public flashLoanRepay;
-    SupportsDODO public supportsDODO;
+    SupportsSWAP public supportsSWAP;
     address internal alice = address(1);
     address internal bob = address(2);
     address internal insurance = address(3);
@@ -92,7 +92,7 @@ contract SubaccountTest is Test {
             address(USDC),
             address(jusd)
         );
-        supportsDODO = new SupportsDODO(
+        supportsSWAP = new SupportsSWAP(
             address(USDC),
             address(mockToken1),
             address(jojoOracle1)
@@ -130,7 +130,7 @@ contract SubaccountTest is Test {
         mockToken1.transfer(alice, 10e18);
         address[] memory user = new address[](2);
         user[0] = alice;
-        user[1] = address(supportsDODO);
+        user[1] = address(supportsSWAP);
         uint256[] memory amount = new uint256[](2);
         amount[0] = 1000e6;
         amount[1] = 100000e6;
@@ -197,8 +197,8 @@ contract SubaccountTest is Test {
             address(mockToken1)
         );
         bytes memory param = abi.encode(
-            address(supportsDODO),
-            address(supportsDODO),
+            address(supportsSWAP),
+            address(supportsSWAP),
             200e6,
             swapParam
         );
@@ -221,8 +221,8 @@ contract SubaccountTest is Test {
             address(mockToken1)
         );
         param = abi.encode(
-            address(supportsDODO),
-            address(supportsDODO),
+            address(supportsSWAP),
+            address(supportsSWAP),
             300e6,
             swapParam
         );

@@ -5,7 +5,7 @@ import "ds-test/test.sol";
 import "../../src/Impl/JUSDBank.sol";
 import "../mocks/MockERC20.sol";
 import "../../src/token/JUSD.sol";
-import "../../src/Testsupport/SupportsDODO.sol";
+import "../../src/Testsupport/SupportsSWAP.sol";
 import "../mocks/MockChainLink500.sol";
 import "../../src/oracle/JOJOOracleAdaptor.sol";
 import "../../src/Impl/flashloanImpl/FlashLoanLiquidate.sol";
@@ -47,7 +47,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
     JOJODealer public jojoDealer;
     SubaccountFactory public subaccountFactory;
     JUSDExchange public jusdExchange;
-    SupportsDODO public dodo;
+    SupportsSWAP public swapContract;
 
     address internal alice = address(1);
     address internal bob = address(2);
@@ -89,16 +89,16 @@ contract JUSDBankOperatorLiquidateTest is Test {
 
         jusd.transfer(address(jusdBank), 100000e6);
 
-        dodo = new SupportsDODO(
+        swapContract = new SupportsSWAP(
             address(USDC),
             address(ETH),
             address(jojoOracleETH)
         );
-        address[] memory dodoList = new address[](1);
-        dodoList[0] = address(dodo);
+        address[] memory swapContractList = new address[](1);
+        swapContractList[0] = address(swapContract);
         uint256[] memory amountList = new uint256[](1);
         amountList[0] = 10000e6;
-        USDC.mint(dodoList, amountList);
+        USDC.mint(swapContractList, amountList);
         IERC20(jusd).transfer(address(jusdExchange), 5000e6);
 
         jusdBank.initReserve(
@@ -147,7 +147,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(usdcPrice)
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle900));
-        dodo.addTokenPrice(address(ETH), address(jojoOracle900));
+        swapContract.addTokenPrice(address(ETH), address(jojoOracle900));
 
         //init flashloanRepay
         jusd.mint(50000e6);
@@ -160,8 +160,13 @@ contract JUSDBankOperatorLiquidateTest is Test {
             insurance
         );
 
-        bytes memory data = dodo.getSwapData(10e18, address(ETH));
-        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
+        bytes memory data = swapContract.getSwapData(10e18, address(ETH));
+        bytes memory param = abi.encode(
+            swapContract,
+            swapContract,
+            address(bob),
+            data
+        );
 
         // liquidate
 
@@ -178,7 +183,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             bob,
             10e18,
             afterParam,
-                900e6
+            900e6
         );
 
         //judge
@@ -214,8 +219,9 @@ contract JUSDBankOperatorLiquidateTest is Test {
         console.log("insurance balance", insuranceUSDC);
         vm.stopPrank();
     }
+
     // liquidated is subaccount
-     function testLiquidatedIsSubaccountAll() public {
+    function testLiquidatedIsSubaccountAll() public {
         ETH.transfer(alice, 10e18);
 
         vm.startPrank(alice);
@@ -246,7 +252,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(usdcPrice)
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle900));
-        dodo.addTokenPrice(address(ETH), address(jojoOracle900));
+        swapContract.addTokenPrice(address(ETH), address(jojoOracle900));
 
         //init flashloanRepay
         jusd.mint(50000e6);
@@ -258,8 +264,13 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(jusd),
             insurance
         );
-        bytes memory data = dodo.getSwapData(10e18, address(ETH));
-        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
+        bytes memory data = swapContract.getSwapData(10e18, address(ETH));
+        bytes memory param = abi.encode(
+            swapContract,
+            swapContract,
+            address(bob),
+            data
+        );
 
         // liquidate
 
@@ -275,7 +286,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             bob,
             10e18,
             afterParam,
-                900e6
+            900e6
         );
 
         //judge
@@ -307,14 +318,13 @@ contract JUSDBankOperatorLiquidateTest is Test {
 
         vm.startPrank(alice);
         bytes memory transferData = abi.encodeWithSignature(
-                "transfer(address,uint256)",
-                alice,
-                aliceSubUSDC
-            );
+            "transfer(address,uint256)",
+            alice,
+            aliceSubUSDC
+        );
         Subaccount(aliceSub).execute(address(USDC), transferData, 0);
         assertEq(IERC20(USDC).balanceOf(aliceSub), 0);
         assertEq(IERC20(USDC).balanceOf(alice), aliceSubUSDC);
-
     }
 
     function testLiquidateWhiteListOpen() public {
@@ -344,7 +354,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(usdcPrice)
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle900));
-        dodo.addTokenPrice(address(ETH), address(jojoOracle900));
+        swapContract.addTokenPrice(address(ETH), address(jojoOracle900));
 
         //init flashloanRepay
         jusd.mint(50000e6);
@@ -357,8 +367,13 @@ contract JUSDBankOperatorLiquidateTest is Test {
             insurance
         );
 
-        bytes memory data = dodo.getSwapData(10e18, address(ETH));
-        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
+        bytes memory data = swapContract.getSwapData(10e18, address(ETH));
+        bytes memory param = abi.encode(
+            swapContract,
+            swapContract,
+            address(bob),
+            data
+        );
 
         // liquidate
 
@@ -375,7 +390,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             bob,
             10e18,
             afterParam,
-                900e6
+            900e6
         );
 
         //judge
@@ -435,7 +450,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(usdcPrice)
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle900));
-        dodo.addTokenPrice(address(ETH), address(jojoOracle900));
+        swapContract.addTokenPrice(address(ETH), address(jojoOracle900));
 
         //init flashloanRepay
         jusd.mint(50000e6);
@@ -449,8 +464,13 @@ contract JUSDBankOperatorLiquidateTest is Test {
         );
         // flashLoanLiquidate.setOracle(address(ETH), address(jojoOracle900));
 
-        bytes memory data = dodo.getSwapData(5e18, address(ETH));
-        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
+        bytes memory data = swapContract.getSwapData(5e18, address(ETH));
+        bytes memory param = abi.encode(
+            swapContract,
+            swapContract,
+            address(bob),
+            data
+        );
 
         // liquidate
 
@@ -467,7 +487,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             bob,
             5e18,
             afterParam,
-                900e6
+            900e6
         );
 
         assertEq(jusdBank.isAccountSafe(alice), true);
@@ -530,7 +550,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(usdcPrice)
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle500));
-        dodo.addTokenPrice(address(ETH), address(jojoOracle500));
+        swapContract.addTokenPrice(address(ETH), address(jojoOracle500));
 
         //init flashloanRepay
         jusd.mint(50000e6);
@@ -543,8 +563,13 @@ contract JUSDBankOperatorLiquidateTest is Test {
             insurance
         );
 
-        bytes memory data = dodo.getSwapData(10e18, address(ETH));
-        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
+        bytes memory data = swapContract.getSwapData(10e18, address(ETH));
+        bytes memory param = abi.encode(
+            swapContract,
+            swapContract,
+            address(bob),
+            data
+        );
 
         // liquidate
 
@@ -619,7 +644,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(usdcPrice)
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle900));
-        dodo.addTokenPrice(address(ETH), address(jojoOracle900));
+        swapContract.addTokenPrice(address(ETH), address(jojoOracle900));
 
         //init flashloanRepay
         jusd.mint(50000e6);
@@ -632,8 +657,13 @@ contract JUSDBankOperatorLiquidateTest is Test {
                 insurance
             );
 
-        bytes memory data = dodo.getSwapData(10e18, address(ETH));
-        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
+        bytes memory data = swapContract.getSwapData(10e18, address(ETH));
+        bytes memory param = abi.encode(
+            swapContract,
+            swapContract,
+            address(bob),
+            data
+        );
 
         // liquidate
         vm.startPrank(bob);
@@ -665,7 +695,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(usdcPrice)
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle900));
-        dodo.addTokenPrice(address(ETH), address(jojoOracle900));
+        swapContract.addTokenPrice(address(ETH), address(jojoOracle900));
 
         //init flashloanRepay
         jusd.mint(50000e6);
@@ -678,8 +708,13 @@ contract JUSDBankOperatorLiquidateTest is Test {
                 insurance
             );
 
-        bytes memory data = dodo.getSwapData(10e18, address(ETH));
-        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
+        bytes memory data = swapContract.getSwapData(10e18, address(ETH));
+        bytes memory param = abi.encode(
+            swapContract,
+            swapContract,
+            address(bob),
+            data
+        );
 
         // liquidate
         vm.startPrank(bob);
@@ -711,7 +746,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(usdcPrice)
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle900));
-        dodo.addTokenPrice(address(ETH), address(jojoOracle900));
+        swapContract.addTokenPrice(address(ETH), address(jojoOracle900));
 
         //init flashloanRepay
         jusd.mint(50000e6);
@@ -724,8 +759,13 @@ contract JUSDBankOperatorLiquidateTest is Test {
                 insurance
             );
 
-        bytes memory data = dodo.getSwapData(10e18, address(ETH));
-        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
+        bytes memory data = swapContract.getSwapData(10e18, address(ETH));
+        bytes memory param = abi.encode(
+            swapContract,
+            swapContract,
+            address(bob),
+            data
+        );
 
         // liquidate
         vm.startPrank(bob);
@@ -757,7 +797,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(usdcPrice)
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle900));
-        dodo.addTokenPrice(address(ETH), address(jojoOracle900));
+        swapContract.addTokenPrice(address(ETH), address(jojoOracle900));
 
         //init flashloanRepay
         jusd.mint(50000e6);
@@ -770,8 +810,13 @@ contract JUSDBankOperatorLiquidateTest is Test {
             insurance
         );
 
-        bytes memory data = dodo.getSwapData(20e18, address(ETH));
-        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
+        bytes memory data = swapContract.getSwapData(20e18, address(ETH));
+        bytes memory param = abi.encode(
+            swapContract,
+            swapContract,
+            address(bob),
+            data
+        );
 
         // liquidate
 
@@ -814,7 +859,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(usdcPrice)
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle900));
-        dodo.addTokenPrice(address(ETH), address(jojoOracle900));
+        swapContract.addTokenPrice(address(ETH), address(jojoOracle900));
 
         //init flashloanRepay
         jusd.mint(50000e6);
@@ -827,8 +872,13 @@ contract JUSDBankOperatorLiquidateTest is Test {
             insurance
         );
 
-        bytes memory data = dodo.getSwapData(10e18, address(ETH));
-        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
+        bytes memory data = swapContract.getSwapData(10e18, address(ETH));
+        bytes memory param = abi.encode(
+            swapContract,
+            swapContract,
+            address(bob),
+            data
+        );
 
         // liquidate
 
@@ -846,7 +896,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             bob,
             10e18,
             afterParam,
-                900e6
+            900e6
         );
 
         //judge
@@ -872,17 +922,10 @@ contract JUSDBankOperatorLiquidateTest is Test {
         jusdBank.addLiquidator(jim);
         vm.startPrank(jim);
         cheats.expectRevert("LIQUIDATOR_NOT_IN_THE_WHITELIST");
-        jusdBank.liquidate(
-            alice,
-            address(ETH),
-            bob,
-            10e18,
-            afterParam,
-                900e6
-        );
+        jusdBank.liquidate(alice, address(ETH), bob, 10e18, afterParam, 900e6);
     }
 
-     function testLiquidateNotOperator() public {
+    function testLiquidateNotOperator() public {
         // liquidator is in the whiteliste but operator is not
         ETH.transfer(alice, 10e18);
         vm.startPrank(alice);
@@ -905,8 +948,13 @@ contract JUSDBankOperatorLiquidateTest is Test {
             insurance
         );
 
-        bytes memory data = dodo.getSwapData(10e18, address(ETH));
-        bytes memory param = abi.encode(dodo, dodo, address(bob), data);
+        bytes memory data = swapContract.getSwapData(10e18, address(ETH));
+        bytes memory param = abi.encode(
+            swapContract,
+            swapContract,
+            address(bob),
+            data
+        );
 
         // liquidate
         vm.startPrank(jim);
@@ -915,14 +963,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             param
         );
         cheats.expectRevert("CAN_NOT_OPERATE_ACCOUNT");
-        jusdBank.liquidate(
-            alice,
-            address(ETH),
-            bob,
-            10e18,
-            afterParam,
-                900e6
-        );
+        jusdBank.liquidate(alice, address(ETH), bob, 10e18, afterParam, 900e6);
         vm.stopPrank();
     }
 }

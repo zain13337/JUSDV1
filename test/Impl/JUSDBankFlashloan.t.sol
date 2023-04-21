@@ -7,7 +7,7 @@ import "./JUSDBankInit.t.sol";
 import "../../src/Impl/flashloanImpl/FlashLoanRepay.sol";
 import "../../src/Impl/JUSDExchange.sol";
 import "../mocks/MockFlashloan.sol";
-import "../../src/Testsupport/SupportsDODO.sol";
+import "../../src/Testsupport/SupportsSWAP.sol";
 import "../mocks/MockFlashloan2.sol";
 import "../mocks/MockFlashloan3.sol";
 
@@ -72,9 +72,12 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
         address[] memory collateralList = jusdBank.getUserCollateralList(alice);
         assertEq(collateralList.length, 1);
         assertEq(jusdBank.getDepositBalance(address(mockToken1), alice), 0);
-        assertEq(jusdBank.getIfHasCollateral(alice, address(mockToken1)), false);
+        assertEq(
+            jusdBank.getIfHasCollateral(alice, address(mockToken1)),
+            false
+        );
         assertEq(jusdBank.getIfHasCollateral(alice, address(mockToken2)), true);
-        
+
         assertEq(jusdBank.getDepositBalance(address(mockToken2), alice), 5e8);
         assertEq(mockToken2.balanceOf(address(mockFlashloan)), 5e8);
         assertEq(mockToken1.balanceOf(bob), 5e18);
@@ -113,7 +116,9 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
         jusdBank.deposit(alice, address(mockToken1), 5e18, alice);
         bytes memory test = "just a test";
 
-        cheats.expectRevert("ReentrancyGuard: Withdraw or Borrow or Liquidate flashLoan reentrant call");
+        cheats.expectRevert(
+            "ReentrancyGuard: Withdraw or Borrow or Liquidate flashLoan reentrant call"
+        );
         jusdBank.flashLoan(
             address(mockFlashloan3),
             address(mockToken1),
@@ -126,12 +131,12 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
 
     function testFlashloanRepayFK() public {
         MockERC20 usdc = new MockERC20(4000e18);
-        SupportsDODO dodo = new SupportsDODO(
+        SupportsSWAP swapContract = new SupportsSWAP(
             address(usdc),
             address(mockToken1),
             address(jojoOracle1)
         );
-        IERC20(usdc).transfer(address(dodo), 4000e18);
+        IERC20(usdc).transfer(address(swapContract), 4000e18);
 
         JUSDExchange jusdExchange = new JUSDExchange(
             address(usdc),
@@ -151,8 +156,13 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
         mockToken1.approve(address(jusdBank), 1e18);
         jusdBank.deposit(alice, address(mockToken1), 1e18, alice);
         jusdBank.borrow(300e6, alice, false);
-        bytes memory data = dodo.getSwapData(1e18, address(mockToken1));
-        bytes memory param = abi.encode(dodo, dodo, 1000e6, data);
+        bytes memory data = swapContract.getSwapData(1e18, address(mockToken1));
+        bytes memory param = abi.encode(
+            swapContract,
+            swapContract,
+            1000e6,
+            data
+        );
         jusdBank.flashLoan(
             address(flashloanRepay),
             address(mockToken1),
@@ -164,18 +174,18 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
         assertEq(IERC20(usdc).balanceOf(alice), 700e6);
         assertEq(jusdBank.getBorrowBalance(alice), 0);
         assertEq(IERC20(mockToken1).balanceOf(alice), 0);
-        assertEq(IERC20(mockToken1).balanceOf(address(dodo)), 1e18);
+        assertEq(IERC20(mockToken1).balanceOf(address(swapContract)), 1e18);
         vm.stopPrank();
     }
 
     function testFlashloanRepayExchangeIsClose() public {
         MockERC20 usdc = new MockERC20(4000e18);
-        SupportsDODO dodo = new SupportsDODO(
+        SupportsSWAP swapContract = new SupportsSWAP(
             address(usdc),
             address(mockToken1),
             address(jojoOracle1)
         );
-        IERC20(usdc).transfer(address(dodo), 4000e18);
+        IERC20(usdc).transfer(address(swapContract), 4000e18);
 
         JUSDExchange jusdExchange = new JUSDExchange(
             address(usdc),
@@ -195,8 +205,8 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
         mockToken1.approve(address(jusdBank), 1e18);
         jusdBank.deposit(alice, address(mockToken1), 1e18, alice);
         jusdBank.borrow(300e6, alice, false);
-        bytes memory data = dodo.getSwapData(1e16, address(mockToken1));
-        bytes memory param = abi.encode(dodo, dodo, 10e6, data);
+        bytes memory data = swapContract.getSwapData(1e16, address(mockToken1));
+        bytes memory param = abi.encode(swapContract, swapContract, 10e6, data);
         cheats.expectRevert("NOT_ALLOWED_TO_EXCHANGE");
         jusdBank.flashLoan(
             address(flashloanRepay),
@@ -210,12 +220,12 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
 
     function testFlashloanRepayAmountLessBorrowBalance() public {
         MockERC20 usdc = new MockERC20(4000e18);
-        SupportsDODO dodo = new SupportsDODO(
+        SupportsSWAP swapContract = new SupportsSWAP(
             address(usdc),
             address(mockToken1),
             address(jojoOracle1)
         );
-        IERC20(usdc).transfer(address(dodo), 4000e18);
+        IERC20(usdc).transfer(address(swapContract), 4000e18);
         JUSDExchange jusdExchange = new JUSDExchange(
             address(usdc),
             address(jusd)
@@ -233,8 +243,8 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
         mockToken1.approve(address(jusdBank), 1e18);
         jusdBank.deposit(alice, address(mockToken1), 1e18, alice);
         jusdBank.borrow(300e6, alice, false);
-        bytes memory data = dodo.getSwapData(1e15, address(mockToken1));
-        bytes memory param = abi.encode(dodo, dodo, 1e6, data);
+        bytes memory data = swapContract.getSwapData(1e15, address(mockToken1));
+        bytes memory param = abi.encode(swapContract, swapContract, 1e6, data);
         jusdBank.flashLoan(
             address(flashloanRepay),
             address(mockToken1),
@@ -248,12 +258,12 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
 
     function testFlashloanRepayRevert() public {
         MockERC20 usdc = new MockERC20(4000e18);
-        SupportsDODO dodo = new SupportsDODO(
+        SupportsSWAP swapContract = new SupportsSWAP(
             address(usdc),
             address(mockToken1),
             address(jojoOracle1)
         );
-        IERC20(usdc).transfer(address(dodo), 2e6);
+        IERC20(usdc).transfer(address(swapContract), 2e6);
         JUSDExchange jusdExchange = new JUSDExchange(
             address(usdc),
             address(jusd)
@@ -271,8 +281,13 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
         mockToken1.approve(address(jusdBank), 3e18);
         jusdBank.deposit(alice, address(mockToken1), 3e18, alice);
         jusdBank.borrow(300e6, alice, false);
-        bytes memory data = dodo.getSwapData(3e18, address(mockToken1));
-        bytes memory param = abi.encode(dodo, dodo, 3000e6, data);
+        bytes memory data = swapContract.getSwapData(3e18, address(mockToken1));
+        bytes memory param = abi.encode(
+            swapContract,
+            swapContract,
+            3000e6,
+            data
+        );
         cheats.expectRevert("ERC20: transfer amount exceeds balance");
         jusdBank.flashLoan(
             address(flashloanRepay),

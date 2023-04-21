@@ -49,7 +49,7 @@ contract FlashLoanLiquidate is IFlashLoanReceive {
         address to,
         bytes calldata param
     ) external {
-        //dodo swap
+        //swapContract swap
         (LiquidateData memory liquidateData, bytes memory originParam) = abi
             .decode(param, (LiquidateData, bytes));
         (

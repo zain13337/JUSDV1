@@ -49,7 +49,7 @@ contract LiquidateCollateralRepayNotEnough is IFlashLoanReceive {
         address to,
         bytes calldata param
     ) external {
-        //dodo swap
+        //swapContract swap
         (LiquidateData memory liquidateData, bytes memory originParam) = abi
             .decode(param, (LiquidateData, bytes));
         (address approveTarget, address swapTarget, , bytes memory data) = abi
@@ -113,7 +113,7 @@ contract LiquidateCollateralInsuranceNotEnough is IFlashLoanReceive {
         address to,
         bytes calldata param
     ) external {
-        //dodo swap
+        //swapContract swap
         (LiquidateData memory liquidateData, bytes memory originParam) = abi
             .decode(param, (LiquidateData, bytes));
         (address approveTarget, address swapTarget, , bytes memory data) = abi
@@ -185,7 +185,7 @@ contract LiquidateCollateralLiquidatedNotEnough is IFlashLoanReceive {
         address to,
         bytes calldata param
     ) external {
-        //dodo swap
+        //swapContract swap
         (LiquidateData memory liquidateData, bytes memory originParam) = abi
             .decode(param, (LiquidateData, bytes));
         (address approveTarget, address swapTarget, , bytes memory data) = abi
