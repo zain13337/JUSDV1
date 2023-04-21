@@ -11,13 +11,13 @@ import "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import "../lib/JOJOConstant.sol";
 
 contract JOJOOracleAdaptor is IPriceChainLink, Ownable {
-    address public immutable source;
+    address public immutable chainlink;
     uint256 public immutable decimalsCorrection;
     uint256 public immutable heartbeatInterval;
     address public immutable USDCSource;
 
     constructor(address _source, uint256 _decimalCorrection, uint256 _heartbeatInterval, address _USDCSource) {
-        source = _source;
+        chainlink = _source;
         decimalsCorrection = 10 ** _decimalCorrection;
         heartbeatInterval = _heartbeatInterval;
         USDCSource = _USDCSource;
@@ -25,7 +25,7 @@ contract JOJOOracleAdaptor is IPriceChainLink, Ownable {
 
     function getAssetPrice() external view override returns (uint256) {
         /*uint80 roundID*/
-        (, int256 price,, uint256 updatedAt,) = IChainLinkAggregator(source).latestRoundData();
+        (, int256 price,, uint256 updatedAt,) = IChainLinkAggregator(chainlink).latestRoundData();
         (, int256 USDCPrice,, uint256 USDCUpdatedAt,) = IChainLinkAggregator(USDCSource).latestRoundData();
 
         require(block.timestamp - updatedAt <= heartbeatInterval, "ORACLE_HEARTBEAT_FAILED");
