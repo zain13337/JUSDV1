@@ -4,7 +4,6 @@ out/
 .github
 .idea
 .vscode
-.gitmodules
 .gas-snapshot
 lib
 node_modules
