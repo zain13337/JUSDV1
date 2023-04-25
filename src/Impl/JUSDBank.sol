@@ -279,7 +279,7 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         address from
     ) internal {
         uint256 tRate = getTRate();
-        //        tAmount % tRate ？ tAmount / tRate + 1 ： tAmount % tRate
+        //        tAmount % tRate ？ tAmount / tRate + 1 ： tAmount / tRate
         uint256 t0Amount = tAmount.decimalRemainder(tRate)
             ? tAmount.decimalDiv(tRate)
             : tAmount.decimalDiv(tRate) + 1;
