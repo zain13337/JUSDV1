@@ -7,14 +7,16 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeCast.sol";
+import "@JOJO/contracts/adaptor/emergencyOracle.sol";
 
 /// @notice emergency fallback oracle.
 /// Using when the third party oracle is not available.
-contract EmergencyOracle is Ownable{
+contract EmergencyOracleFeed is Ownable{
     uint256 public price;
     uint256 public roundId;
     string public description;
     bool public turnOn;
+    address public priceFeedOracle;
 
     // Align with chainlink
     event AnswerUpdated(
@@ -23,14 +25,15 @@ contract EmergencyOracle is Ownable{
         uint256 updatedAt
     );
 
-    constructor(address _owner, string memory _description) Ownable() {
+    constructor(address _owner, string memory _description, address _priceFeed) Ownable() {
         transferOwnership(_owner);
         description = _description;
+        priceFeedOracle = _priceFeed;
     }
 
     function getAssetPrice() external view returns (uint256) {
         require(turnOn, "the emergency oracle is close");
-        return price;
+        return EmergencyOracle(priceFeedOracle).getMarkPrice();
     }
 
     function turnOnOracle() external onlyOwner {
@@ -41,20 +44,4 @@ contract EmergencyOracle is Ownable{
         turnOn = false;
     }
 
-    function setAssetPrice(uint256 newPrice) external onlyOwner {
-        price = newPrice;
-        emit AnswerUpdated(SafeCast.toInt256(price), roundId, block.timestamp);
-        roundId += 1;
-    }
-}
-
-contract EmergencyOracleFactory {
-    event NewEmergencyOracle(address owner, address newOracle);
-
-    function newEmergencyOracle(string calldata description) external {
-        address newOracle = address(
-            new EmergencyOracle(msg.sender, description)
-        );
-        emit NewEmergencyOracle(msg.sender, newOracle);
-    }
 }
