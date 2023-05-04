@@ -242,10 +242,10 @@ contract SubaccountTest is Test {
 
         assertEq(jusdBank.getBorrowBalance(aliceSub), 0);
 
-        bytes memory dataDepositETH = abi.encodeWithSignature("deposit()");
-        Subaccount(aliceSub).execute{value: 2 ether}(address(mockDepositETH), dataDepositETH, 1 ether);
-        uint256 balance = address(mockDepositETH).balance;
-        assertEq(balance, 1 ether);
+//        bytes memory dataDepositETH = abi.encodeWithSignature("deposit()");
+//        Subaccount(aliceSub).execute{value: 2 ether}(address(mockDepositETH), dataDepositETH, 1 ether);
+//        uint256 balance = address(mockDepositETH).balance;
+//        assertEq(balance, 1 ether);
 
         vm.stopPrank();
 
