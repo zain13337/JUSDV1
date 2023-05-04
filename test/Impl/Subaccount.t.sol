@@ -22,6 +22,7 @@ import "../../src/Testsupport/SupportsSWAP.sol";
 import "../mocks/MockChainLinkBadDebt.sol";
 import "../../src/lib/DecimalMath.sol";
 import "../mocks/MockUSDCPrice.sol";
+import "../mocks/MockDepositETH.sol";
 
 interface Cheats {
     function expectRevert() external;
@@ -36,6 +37,7 @@ contract SubaccountTest is Test {
     using DecimalMath for uint256;
 
     JUSDBank public jusdBank;
+    MockDepositETH public mockDepositETH;
     MockERC20 public mockToken1;
     TestERC20 public USDC;
     JUSD public jusd;
@@ -68,6 +70,9 @@ contract SubaccountTest is Test {
         vm.label(bob, "Bob");
         vm.label(insurance, "Insurance");
         jusd.mint(200000e6);
+        vm.deal(alice, 100 ether);
+        vm.deal(bob, 100 ether);
+        mockDepositETH = new MockDepositETH();
         subaccountFactory = new SubaccountFactory();
         jusdExchange = new JUSDExchange(address(USDC), address(jusd));
         jusd.transfer(address(jusdExchange), 100000e6);
@@ -236,6 +241,11 @@ contract SubaccountTest is Test {
         console.log("aliceSub borrow", jusdBank.getBorrowBalance(aliceSub));
 
         assertEq(jusdBank.getBorrowBalance(aliceSub), 0);
+
+        bytes memory dataDepositETH = abi.encodeWithSignature("deposit()");
+        Subaccount(aliceSub).execute{value: 2 ether}(address(mockDepositETH), dataDepositETH, 1 ether);
+        uint256 balance = address(mockDepositETH).balance;
+        assertEq(balance, 1 ether);
 
         vm.stopPrank();
 
