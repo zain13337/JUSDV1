@@ -56,8 +56,9 @@ contract FlashLoanLiquidate is IFlashLoanReceive {
             address approveTarget,
             address swapTarget,
             address liquidator,
+            uint256 minReceive,
             bytes memory data
-        ) = abi.decode(originParam, (address, address, address, bytes));
+        ) = abi.decode(originParam, (address, address, address, uint256, bytes));
         IERC20(asset).approve(approveTarget, amount);
         (bool success, ) = swapTarget.call(data);
         if (success == false) {
@@ -70,7 +71,7 @@ contract FlashLoanLiquidate is IFlashLoanReceive {
         }
 
         uint256 USDCAmount = IERC20(USDC).balanceOf(address(this));
-
+        require(USDCAmount >= minReceive, "receive amount is too small");
         IERC20(USDC).approve(jusdExchange, liquidateData.actualLiquidated);
         IJUSDExchange(jusdExchange).buyJUSD(
             liquidateData.actualLiquidated,

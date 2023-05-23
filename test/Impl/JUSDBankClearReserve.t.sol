@@ -36,6 +36,7 @@ contract JUSDBankClearReserveTest is JUSDBankInitTest {
             swapContract,
             swapContract,
             address(bob),
+            10000e6,
             data
         );
         bytes memory afterParam = abi.encode(

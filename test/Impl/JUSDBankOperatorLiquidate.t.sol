@@ -165,6 +165,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             swapContract,
             swapContract,
             address(bob),
+            9000e6,
             data
         );
 
@@ -269,6 +270,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             swapContract,
             swapContract,
             address(bob),
+            9000e6,
             data
         );
 
@@ -372,6 +374,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             swapContract,
             swapContract,
             address(bob),
+            9000e6,
             data
         );
 
@@ -469,6 +472,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             swapContract,
             swapContract,
             address(bob),
+            4500e6,
             data
         );
 
@@ -568,6 +572,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             swapContract,
             swapContract,
             address(bob),
+            5000e6,
             data
         );
 
@@ -815,6 +820,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             swapContract,
             swapContract,
             address(bob),
+            18000e6,
             data
         );
 
@@ -877,6 +883,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             swapContract,
             swapContract,
             address(bob),
+            9000e6,
             data
         );
 
