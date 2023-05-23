@@ -64,7 +64,7 @@ contract GeneralRepay {
         } else {
             IERC20(USDC).approve(jusdExchange, borrowBalance);
             IJUSDExchange(jusdExchange).buyJUSD(borrowBalance, address(this));
-            IERC20(USDC).safeTransfer(to, USDCAmount - borrowBalance);
+            IERC20(USDC).safeTransfer(msg.sender, USDCAmount - borrowBalance);
             JUSDAmount = borrowBalance;
         }
 
