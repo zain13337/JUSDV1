@@ -111,7 +111,7 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         DataTypes.UserInfo storage user = userInfo[msg.sender];
         _borrow(user, isDepositToJOJO, to, amount, msg.sender);
         require(
-            _isAccountSafeAfterBorrow(user, getTRate()),
+            _isAccountSafe(user, getTRate()),
             JUSDErrors.AFTER_BORROW_ACCOUNT_IS_NOT_SAFE
         );
     }

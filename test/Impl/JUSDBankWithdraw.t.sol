@@ -20,6 +20,7 @@ contract JUSDBankWithdrawTest is JUSDBankInitTest {
         vm.startPrank(alice);
         mockToken1.approve(address(jusdBank), 10e18);
         mockToken2.approve(address(jusdBank), 20e8);
+        // 10 eth 10 btc
         jusdBank.deposit(alice, address(mockToken1), 10e18, alice);
         jusdBank.deposit(alice, address(mockToken2), 10e8, alice);
         jusdBank.borrow(4000e6, alice, false);
@@ -28,12 +29,19 @@ contract JUSDBankWithdrawTest is JUSDBankInitTest {
             alice
         );
         assertEq(maxToken2, 10e8);
+        // 10 btc
         jusdBank.withdraw(address(mockToken1), 10e18, alice, false);
+        emit log_uint(jusdBank.getDepositMaxMintAmount(alice));
         uint256 maxToken1 = jusdBank.getMaxWithdrawAmount(
             address(mockToken1),
             alice
         );
+        maxToken2 = jusdBank.getMaxWithdrawAmount(
+            address(mockToken2),
+            alice
+        );
         assertEq(maxToken1, 0);
+        assertEq(maxToken2, 971428571);
 
         vm.stopPrank();
         vm.startPrank(bob);
@@ -51,6 +59,7 @@ contract JUSDBankWithdrawTest is JUSDBankInitTest {
     }
 
     function testWithDrawSuccess() public {
+        // eth btc
         mockToken1.transfer(alice, 10e18);
         mockToken2.transfer(alice, 10e8);
         vm.startPrank(alice);
@@ -66,9 +75,14 @@ contract JUSDBankWithdrawTest is JUSDBankInitTest {
         jusd.approve(address(jusdBank), 5000e6);
         vm.warp(3000);
         jusdBank.withdraw(address(mockToken1), 1e18, alice, false);
+        // deposit 9 eth 10 btc borrow 5000
         uint256 rate2 = jusdBank.getTRate();
         uint256 maxToken2 = jusdBank.getMaxWithdrawAmount(
             address(mockToken2),
+            alice
+        );
+        uint256 maxToken1 = jusdBank.getMaxWithdrawAmount(
+            address(mockToken1),
             alice
         );
         emit log_uint(
@@ -84,6 +98,7 @@ contract JUSDBankWithdrawTest is JUSDBankInitTest {
         assertEq(aliceUsdo, (4999993662 * rate2) / 1e18);
         assertEq(maxMint, 107200e6);
         assertEq(maxToken2, 1000000000);
+        assertEq(maxToken1, 9e18);
         vm.stopPrank();
     }
 

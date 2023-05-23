@@ -15,11 +15,9 @@ abstract contract JUSDView is JUSDBankStorage, IJUSDBank {
         return reservesList;
     }
 
-    function getDepositMaxMintAmount(
-        address user
-    ) external view returns (uint256) {
+    function getDepositMaxMintAmount(address user) external view returns (uint256) {
         DataTypes.UserInfo storage userInfo = userInfo[user];
-        return _maxMintAmountBorrow(userInfo);
+        return _maxMintAmount(userInfo);
     }
 
     function getCollateralMaxMintAmount(
@@ -27,7 +25,7 @@ abstract contract JUSDView is JUSDBankStorage, IJUSDBank {
         uint256 amount
     ) external view returns (uint256 maxAmount) {
         DataTypes.ReserveInfo memory reserve = reserveInfo[collateral];
-        return _getMintAmountBorrow(reserve, amount);
+        return _getMintAmount(reserve, amount, reserve.initialMortgageRate);
     }
 
     function getMaxWithdrawAmount(
@@ -35,23 +33,21 @@ abstract contract JUSDView is JUSDBankStorage, IJUSDBank {
         address user
     ) external view returns (uint256 maxAmount) {
         DataTypes.UserInfo storage userInfo = userInfo[user];
-        uint256 JUSDBorrow = userInfo.t0BorrowBalance.decimalMul(getTRate());
-        if (JUSDBorrow == 0) {
+        uint256 USDOBorrow = userInfo.t0BorrowBalance.decimalMul(getTRate());
+        if (USDOBorrow == 0) {
             return userInfo.depositBalance[collateral];
         }
-        uint256 maxMintAmount = _maxMintAmount(userInfo);
-        if (maxMintAmount <= JUSDBorrow) {
+        uint256 maxMintAmount = _maxWithdrawAmount(userInfo);
+        if (maxMintAmount <= USDOBorrow) {
             maxAmount = 0;
         } else {
             DataTypes.ReserveInfo memory reserve = reserveInfo[collateral];
-            uint256 remainAmount = (maxMintAmount - JUSDBorrow).decimalDiv(
-                reserve.initialMortgageRate.decimalMul(
-                    IPriceChainLink(reserve.oracle).getAssetPrice()
-                )
+            uint256 remainAmount = (maxMintAmount - USDOBorrow).decimalDiv(
+                reserve.initialMortgageRate.decimalMul(IPriceChainLink(reserve.oracle).getAssetPrice())
             );
             remainAmount >= userInfo.depositBalance[collateral]
-                ? maxAmount = userInfo.depositBalance[collateral]
-                : maxAmount = remainAmount;
+            ? maxAmount = userInfo.depositBalance[collateral]
+            : maxAmount = remainAmount;
         }
     }
 
@@ -90,50 +86,29 @@ abstract contract JUSDView is JUSDBankStorage, IJUSDBank {
         return userInfo[from].collateralList;
     }
 
-    /// @notice get the JUSD mint amount
     function _getMintAmount(
-        uint256 balance,
-        address oracle,
-        uint256 rate
-    ) internal view returns (uint256) {
-        return
-            IPriceChainLink(oracle)
-                .getAssetPrice()
-                .decimalMul(balance)
-                .decimalMul(rate);
-    }
-
-    function _getMintAmountBorrow(
         DataTypes.ReserveInfo memory reserve,
-        uint256 amount
+        uint256 amount,
+        uint256 rate
     ) internal view returns (uint256) {
         uint256 depositAmount = IPriceChainLink(reserve.oracle)
             .getAssetPrice()
             .decimalMul(amount)
-            .decimalMul(reserve.initialMortgageRate);
+            .decimalMul(rate);
         if (depositAmount >= reserve.maxColBorrowPerAccount) {
             depositAmount = reserve.maxColBorrowPerAccount;
         }
         return depositAmount;
     }
 
-    /// @notice according to the initialMortgageRate to judge whether the user's account is safe after borrow, withdraw, flashloan
-    /// If the collateral is not allowed to be borrowed. When calculating max mint JUSD amount, treat the value of collateral as 0
-    /// maxMintAmount = sum(collateral amount * price * initialMortgageRate)
-    function _isAccountSafe(
-        DataTypes.UserInfo storage user,
-        uint256 tRate
-    ) internal view returns (bool) {
-        return user.t0BorrowBalance.decimalMul(tRate) <= _maxMintAmount(user);
-    }
 
-    function _isAccountSafeAfterBorrow(
+    function _isAccountSafe(
         DataTypes.UserInfo storage user,
         uint256 tRate
     ) internal view returns (bool) {
         return
             user.t0BorrowBalance.decimalMul(tRate) <=
-            _maxMintAmountBorrow(user);
+            _maxMintAmount(user);
     }
 
     function _maxMintAmount(
@@ -147,18 +122,17 @@ abstract contract JUSDView is JUSDBankStorage, IJUSDBank {
             if (!reserve.isBorrowAllowed) {
                 continue;
             }
-            maxMintAmount += _getMintAmount(
+            uint256 colMintAmount = _getMintAmount(
+                reserve,
                 user.depositBalance[collateral],
-                reserve.oracle,
                 reserve.initialMortgageRate
             );
+            maxMintAmount += colMintAmount;
         }
         return maxMintAmount;
     }
 
-    function _maxMintAmountBorrow(
-        DataTypes.UserInfo storage user
-    ) internal view returns (uint256) {
+    function _maxWithdrawAmount(DataTypes.UserInfo storage user) internal view returns (uint256) {
         address[] memory collaterals = user.collateralList;
         uint256 maxMintAmount;
         for (uint256 i; i < collaterals.length; i = i + 1) {
@@ -167,11 +141,8 @@ abstract contract JUSDView is JUSDBankStorage, IJUSDBank {
             if (!reserve.isBorrowAllowed) {
                 continue;
             }
-            uint256 colMintAmount = _getMintAmountBorrow(
-                reserve,
-                user.depositBalance[collateral]
-            );
-            maxMintAmount += colMintAmount;
+            maxMintAmount += IPriceChainLink(reserve.oracle).getAssetPrice().decimalMul(user.depositBalance[collateral])
+            .decimalMul(reserve.initialMortgageRate);
         }
         return maxMintAmount;
     }
@@ -195,8 +166,8 @@ abstract contract JUSDView is JUSDBankStorage, IJUSDBank {
                 continue;
             }
             liquidationMaxMintAmount += _getMintAmount(
+                reserve,
                 liquidatedTraderInfo.depositBalance[collateral],
-                reserve.oracle,
                 reserve.liquidationMortgageRate
             );
         }
