@@ -34,7 +34,7 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         maxPerAccountBorrowAmount = _maxPerAccountBorrowAmount;
         maxTotalBorrowAmount = _maxTotalBorrowAmount;
         borrowFeeRate = _borrowFeeRate;
-        t0Rate = JOJOConstant.ONE;
+        tRate = JOJOConstant.ONE;
         primaryAsset = _primaryAsset;
         lastUpdateTimestamp = uint32(block.timestamp);
     }
@@ -109,9 +109,10 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
     ) external override nonReentrant nonFlashLoanReentrant{
         //     t0BorrowedAmount = borrowedAmount /  getT0Rate
         DataTypes.UserInfo storage user = userInfo[msg.sender];
+        accrueRate();
         _borrow(user, isDepositToJOJO, to, amount, msg.sender);
         require(
-            _isAccountSafe(user, getTRate()),
+            _isAccountSafe(user, tRate),
             JUSDErrors.AFTER_BORROW_ACCOUNT_IS_NOT_SAFE
         );
     }
@@ -121,7 +122,7 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         address to
     ) external override nonReentrant returns (uint256) {
         DataTypes.UserInfo storage user = userInfo[to];
-        uint256 tRate = getTRate();
+        accrueRate();
         return _repay(user, msg.sender, to, amount, tRate);
     }
 
@@ -154,6 +155,7 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         nonFlashLoanReentrant
         returns (DataTypes.LiquidateData memory liquidateData)
     {
+        accrueRate();
         uint256 JUSDBorrowedT0 = userInfo[liquidated].t0BorrowBalance;
         uint256 primaryLiquidatedAmount = IERC20(primaryAsset).balanceOf(
             liquidated
@@ -282,7 +284,6 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         uint256 tAmount,
         address from
     ) internal {
-        uint256 tRate = getTRate();
         //        tAmount % tRate ？ tAmount / tRate : tAmount / tRate + 1
         uint256 t0Amount = tAmount.decimalRemainder(tRate)
             ? tAmount.decimalDiv(tRate)
@@ -393,7 +394,6 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         if(amount >= liquidatedInfo.depositBalance[collateral]){
             amount = liquidatedInfo.depositBalance[collateral];
         }
-        uint256 tRate = getTRate();
         require(
             _isStartLiquidation(liquidatedInfo, tRate),
             JUSDErrors.ACCOUNT_IS_SAFE
