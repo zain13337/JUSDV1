@@ -167,57 +167,6 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
         );
     }
 
-    function testLiquidateCollateralAmountIsTooBig() public {
-        mockToken1.transfer(alice, 10e18);
-        vm.startPrank(address(jusdBank));
-        jusd.transfer(bob, 5000e6);
-        vm.stopPrank();
-        vm.startPrank(alice);
-        mockToken1.approve(address(jusdBank), 10e18);
-        jusdBank.deposit(alice, address(mockToken1), 10e18, alice);
-        jusdBank.borrow(7426e6, alice, false);
-        vm.stopPrank();
-        vm.startPrank(address(this));
-        MockChainLink900 eth900 = new MockChainLink900();
-        JOJOOracleAdaptor jojoOracle900 = new JOJOOracleAdaptor(
-            address(eth900),
-            20,
-            86400,
-            address(usdcPrice)
-        );
-        jusdBank.updateOracle(address(mockToken1), address(jojoOracle900));
-        swapContract.addTokenPrice(address(mockToken1), address(jojoOracle900));
-        vm.stopPrank();
-
-        vm.startPrank(bob);
-        jusd.approve(address(jusdBank), 5225e6);
-        vm.warp(3000);
-        bytes memory data = swapContract.getSwapData(1e18, address(mockToken1));
-        bytes memory param = abi.encode(
-            swapContract,
-            swapContract,
-            address(bob),
-            data
-        );
-        FlashLoanLiquidate flashloanRepay = new FlashLoanLiquidate(
-            address(jusdBank),
-            address(jusdExchange),
-            address(USDC),
-            address(jusd),
-            insurance
-        );
-        bytes memory afterParam = abi.encode(address(flashloanRepay), param);
-        cheats.expectRevert("LIQUIDATE_AMOUNT_IS_TOO_BIG");
-        jusdBank.liquidate(
-            alice,
-            address(mockToken1),
-            bob,
-            11e18,
-            afterParam,
-            0
-        );
-    }
-
     function testLiquidatorIsNotInWhiteList() public {
         mockToken1.transfer(alice, 10e18);
         bool isOpen = jusdBank.isLiquidatorWhitelistOpen();

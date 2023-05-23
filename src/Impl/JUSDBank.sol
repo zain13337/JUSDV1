@@ -383,10 +383,9 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
     ) internal view returns (DataTypes.LiquidateData memory liquidateData) {
         DataTypes.UserInfo storage liquidatedInfo = userInfo[liquidated];
         require(amount != 0, JUSDErrors.LIQUIDATE_AMOUNT_IS_ZERO);
-        require(
-            amount <= liquidatedInfo.depositBalance[collateral],
-            JUSDErrors.LIQUIDATE_AMOUNT_IS_TOO_BIG
-        );
+        if(amount >= liquidatedInfo.depositBalance[collateral]){
+            amount = liquidatedInfo.depositBalance[collateral];
+        }
         uint256 tRate = getTRate();
         require(
             _isStartLiquidation(liquidatedInfo, tRate),
