@@ -187,7 +187,7 @@ contract JUSDOperationTest is Test {
     }
 
     function testUpdateRiskParam() public {
-        jusdBank.updateRiskParam(address(mockToken1), 2e16, 2e17, 2e17);
+        jusdBank.updateRiskParam(address(mockToken1), 6e17, 2e17, 2e17);
         //        assertEq(jusdBank.getInsuranceFeeRate(address(mockToken1)), 2e17);
     }
 
@@ -200,7 +200,7 @@ contract JUSDOperationTest is Test {
     function testUpdateReserveParam() public {
         jusdBank.updateReserveParam(
             address(mockToken1),
-            1e18,
+            8e17,
             100e18,
             100e18,
             200000e18

@@ -187,6 +187,8 @@ abstract contract JUSDOperation is JUSDBankStorage {
                     JOJOConstant.ONE,
             JUSDErrors.RESERVE_PARAM_ERROR
         );
+
+        require(reserveInfo[collateral].initialMortgageRate < _liquidationMortgageRate, JUSDErrors.RESERVE_PARAM_WRONG);
         reserveInfo[collateral]
             .liquidationMortgageRate = _liquidationMortgageRate;
         reserveInfo[collateral].liquidationPriceOff = _liquidationPriceOff;
@@ -207,6 +209,7 @@ abstract contract JUSDOperation is JUSDBankStorage {
         uint256 _maxDepositAmountPerAccount,
         uint256 _maxColBorrowPerAccount
     ) external onlyOwner {
+        require(_initialMortgageRate < reserveInfo[collateral].liquidationMortgageRate, JUSDErrors.RESERVE_PARAM_WRONG);
         reserveInfo[collateral].initialMortgageRate = _initialMortgageRate;
         reserveInfo[collateral].maxTotalDepositAmount = _maxTotalDepositAmount;
         reserveInfo[collateral]

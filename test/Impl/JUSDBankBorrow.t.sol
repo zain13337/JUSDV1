@@ -159,7 +159,7 @@ contract JUSDBankBorrowTest is JUSDBankInitTest {
         );
         jusdBank.updateReserveParam(
             address(mockToken2),
-            8e17,
+            75e16,
             2300e18,
             230e18,
             100000e18
@@ -189,7 +189,7 @@ contract JUSDBankBorrowTest is JUSDBankInitTest {
         );
         jusdBank.updateReserveParam(
             address(mockToken2),
-            8e17,
+            75e16,
             2300e8,
             230e8,
             100000e6
@@ -205,7 +205,7 @@ contract JUSDBankBorrowTest is JUSDBankInitTest {
         jusdBank.deposit(alice, address(mockToken1), 200e18, alice);
         jusdBank.deposit(alice, address(mockToken2), 5e8, alice);
         jusdBank.borrow(100000e6, alice, false);
-        jusdBank.borrow(80000e6, alice, false);
+        jusdBank.borrow(75000e6, alice, false);
 
         uint256 maxWithdrawMockToken1 = jusdBank.getMaxWithdrawAmount(
             address(mockToken1),
@@ -227,7 +227,7 @@ contract JUSDBankBorrowTest is JUSDBankInitTest {
         cheats.expectRevert("AFTER_BORROW_ACCOUNT_IS_NOT_SAFE");
         jusdBank.borrow(1e6, alice, false);
         assertEq(maxWithdrawMockToken1, 75000000000000000000);
-        assertEq(maxWithdrawMockToken2, 375000000);
+        assertEq(maxWithdrawMockToken2, 400000000);
 
         vm.stopPrank();
         MockChainLink15000 btc15000 = new MockChainLink15000();
