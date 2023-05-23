@@ -3,13 +3,13 @@ pragma solidity ^0.8.0;
 contract MockUniswapOracle {
 
 
-    function quoteAllAvailablePoolsWithTimePeriod(
+    function quoteSpecificPoolsWithTimePeriod(
         uint128 baseAmount,
         address baseToken,
         address quoteToken,
+        address[] calldata pools,
         uint32 period
-    ) external view returns (uint256 quoteAmount, address[] memory queriedPools){
-        address[] memory a = new address[](1);
-        return (949999, a);
+    ) external view returns (uint256 quoteAmount){
+        return 949999;
     }
 }

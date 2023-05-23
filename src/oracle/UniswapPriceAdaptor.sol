@@ -17,6 +17,8 @@ contract UniswapPriceAdaptor is Ownable{
     uint8 public immutable decimal;
     address public immutable baseToken;
     address public immutable quoteToken;
+    // query pools
+    address[] public pools;
     // query period
     uint32 public period;
     address public priceFeedOracle;
@@ -32,6 +34,7 @@ contract UniswapPriceAdaptor is Ownable{
         uint8 _decimal,
         address _baseToken,
         address _quoteToken,
+        address[] memory _pools,
         uint32 _period,
         address _priceFeedOracle,
         uint256 _impact
@@ -40,19 +43,26 @@ contract UniswapPriceAdaptor is Ownable{
         decimal = _decimal;
         baseToken = _baseToken;
         quoteToken = _quoteToken;
+        pools = _pools;
         period = _period;
         priceFeedOracle = _priceFeedOracle;
         impact = _impact;
     }
 
     function getAssetPrice() external view returns (uint256) {
-        (uint256 uniswapPriceFeed,) = IStaticOracle(UNISWAP_V3_ORACLE).quoteAllAvailablePoolsWithTimePeriod(uint128(10**decimal), baseToken, quoteToken, period);
+        uint256 uniswapPriceFeed = IStaticOracle(UNISWAP_V3_ORACLE).quoteSpecificPoolsWithTimePeriod(uint128(10**decimal), baseToken, quoteToken, pools, period);
         uint256 JOJOPriceFeed = EmergencyOracle(priceFeedOracle).getMarkPrice();
         uint256 diff = JOJOPriceFeed >= uniswapPriceFeed ? JOJOPriceFeed - uniswapPriceFeed : uniswapPriceFeed - JOJOPriceFeed;
         //JOJOPriceFeed(1 - impact) <= uniswapPriceFeed <= JOJOPriceFeed(1 + impact)
         require(diff * 1e18 / JOJOPriceFeed <= impact, "deviation is too big");
         return uniswapPriceFeed;
     }
+
+    function updatePools(address[] memory newPools) external onlyOwner{
+        emit UpdatePools(pools, newPools);
+        pools = newPools;
+    }
+
 
     function updatePeriod(uint32 newPeriod) external onlyOwner {
         emit UpdatePeriod(period, newPeriod);

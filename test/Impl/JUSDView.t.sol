@@ -12,11 +12,13 @@ contract JUSDViewTest is JUSDBankInitTest {
         TestERC20 BTC = new TestERC20("BTC", "BTC", 8);
         MockUniswapOracle MockUni = new MockUniswapOracle();
         MockEmergencyOracle mockE = new MockEmergencyOracle();
+        address[] memory pools;
         UniswapPriceAdaptor UNIOracle = new UniswapPriceAdaptor(
             address(MockUni),
             18,
             address(BTC),
             address(USDC),
+            pools,
             600,
             address(mockE),
             50000000000000000
