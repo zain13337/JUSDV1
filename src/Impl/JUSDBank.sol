@@ -244,6 +244,10 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         emit FlashLoan(collateral, amount);
     }
 
+    function refundJUSD(uint256 amount) onlyOwner external {
+        IERC20(JUSD).safeTransfer(msg.sender, amount);
+    }
+
     function _deposit(
         DataTypes.ReserveInfo storage reserve,
         DataTypes.UserInfo storage user,

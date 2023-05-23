@@ -44,4 +44,9 @@ contract JUSDExchange is IJUSDExchange, Ownable {
         IERC20(JUSD).safeTransfer(to, amount);
         emit BuyJUSD(amount, to, msg.sender);
     }
+
+
+    function refundJUSD(uint256 amount) onlyOwner external {
+        IERC20(JUSD).safeTransfer(msg.sender, amount);
+    }
 }
