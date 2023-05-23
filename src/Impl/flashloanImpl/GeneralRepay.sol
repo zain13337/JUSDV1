@@ -6,14 +6,16 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "../../../src/Interface/IJUSDBank.sol";
 import "../../../src/Interface/IJUSDExchange.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 pragma solidity 0.8.9;
 
-contract GeneralRepay {
+contract GeneralRepay is Ownable{
     address public immutable USDC;
     address public jusdBank;
     address public jusdExchange;
     address public immutable JUSD;
+    mapping(address => bool) public whiteListContract;
 
     using SafeERC20 for IERC20;
 
@@ -29,6 +31,10 @@ contract GeneralRepay {
         JUSD = _JUSD;
     }
 
+    function setWhiteListContract(address targetContract, bool isValid) onlyOwner public {
+        whiteListContract[targetContract] = isValid;
+    }
+
     function repayJUSD(
         address asset,
         uint256 amount,
@@ -40,6 +46,8 @@ contract GeneralRepay {
         if (asset != USDC) {
             (address approveTarget, address swapTarget, uint256 minAmount, bytes memory data) = abi
                 .decode(param, (address, address, uint256, bytes));
+            require(whiteListContract[approveTarget], "approve target is not in the whitelist");
+            require(whiteListContract[swapTarget], "swap target is not in the whitelist");
             IERC20(asset).approve(approveTarget, amount);
             (bool success, ) = swapTarget.call(data);
             if (success == false) {

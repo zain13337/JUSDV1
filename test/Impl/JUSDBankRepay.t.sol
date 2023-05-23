@@ -179,6 +179,7 @@ contract JUSDBankRepayTest is JUSDBankInitTest {
 
     function testRepayCollateralWallet() public {
         mockToken1.transfer(alice, 15e18);
+        generalRepay.setWhiteListContract(address(swapContract), true);
         vm.startPrank(alice);
         mockToken1.approve(address(jusdBank), 10e18);
         jusdBank.deposit(alice, address(mockToken1), 10e18, alice);
@@ -200,6 +201,7 @@ contract JUSDBankRepayTest is JUSDBankInitTest {
 
     function testRepayCollateralWalletTooBig() public {
         mockToken1.transfer(alice, 15e18);
+        generalRepay.setWhiteListContract(address(swapContract), true);
         vm.startPrank(alice);
         mockToken1.approve(address(jusdBank), 10e18);
         jusdBank.deposit(alice, address(mockToken1), 10e18, alice);
@@ -227,6 +229,7 @@ contract JUSDBankRepayTest is JUSDBankInitTest {
             address(mockToken1),
             address(jojoOracle1)
         );
+        generalRepay.setWhiteListContract(address(swapContract), true);
         IERC20(usdc).transfer(address(swapContract), 2e6);
         JUSDExchange jusdExchange = new JUSDExchange(
             address(usdc),
