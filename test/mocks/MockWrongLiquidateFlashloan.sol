@@ -10,8 +10,9 @@ import {DecimalMath} from "../../src/lib/DecimalMath.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IPriceChainLink} from "../../src/Interface/IPriceChainLink.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract LiquidateCollateralRepayNotEnough is IFlashLoanReceive {
+contract LiquidateCollateralRepayNotEnough is IFlashLoanReceive, Ownable {
     using SafeERC20 for IERC20;
     using DecimalMath for uint256;
 
@@ -20,6 +21,7 @@ contract LiquidateCollateralRepayNotEnough is IFlashLoanReceive {
     address public immutable USDC;
     address public immutable JUSD;
     address public insurance;
+    mapping(address => bool) public whiteListContract;
 
     struct LiquidateData {
         uint256 actualCollateral;
@@ -42,6 +44,9 @@ contract LiquidateCollateralRepayNotEnough is IFlashLoanReceive {
         JUSD = _JUSD;
         insurance = _insurance;
     }
+    function setWhiteListContract(address targetContract, bool isValid) onlyOwner public {
+        whiteListContract[targetContract] = isValid;
+    }
 
     function JOJOFlashLoan(
         address asset,
@@ -54,6 +59,10 @@ contract LiquidateCollateralRepayNotEnough is IFlashLoanReceive {
             .decode(param, (LiquidateData, bytes));
         (address approveTarget, address swapTarget, , bytes memory data) = abi
             .decode(originParam, (address, address, address, bytes));
+
+        require(whiteListContract[approveTarget], "approve target is not in the whitelist");
+        require(whiteListContract[swapTarget], "swap target is not in the whitelist");
+
         IERC20(asset).approve(approveTarget, amount);
         (bool success, ) = swapTarget.call(data);
         if (success == false) {
@@ -75,7 +84,7 @@ contract LiquidateCollateralRepayNotEnough is IFlashLoanReceive {
     }
 }
 
-contract LiquidateCollateralInsuranceNotEnough is IFlashLoanReceive {
+contract LiquidateCollateralInsuranceNotEnough is IFlashLoanReceive,Ownable {
     using SafeERC20 for IERC20;
     using DecimalMath for uint256;
 
@@ -84,6 +93,7 @@ contract LiquidateCollateralInsuranceNotEnough is IFlashLoanReceive {
     address public immutable USDC;
     address public immutable JUSD;
     address public insurance;
+    mapping(address => bool) public whiteListContract;
 
     struct LiquidateData {
         uint256 actualCollateral;
@@ -107,6 +117,10 @@ contract LiquidateCollateralInsuranceNotEnough is IFlashLoanReceive {
         insurance = _insurance;
     }
 
+    function setWhiteListContract(address targetContract, bool isValid) onlyOwner public {
+        whiteListContract[targetContract] = isValid;
+    }
+
     function JOJOFlashLoan(
         address asset,
         uint256 amount,
@@ -118,6 +132,10 @@ contract LiquidateCollateralInsuranceNotEnough is IFlashLoanReceive {
             .decode(param, (LiquidateData, bytes));
         (address approveTarget, address swapTarget, , bytes memory data) = abi
             .decode(originParam, (address, address, address, bytes));
+
+        require(whiteListContract[approveTarget], "approve target is not in the whitelist");
+        require(whiteListContract[swapTarget], "swap target is not in the whitelist");
+
         IERC20(asset).approve(approveTarget, amount);
         (bool success, ) = swapTarget.call(data);
         if (success == false) {
@@ -147,7 +165,7 @@ contract LiquidateCollateralInsuranceNotEnough is IFlashLoanReceive {
     }
 }
 
-contract LiquidateCollateralLiquidatedNotEnough is IFlashLoanReceive {
+contract LiquidateCollateralLiquidatedNotEnough is IFlashLoanReceive,Ownable {
     using SafeERC20 for IERC20;
     using DecimalMath for uint256;
 
@@ -156,6 +174,7 @@ contract LiquidateCollateralLiquidatedNotEnough is IFlashLoanReceive {
     address public immutable USDC;
     address public immutable JUSD;
     address public insurance;
+    mapping(address => bool) public whiteListContract;
 
     struct LiquidateData {
         uint256 actualCollateral;
@@ -179,6 +198,10 @@ contract LiquidateCollateralLiquidatedNotEnough is IFlashLoanReceive {
         insurance = _insurance;
     }
 
+    function setWhiteListContract(address targetContract, bool isValid) onlyOwner public {
+        whiteListContract[targetContract] = isValid;
+    }
+
     function JOJOFlashLoan(
         address asset,
         uint256 amount,
@@ -190,6 +213,10 @@ contract LiquidateCollateralLiquidatedNotEnough is IFlashLoanReceive {
             .decode(param, (LiquidateData, bytes));
         (address approveTarget, address swapTarget, , bytes memory data) = abi
             .decode(originParam, (address, address, address, bytes));
+
+        require(whiteListContract[approveTarget], "approve target is not in the whitelist");
+        require(whiteListContract[swapTarget], "swap target is not in the whitelist");
+
         IERC20(asset).approve(approveTarget, amount);
         (bool success, ) = swapTarget.call(data);
         if (success == false) {

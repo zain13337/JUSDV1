@@ -160,6 +160,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             insurance
         );
 
+        flashLoanLiquidate.setWhiteListContract(address(swapContract), true);
         bytes memory data = swapContract.getSwapData(10e18, address(ETH));
         bytes memory param = abi.encode(
             swapContract,
@@ -265,6 +266,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(jusd),
             insurance
         );
+        flashLoanLiquidate.setWhiteListContract(address(swapContract), true);
         bytes memory data = swapContract.getSwapData(10e18, address(ETH));
         bytes memory param = abi.encode(
             swapContract,
@@ -369,6 +371,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             insurance
         );
 
+        flashLoanLiquidate.setWhiteListContract(address(swapContract), true);
         bytes memory data = swapContract.getSwapData(10e18, address(ETH));
         bytes memory param = abi.encode(
             swapContract,
@@ -465,6 +468,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(jusd),
             insurance
         );
+        flashLoanLiquidate.setWhiteListContract(address(swapContract), true);
         // flashLoanLiquidate.setOracle(address(ETH), address(jojoOracle900));
 
         bytes memory data = swapContract.getSwapData(5e18, address(ETH));
@@ -567,6 +571,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             insurance
         );
 
+        flashLoanLiquidate.setWhiteListContract(address(swapContract), true);
         bytes memory data = swapContract.getSwapData(10e18, address(ETH));
         bytes memory param = abi.encode(
             swapContract,
@@ -662,6 +667,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
                 insurance
             );
 
+        flashLoanLiquidate.setWhiteListContract(address(swapContract), true);
         bytes memory data = swapContract.getSwapData(10e18, address(ETH));
         bytes memory param = abi.encode(
             swapContract,
@@ -713,6 +719,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
                 insurance
             );
 
+        flashLoanLiquidate.setWhiteListContract(address(swapContract), true);
         bytes memory data = swapContract.getSwapData(10e18, address(ETH));
         bytes memory param = abi.encode(
             swapContract,
@@ -764,6 +771,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
                 insurance
             );
 
+        flashLoanLiquidate.setWhiteListContract(address(swapContract), true);
         bytes memory data = swapContract.getSwapData(10e18, address(ETH));
         bytes memory param = abi.encode(
             swapContract,
@@ -815,6 +823,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             insurance
         );
 
+        flashLoanLiquidate.setWhiteListContract(address(swapContract), true);
         bytes memory data = swapContract.getSwapData(20e18, address(ETH));
         bytes memory param = abi.encode(
             swapContract,
@@ -878,6 +887,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             insurance
         );
 
+        flashLoanLiquidate.setWhiteListContract(address(swapContract), true);
         bytes memory data = swapContract.getSwapData(10e18, address(ETH));
         bytes memory param = abi.encode(
             swapContract,
@@ -955,6 +965,7 @@ contract JUSDBankOperatorLiquidateTest is Test {
             insurance
         );
 
+        flashLoanLiquidate.setWhiteListContract(address(swapContract), true);
         bytes memory data = swapContract.getSwapData(10e18, address(ETH));
         bytes memory param = abi.encode(
             swapContract,

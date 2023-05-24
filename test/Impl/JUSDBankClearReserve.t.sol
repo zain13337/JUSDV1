@@ -19,8 +19,7 @@ contract JUSDBankClearReserveTest is JUSDBankInitTest {
         vm.stopPrank();
         //mocktoken1 relist
         jusdBank.delistReserve(address(mockToken1));
-        //bob liquidate alice
-        vm.startPrank(bob);
+
         FlashLoanLiquidate flashLoanLiquidate = new FlashLoanLiquidate(
             address(jusdBank),
             address(jusdExchange),
@@ -28,6 +27,9 @@ contract JUSDBankClearReserveTest is JUSDBankInitTest {
             address(jusd),
             insurance
         );
+        flashLoanLiquidate.setWhiteListContract(address(swapContract), true);
+        //bob liquidate alice
+        vm.startPrank(bob);
         bytes memory data = swapContract.getSwapData(
             10e18,
             address(mockToken1)

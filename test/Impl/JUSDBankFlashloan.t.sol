@@ -150,6 +150,7 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
             address(usdc),
             address(jusd)
         );
+        flashloanRepay.setWhiteListContract(address(swapContract), true);
 
         mockToken1.transfer(alice, 1e18);
         vm.startPrank(alice);
@@ -199,6 +200,7 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
             address(usdc),
             address(jusd)
         );
+        flashloanRepay.setWhiteListContract(address(swapContract), true);
         jusdExchange.closeExchange();
         mockToken1.transfer(alice, 1e18);
         vm.startPrank(alice);
@@ -238,6 +240,7 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
             address(usdc),
             address(jusd)
         );
+        flashloanRepay.setWhiteListContract(address(swapContract), true);
         mockToken1.transfer(alice, 1e18);
         vm.startPrank(alice);
         mockToken1.approve(address(jusdBank), 1e18);
@@ -276,6 +279,7 @@ contract JUSDBankFlashloanTest is JUSDBankInitTest {
             address(usdc),
             address(jusd)
         );
+        flashloanRepay.setWhiteListContract(address(swapContract), true);
         mockToken1.transfer(alice, 3e18);
         vm.startPrank(alice);
         mockToken1.approve(address(jusdBank), 3e18);

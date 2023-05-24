@@ -8,10 +8,10 @@ import "../../../src/Interface/IJUSDExchange.sol";
 import "../../../src/Interface/IFlashLoanReceive.sol";
 import {DecimalMath} from "../../lib/DecimalMath.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-contract FlashLoanRepay is IFlashLoanReceive {
+contract FlashLoanRepay is IFlashLoanReceive,Ownable {
     using SafeERC20 for IERC20;
     using DecimalMath for uint256;
 
@@ -19,6 +19,7 @@ contract FlashLoanRepay is IFlashLoanReceive {
     address public jusdExchange;
     address public immutable USDC;
     address public immutable JUSD;
+    mapping(address => bool) public whiteListContract;
 
     constructor(
         address _jusdBank,
@@ -32,6 +33,10 @@ contract FlashLoanRepay is IFlashLoanReceive {
         JUSD = _JUSD;
     }
 
+    function setWhiteListContract(address targetContract, bool isValid) onlyOwner public {
+        whiteListContract[targetContract] = isValid;
+    }
+
     function JOJOFlashLoan(
         address asset,
         uint256 amount,
@@ -40,6 +45,9 @@ contract FlashLoanRepay is IFlashLoanReceive {
     ) external {
         (address approveTarget, address swapTarget, uint256 minReceive, bytes memory data) = abi
             .decode(param, (address, address, uint256, bytes));
+
+        require(whiteListContract[approveTarget], "approve target is not in the whitelist");
+        require(whiteListContract[swapTarget], "swap target is not in the whitelist");
         IERC20(asset).approve(approveTarget, amount);
         (bool success, ) = swapTarget.call(data);
         if (success == false) {

@@ -10,8 +10,9 @@ import {DecimalMath} from "../../lib/DecimalMath.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IPriceChainLink} from "../../Interface/IPriceChainLink.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract FlashLoanLiquidate is IFlashLoanReceive {
+contract FlashLoanLiquidate is IFlashLoanReceive, Ownable {
     using SafeERC20 for IERC20;
     using DecimalMath for uint256;
 
@@ -20,6 +21,7 @@ contract FlashLoanLiquidate is IFlashLoanReceive {
     address public immutable USDC;
     address public immutable JUSD;
     address public insurance;
+    mapping(address => bool) public whiteListContract;
 
     struct LiquidateData {
         uint256 actualCollateral;
@@ -43,6 +45,10 @@ contract FlashLoanLiquidate is IFlashLoanReceive {
         insurance = _insurance;
     }
 
+    function setWhiteListContract(address targetContract, bool isValid) onlyOwner public {
+        whiteListContract[targetContract] = isValid;
+    }
+
     function JOJOFlashLoan(
         address asset,
         uint256 amount,
@@ -59,6 +65,10 @@ contract FlashLoanLiquidate is IFlashLoanReceive {
             uint256 minReceive,
             bytes memory data
         ) = abi.decode(originParam, (address, address, address, uint256, bytes));
+
+        require(whiteListContract[approveTarget], "approve target is not in the whitelist");
+        require(whiteListContract[swapTarget], "swap target is not in the whitelist");
+
         IERC20(asset).approve(approveTarget, amount);
         (bool success, ) = swapTarget.call(data);
         if (success == false) {
