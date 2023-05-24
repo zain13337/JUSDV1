@@ -102,6 +102,8 @@ contract SubaccountTest is Test {
             address(mockToken1),
             address(jojoOracle1)
         );
+
+        flashLoanRepay.setWhiteListContract(address(supportsSWAP), true);
         jusdBank.initReserve(
             // token
             address(mockToken1),
