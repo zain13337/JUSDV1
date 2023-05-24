@@ -85,7 +85,7 @@ abstract contract JUSDOperation is JUSDBankStorage {
 
     function _addReserve(address collateral) private {
         require(
-            reservesNum <= maxReservesNum,
+            reservesNum < maxReservesNum,
             JUSDErrors.NO_MORE_RESERVE_ALLOWED
         );
         reservesList.push(collateral);
