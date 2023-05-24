@@ -351,6 +351,7 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
 
         fromAccount.depositBalance[collateral] -= amount;
         if (isInternal) {
+            require(reserve.isDepositAllowed, JUSDErrors.RESERVE_NOT_ALLOW_DEPOSIT);
             DataTypes.UserInfo storage toAccount = userInfo[to];
             _addCollateralIfNotExists(toAccount, collateral);
             toAccount.depositBalance[collateral] += amount;
