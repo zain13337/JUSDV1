@@ -130,9 +130,6 @@ contract JUSDOperationTest is Test {
         );
     }
 
-    function updatePrimaryAsset() public {
-        jusdBank.updatePrimaryAsset(address(123));
-    }
 
     function testInitReserve() public {
         jusdBank.initReserve(
@@ -225,11 +222,6 @@ contract JUSDOperationTest is Test {
     function testUpdateRate() public {
         jusdBank.updateBorrowFeeRate(1e18);
         assertEq(jusdBank.borrowFeeRate(), 1e18);
-    }
-
-    function testUpdatePrimaryAsset() public {
-        jusdBank.updatePrimaryAsset(address(123));
-        assertEq(jusdBank.primaryAsset(), address(123));
     }
 
     // -----------test view--------------

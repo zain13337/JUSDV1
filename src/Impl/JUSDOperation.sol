@@ -35,10 +35,6 @@ abstract contract JUSDOperation is JUSDBankStorage {
         uint256 liquidationPriceOff,
         uint256 insuranceFeeRate
     );
-    event UpdatePrimaryAsset(
-        address indexed usedPrimary,
-        address indexed newPrimary
-    );
     event UpdateReserveParam(
         address indexed collateral,
         uint256 initialMortgageRate,
@@ -152,11 +148,6 @@ abstract contract JUSDOperation is JUSDBankStorage {
     ) external onlyOwner {
         emit UpdateMaxReservesAmount(maxReservesNum, newMaxReservesAmount);
         maxReservesNum = newMaxReservesAmount;
-    }
-
-    function updatePrimaryAsset(address newPrimary) external onlyOwner {
-        emit UpdatePrimaryAsset(primaryAsset, newPrimary);
-        primaryAsset = newPrimary;
     }
 
     /// @notice update the borrow fee rate
