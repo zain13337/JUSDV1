@@ -33,21 +33,23 @@ abstract contract JUSDView is JUSDBankStorage, IJUSDBank {
         address user
     ) external view returns (uint256 maxAmount) {
         DataTypes.UserInfo storage userInfo = userInfo[user];
-        uint256 USDOBorrow = userInfo.t0BorrowBalance.decimalMul(getTRate());
-        if (USDOBorrow == 0) {
+        uint256 JUSDBorrow = userInfo.t0BorrowBalance.decimalMul(getTRate());
+        if (JUSDBorrow == 0) {
             return userInfo.depositBalance[collateral];
         }
         uint256 maxMintAmount = _maxWithdrawAmount(userInfo);
-        if (maxMintAmount <= USDOBorrow) {
+        if (maxMintAmount <= JUSDBorrow) {
             maxAmount = 0;
         } else {
             DataTypes.ReserveInfo memory reserve = reserveInfo[collateral];
-            uint256 remainAmount = (maxMintAmount - USDOBorrow).decimalDiv(
-                reserve.initialMortgageRate.decimalMul(IPriceChainLink(reserve.oracle).getAssetPrice())
+            uint256 remainAmount = (maxMintAmount - JUSDBorrow).decimalDiv(
+                reserve.initialMortgageRate.decimalMul(
+                    IPriceChainLink(reserve.oracle).getAssetPrice()
+                )
             );
             remainAmount >= userInfo.depositBalance[collateral]
-            ? maxAmount = userInfo.depositBalance[collateral]
-            : maxAmount = remainAmount;
+                ? maxAmount = userInfo.depositBalance[collateral]
+                : maxAmount = remainAmount;
         }
     }
 
