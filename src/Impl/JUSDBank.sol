@@ -158,7 +158,7 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         accrueRate();
         uint256 JUSDBorrowedT0 = userInfo[liquidated].t0BorrowBalance;
         uint256 primaryLiquidatedAmount = IERC20(primaryAsset).balanceOf(
-            liquidated
+            address(this)
         );
         uint256 primaryInsuranceAmount = IERC20(primaryAsset).balanceOf(
             insurance
@@ -199,11 +199,12 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
             JUSDErrors.INSURANCE_AMOUNT_NOT_ENOUGH
         );
         require(
-            IERC20(primaryAsset).balanceOf(liquidated) -
+            IERC20(primaryAsset).balanceOf(address(this)) -
                 primaryLiquidatedAmount >=
                 liquidateData.liquidatedRemainUSDC,
             JUSDErrors.LIQUIDATED_AMOUNT_NOT_ENOUGH
         );
+        IERC20(primaryAsset).safeTransfer(liquidated, liquidateData.liquidatedRemainUSDC);
         emit Liquidate(
             collateral,
             liquidator,

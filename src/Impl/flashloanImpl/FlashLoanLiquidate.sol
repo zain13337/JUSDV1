@@ -94,7 +94,7 @@ contract FlashLoanLiquidate is IFlashLoanReceive, Ownable {
         IERC20(USDC).safeTransfer(insurance, liquidateData.insuranceFee);
         // 3. liquidate usdc
         if (liquidateData.liquidatedRemainUSDC != 0) {
-            IERC20(USDC).safeTransfer(to, liquidateData.liquidatedRemainUSDC);
+            IERC20(USDC).safeTransfer(address(jusdBank), liquidateData.liquidatedRemainUSDC);
         }
         // 4. transfer to liquidator
         IERC20(USDC).safeTransfer(
