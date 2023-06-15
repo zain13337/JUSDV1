@@ -48,7 +48,7 @@ contract GeneralRepay is Ownable{
                 .decode(param, (address, address, uint256, bytes));
             require(whiteListContract[approveTarget], "approve target is not in the whitelist");
             require(whiteListContract[swapTarget], "swap target is not in the whitelist");
-            IERC20(asset).approve(approveTarget, amount);
+            IERC20(asset).safeApprove(approveTarget, amount);
             (bool success, ) = swapTarget.call(data);
             if (success == false) {
                 assembly {
