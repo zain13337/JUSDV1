@@ -8,8 +8,11 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IPriceChainLink} from "../Interface/IPriceChainLink.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract SupportsSWAP {
+
+    using SafeERC20 for IERC20;
     address USDC;
     mapping(address => address) tokenPrice;
 
@@ -23,10 +26,10 @@ contract SupportsSWAP {
     }
 
     function swap(uint256 amount, address token) external {
-        IERC20(token).transferFrom(msg.sender, address(this), amount);
+        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
         uint256 value = (amount *
             IPriceChainLink(tokenPrice[token]).getAssetPrice()) / 1e18;
-        IERC20(USDC).transfer(msg.sender, value);
+        IERC20(USDC).safeTransfer(msg.sender, value);
     }
 
     function getSwapData(

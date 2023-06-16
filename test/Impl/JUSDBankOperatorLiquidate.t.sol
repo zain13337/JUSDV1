@@ -66,7 +66,8 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(ethChainLink),
             20,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         vm.label(alice, "Alice");
         vm.label(bob, "Bob");
@@ -144,7 +145,8 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(eth900),
             20,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle900));
         swapContract.addTokenPrice(address(ETH), address(jojoOracle900));
@@ -251,7 +253,8 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(eth900),
             20,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle900));
         swapContract.addTokenPrice(address(ETH), address(jojoOracle900));
@@ -355,7 +358,8 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(eth900),
             20,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle900));
         swapContract.addTokenPrice(address(ETH), address(jojoOracle900));
@@ -453,7 +457,8 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(eth900),
             20,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle900));
         swapContract.addTokenPrice(address(ETH), address(jojoOracle900));
@@ -555,7 +560,8 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(eth500),
             20,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle500));
         swapContract.addTokenPrice(address(ETH), address(jojoOracle500));
@@ -651,7 +657,8 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(eth900),
             20,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle900));
         swapContract.addTokenPrice(address(ETH), address(jojoOracle900));
@@ -703,7 +710,8 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(eth900),
             20,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle900));
         swapContract.addTokenPrice(address(ETH), address(jojoOracle900));
@@ -755,7 +763,8 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(eth900),
             20,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle900));
         swapContract.addTokenPrice(address(ETH), address(jojoOracle900));
@@ -807,7 +816,8 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(eth900),
             20,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle900));
         swapContract.addTokenPrice(address(ETH), address(jojoOracle900));
@@ -871,7 +881,8 @@ contract JUSDBankOperatorLiquidateTest is Test {
             address(eth900),
             20,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         jusdBank.updateOracle(address(ETH), address(jojoOracle900));
         swapContract.addTokenPrice(address(ETH), address(jojoOracle900));

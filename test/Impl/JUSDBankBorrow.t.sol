@@ -235,7 +235,8 @@ contract JUSDBankBorrowTest is JUSDBankInitTest {
             address(btc15000),
             10,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         jusdBank.updateOracle(address(mockToken2), address(jojoOracle15000));
 

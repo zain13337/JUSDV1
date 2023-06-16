@@ -45,7 +45,8 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
             address(mockChainLinkBadDebt),
             20,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         jusdBank.updateOracle(address(mockToken1), address(jojoOracle3));
         vm.stopPrank();
@@ -73,7 +74,8 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
             address(eth900),
             20,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         jusdBank.updateOracle(address(mockToken1), address(jojoOracle900));
         swapContract.addTokenPrice(address(mockToken1), address(jojoOracle900));
@@ -132,7 +134,8 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
             address(eth900),
             20,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         jusdBank.updateOracle(address(mockToken1), address(jojoOracle900));
         swapContract.addTokenPrice(address(mockToken1), address(jojoOracle900));
@@ -218,7 +221,8 @@ contract JUSDBankLiquidateCollateralTest is JUSDBankInitTest {
             address(eth900),//source
                 20,//decimal correction
                 86400,//heartBeat
-                address(usdcPrice)//USDSource
+                address(usdcPrice),//USDSource
+                86400
         );
         jusdBank.updateOracle(address(mockToken1), address(jojoOracle900));
         swapContract.addTokenPrice(address(mockToken1), address(jojoOracle900));

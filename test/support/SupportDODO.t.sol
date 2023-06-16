@@ -34,13 +34,15 @@ contract SupportSWAP is Test {
             address(ethChainLink),
             20,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         lidoAdaptor = new JOJOOracleAdaptor(
             address(lidoChainLink),
             20,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         supportsSWAP = new SupportsSWAP(
             address(jusd),

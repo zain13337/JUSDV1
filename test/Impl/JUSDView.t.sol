@@ -29,7 +29,8 @@ contract JUSDViewTest is JUSDBankInitTest {
             address(mockToken1ChainLink),
             10,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         jusdBank.initReserve(
             // token

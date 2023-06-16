@@ -78,13 +78,15 @@ contract JUSDBankInitTest is Test {
             address(mockToken1ChainLink),
             20,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         jojoOracle2 = new JOJOOracleAdaptor(
             address(mockToken2ChainLink),
             10,
             86400,
-            address(usdcPrice)
+            address(usdcPrice),
+            86400
         );
         // mock users
         utils = new Utils();
