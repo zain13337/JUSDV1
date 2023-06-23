@@ -69,6 +69,7 @@ contract FlashLoanLiquidate is IFlashLoanReceive, Ownable {
         require(whiteListContract[approveTarget], "approve target is not in the whitelist");
         require(whiteListContract[swapTarget], "swap target is not in the whitelist");
 
+        IERC20(asset).approve(approveTarget, 0);
         IERC20(asset).approve(approveTarget, amount);
         (bool success, ) = swapTarget.call(data);
         if (success == false) {
