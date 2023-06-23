@@ -164,6 +164,15 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
             insurance
         );
         isValidLiquidator(liquidated, liquidator);
+
+        {
+            DataTypes.UserInfo storage liquidatedInfo = userInfo[liquidated];
+            require(amount != 0, JUSDErrors.LIQUIDATE_AMOUNT_IS_ZERO);
+            if(amount >= liquidatedInfo.depositBalance[collateral]){
+                amount = liquidatedInfo.depositBalance[collateral];
+            }
+        }
+
         // 1. calculate the liquidate amount
         liquidateData = _calculateLiquidateAmount(
             liquidated,
@@ -389,10 +398,6 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
         uint256 amount
     ) internal view returns (DataTypes.LiquidateData memory liquidateData) {
         DataTypes.UserInfo storage liquidatedInfo = userInfo[liquidated];
-        require(amount != 0, JUSDErrors.LIQUIDATE_AMOUNT_IS_ZERO);
-        if(amount >= liquidatedInfo.depositBalance[collateral]){
-            amount = liquidatedInfo.depositBalance[collateral];
-        }
         require(
             _isStartLiquidation(liquidatedInfo, tRate),
             JUSDErrors.ACCOUNT_IS_SAFE
