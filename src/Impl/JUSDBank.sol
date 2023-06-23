@@ -374,9 +374,6 @@ contract JUSDBank is IJUSDBank, JUSDOperation, JUSDView, JUSDMulticall {
             liquidator != liquidated,
             JUSDErrors.SELF_LIQUIDATION_NOT_ALLOWED
         );
-        if(operatorRegistry[liquidated][msg.sender]){
-            require(liquidator != msg.sender, JUSDErrors.LIQUIDATED_OPERATOR_CAN_NOT_LIQUIDATE);
-        }
         if(isLiquidatorWhitelistOpen){
             require(isLiquidatorWhiteList[liquidator], JUSDErrors.LIQUIDATOR_NOT_IN_THE_WHITELIST);
         }
