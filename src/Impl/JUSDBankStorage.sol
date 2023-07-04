@@ -51,7 +51,7 @@ abstract contract JUSDBankStorage is
 
     using DecimalMath for uint256;
 
-    function accrueRate() internal {
+    function accrueRate() public {
         uint256 currentTimestamp = block.timestamp;
         if (currentTimestamp == lastUpdateTimestamp) {
             return;
