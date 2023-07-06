@@ -187,7 +187,6 @@ contract MultiSigWallet {
     /// @return transactionId Returns transaction ID.
     function submitTransaction(address destination, uint value, bytes memory data)
     public
-    ownerExists(msg.sender)
     returns (uint transactionId)
     {
         transactionId = addTransaction(destination, value, data);
