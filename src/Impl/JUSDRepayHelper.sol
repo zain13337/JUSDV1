@@ -38,6 +38,11 @@ contract JUSDRepayHelper is Ownable {
         _;
     }
 
+    /// @notice This is to facilitate the withdrawal of USDC/JUSD from the trading account,
+    /// and repay the withdrawal USDC/JUSD directly to the lending platform without any other steps.
+    /// check the test `testJOJOSubaccountRepayFromPerp`
+    /// @param from The from account.
+    /// @param to is the address received assets.
     function repayToBank(address from, address to) onlyAdminWhiteList external {
         uint256 USDCBalance = IERC20(USDC).balanceOf(address(this));
         if(USDCBalance > 0){

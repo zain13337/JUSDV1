@@ -304,19 +304,18 @@ contract SubaccountTest is Test {
         );
         Subaccount(aliceSub).execute(address(jusdBank), dataBorrow, 0);
 
+        // withdraw USDC or JUSD from trading account, and repay it to JUSDBank
         bytes memory repayParam = abi.encodeWithSignature("repayToBank(address,address)", aliceSub,aliceSub);
-
         bytes memory fastWithdraw =
         abi.encodeWithSignature(
             "fastWithdraw(address,address,uint256,uint256,bool,bytes)",
             aliceSub,
             jusdRepayHelper,
             500e6,
-            500e6,
+            0,
             false,
             repayParam
         );
-        (uint256 primary, uint256 secodayr) = jojoDealer.isCreditAllowed(alice, aliceSub);
         Subaccount(aliceSub).execute(address(jojoDealer), fastWithdraw, 0);
 
         console.log("aliceSub borrow", jusdBank.getBorrowBalance(aliceSub));
