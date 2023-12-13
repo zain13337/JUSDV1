@@ -3,20 +3,18 @@
     SPDX-License-Identifier: BUSL-1.1
 */
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeCast.sol";
-import "@JOJO/contracts/adaptor/emergencyOracle.sol";
 
 /// @notice emergency fallback oracle.
 /// Using when the third party oracle is not available.
-contract EmergencyOracleFeed is Ownable{
+contract EmergencyOracle is Ownable {
     uint256 public price;
     uint256 public roundId;
     string public description;
     bool public turnOn;
-    address public priceFeedOracle;
 
     // Align with chainlink
     event AnswerUpdated(
@@ -25,15 +23,18 @@ contract EmergencyOracleFeed is Ownable{
         uint256 updatedAt
     );
 
-    constructor(address _owner, string memory _description, address _priceFeed) Ownable() {
-        transferOwnership(_owner);
+    constructor(string memory _description) Ownable() {
         description = _description;
-        priceFeedOracle = _priceFeed;
+    }
+
+    function getMarkPrice() external view returns (uint256) {
+        require(turnOn, "the emergency oracle is close");
+        return price;
     }
 
     function getAssetPrice() external view returns (uint256) {
         require(turnOn, "the emergency oracle is close");
-        return EmergencyOracle(priceFeedOracle).getMarkPrice();
+        return price;
     }
 
     function turnOnOracle() external onlyOwner {
@@ -44,4 +45,9 @@ contract EmergencyOracleFeed is Ownable{
         turnOn = false;
     }
 
+    function setMarkPrice(uint256 newPrice) external onlyOwner {
+        price = newPrice;
+        emit AnswerUpdated(SafeCast.toInt256(price), roundId, block.timestamp);
+        roundId += 1;
+    }
 }
